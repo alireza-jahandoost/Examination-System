@@ -44,7 +44,7 @@ class User extends Authenticatable
     ];
 
     // RelationShips
-    public function exams()
+    public function ownedExams()
     {
         return $this->hasMany(Exam::class);
     }

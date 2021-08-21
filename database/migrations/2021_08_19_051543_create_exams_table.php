@@ -21,6 +21,7 @@ class CreateExamsTable extends Migration
             $table->string('password')->nullable();
             $table->dateTime('start');
             $table->dateTime('end');
+            $table->integer('total_score');
             $table->timestamps();
         });
     }

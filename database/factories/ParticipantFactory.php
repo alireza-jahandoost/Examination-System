@@ -22,7 +22,7 @@ class ParticipantFactory extends Factory
     public function definition()
     {
         return [
-            //
+            'is_accepted' => (bool)rand(0,1)
         ];
     }
 }

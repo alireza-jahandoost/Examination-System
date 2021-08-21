@@ -22,7 +22,9 @@ class QuestionFactory extends Factory
     public function definition()
     {
         return [
-            //
+            'type' => rand(1,6),
+            'text' => $this->faker->sentence(),
+            'can_be_shuffled' => (bool)rand(0,1)
         ];
     }
 }
