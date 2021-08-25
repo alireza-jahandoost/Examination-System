@@ -6,6 +6,8 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
+use Laravel\Sanctum\Sanctum;
+
 use Illuminate\Support\Facades\Str;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -40,6 +42,28 @@ class AuthenticationTest extends TestCase
 
         $response->assertStatus(201);
         $this->assertDatabaseCount('users', 1);
+    }
+
+    /**
+    * @test
+    */
+    public function authenticated_user_can_not_reigster()
+    {
+        Sanctum::actingAs(
+            User::factory()->create(),
+            ['*']
+        );
+        $response = $this->withHeaders([
+                'Accept' => 'application/json',
+            ])->post(route(self::REGISTER_ROUTE), [
+            'name' => 'test',
+            'email' => 'test@test.com',
+            'password' => 'xs$sl5T^23da',
+            'password_confirmation' => 'xs$sl5T^23da',
+        ]);
+
+        $this->assertDatabaseCount('users', 1);
+        $response->assertStatus(302);
     }
 
     /**
@@ -200,6 +224,72 @@ class AuthenticationTest extends TestCase
         ]);
 
         $response->assertStatus(200);
+    }
+
+    /**
+    * @test
+    */
+    public function user_can_not_have_more_than_6_access_tokens()
+    {
+        $user = User::factory()->create([
+            'password' => Hash::make('aAlJT32LIfsli')
+        ]);
+        for($i = 0; $i < 10; $i ++){
+            $response = $this->withHeaders([
+                    'Accept' => 'application/json',
+                ])->post(route(self::LOGIN_ROUTE), [
+                'email' => $user->email,
+                'password' => 'aAlJT32LIfsli',
+            ]);
+            $response->assertStatus(200);
+        }
+        $this->assertDatabaseCount('personal_access_tokens', 6);
+    }
+
+    /**
+    * @test
+    */
+    public function if_user_tokens_exceeds_from_limitation_first_token_will_be_removed()
+    {
+        $user = User::factory()->create([
+            'password' => Hash::make('aAlJT32LIfsli')
+        ]);
+        for($i = 0; $i < 7; $i ++){
+            $response = $this->withHeaders([
+                    'Accept' => 'application/json',
+                ])->post(route(self::LOGIN_ROUTE), [
+                'email' => $user->email,
+                'password' => 'aAlJT32LIfsli',
+            ]);
+            $response->assertStatus(200);
+        }
+        $this->assertDatabaseCount('personal_access_tokens', 6);
+        $this->assertDatabaseMissing('personal_access_tokens', [
+            'id' => 1
+        ]);
+    }
+
+    /**
+    * @test
+    */
+    public function authenticated_user_can_not_login()
+    {
+        Sanctum::actingAs(
+            User::factory()->create(),
+            ['*']
+        );
+        $user = User::factory()->create([
+            'password' => Hash::make('aAlJT32LIfsli')
+        ]);
+        $response = $this->withHeaders([
+                'Accept' => 'application/json',
+            ])->post(route(self::LOGIN_ROUTE), [
+            'email' => $user->email,
+            'password' => 'aAlJT32LIfsli',
+        ]);
+
+        $response->assertStatus(302);
+        $this->assertDatabaseCount('personal_access_tokens', 0);
     }
 
     /**

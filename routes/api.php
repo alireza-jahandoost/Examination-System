@@ -20,10 +20,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::prefix('authentication')->name('authentication.')->group(function(){
+Route::middleware('guest')->prefix('authentication')->name('authentication.')->group(function(){
     Route::post('register', [AuthenticationController::class, 'register'])->name('register');
     Route::post('login', [AuthenticationController::class, 'login'])->name('login');
-    
+
     Route::post('password_reset_link', [AuthenticationController::class, 'password_reset_link'])->name('password.reset_link');
     Route::put('password_reset', [AuthenticationController::class, 'password_reset'])->name('password.reset');
 });

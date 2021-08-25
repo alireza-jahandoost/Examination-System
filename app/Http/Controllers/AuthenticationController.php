@@ -21,6 +21,8 @@ class AuthenticationController extends Controller
 {
     use PasswordValidationRules;
 
+    const TOKEN_COUNT_LIMIT = 6;
+
     private static function make_token_and_make_response(User $user, $status)
     {
         $token = $user->createToken('token');
@@ -47,6 +49,13 @@ class AuthenticationController extends Controller
                 'message' => 'Invalid email or password',
                 ]))->response()->setStatusCode(401);
         }
+
+        $tokens = DB::table('personal_access_tokens')->get();
+
+        if($user->tokens()->count() >= self::TOKEN_COUNT_LIMIT){
+            $user->tokens()->first()->delete();
+        }
+
         return self::make_token_and_make_response($user, 200);
     }
 
