@@ -123,7 +123,6 @@ class PasswordTest extends TestCase
         ]);
 
         $response->assertStatus(200);
-        Notification::assertSentTo([$user], ResetPassword::class);
         $response->assertJson([
             'data' => [
                 'message' => 'if user with this email exists, password recovery link has been sent',

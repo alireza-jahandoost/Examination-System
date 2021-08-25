@@ -40,7 +40,6 @@ class AuthenticationTest extends TestCase
 
         $response->assertStatus(201);
         $this->assertDatabaseCount('users', 1);
-        $this->assertDatabaseCount('personal_access_tokens', 1);
     }
 
     /**
@@ -59,7 +58,6 @@ class AuthenticationTest extends TestCase
 
         $response->assertStatus(422);
         $this->assertDatabaseCount('users', 0);
-        $this->assertDatabaseCount('personal_access_tokens', 0);
     }
 
     /**
@@ -78,13 +76,30 @@ class AuthenticationTest extends TestCase
 
         $response->assertStatus(422);
         $this->assertDatabaseCount('users', 0);
-        $this->assertDatabaseCount('personal_access_tokens', 0);
     }
 
     /**
     * @test
     */
     public function password_must_have_numeric_character()
+    {
+        $response = $this->withHeaders([
+                'Accept' => 'application/json',
+            ])->post(route(self::REGISTER_ROUTE), [
+            'name' => 'test',
+            'email' => 'test@test.com',
+            'password' => 'alijewlJrwa',
+            'password_confirmation' => 'alijewlJrwa',
+        ]);
+
+        $response->assertStatus(422);
+        $this->assertDatabaseCount('users', 0);
+    }
+
+    /**
+    * @test
+    */
+    public function personal_access_token_isnt_create_for_failed_registeration()
     {
         $response = $this->withHeaders([
                 'Accept' => 'application/json',
@@ -116,7 +131,6 @@ class AuthenticationTest extends TestCase
 
         $response->assertStatus(422);
         $this->assertDatabaseCount('users', 0);
-        $this->assertDatabaseCount('personal_access_tokens', 0);
     }
 
     /**
@@ -133,9 +147,7 @@ class AuthenticationTest extends TestCase
             'password_confirmation' => 'Alfjr431JEx',
         ]);
 
-        // $token = User::first()->tokens->first()->token;
-        // dd($token);
-
+        $this->assertDatabaseCount('personal_access_tokens', 1);
         $response->assertJson([
             'data' => [
                 'user_id' => 1,
@@ -166,7 +178,6 @@ class AuthenticationTest extends TestCase
 
         $response->assertStatus(422);
         $this->assertDatabaseCount('users', 0);
-        $this->assertDatabaseCount('personal_access_tokens', 0);
         $response->assertJsonStructure([
             'message',
             'errors',
@@ -237,6 +248,7 @@ class AuthenticationTest extends TestCase
         ]);
 
         $response->assertStatus(401);
+        $this->assertDatabaseCount('personal_access_tokens', 0);
     }
 
     /**
@@ -255,6 +267,7 @@ class AuthenticationTest extends TestCase
         ]);
 
         $response->assertStatus(401);
+        $this->assertDatabaseCount('personal_access_tokens', 0);
     }
 
     /**
