@@ -21,6 +21,11 @@ class PasswordTest extends TestCase
 {
     use RefreshDatabase;
 
+    const PASSWORD_RESET_LINK_ROUTE = "authentication.password.reset_link";
+    const PASSWORD_RESET_ROUTE = "authentication.password.reset";
+    const PASSWORD_CHANGE_ROUTE = "authentication.password.change";
+    const LOGIN_ROUTE = "authentication.login";
+
     /**
     * @test
     */
@@ -33,7 +38,7 @@ class PasswordTest extends TestCase
         $user = User::factory()->create();
         $response = $this->withHeaders([
                 'Accept' => 'application/json',
-            ])->post('api/authentication/password_reset_link', [
+            ])->post(route(self::PASSWORD_RESET_LINK_ROUTE), [
             'email' => $user->email,
         ]);
 
@@ -52,7 +57,7 @@ class PasswordTest extends TestCase
         $user = User::factory()->create();
         $response = $this->withHeaders([
                 'Accept' => 'application/json',
-            ])->post('api/authentication/password_reset_link', [
+            ])->post(route(self::PASSWORD_RESET_LINK_ROUTE), [
             'email' => $user->email,
         ]);
 
@@ -74,7 +79,7 @@ class PasswordTest extends TestCase
         $user = User::factory()->create();
         $response = $this->withHeaders([
                 'Accept' => 'application/json',
-            ])->post('api/authentication/password_reset_link', [
+            ])->post(route(self::PASSWORD_RESET_LINK_ROUTE), [
             'email' => 'a'.$user->email,
         ]);
 
@@ -93,7 +98,7 @@ class PasswordTest extends TestCase
 
         $response = $this->withHeaders([
                 'Accept' => 'application/json',
-            ])->post('api/authentication/password_reset_link', [
+            ])->post(route(self::PASSWORD_RESET_LINK_ROUTE), [
             'email' => 'test',
         ]);
 
@@ -113,7 +118,7 @@ class PasswordTest extends TestCase
         $user = User::factory()->create();
         $response = $this->withHeaders([
                 'Accept' => 'application/json',
-            ])->post('api/authentication/password_reset_link', [
+            ])->post(route(self::PASSWORD_RESET_LINK_ROUTE), [
             'email' => $user->email,
         ]);
 
@@ -137,7 +142,7 @@ class PasswordTest extends TestCase
 
         $response = $this->withHeaders([
                 'Accept' => 'application/json',
-            ])->post('api/authentication/password_reset_link', [
+            ])->post(route(self::PASSWORD_RESET_LINK_ROUTE), [
             'email' => 'test@test.com',
         ]);
 
@@ -165,7 +170,7 @@ class PasswordTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-        ])->put('/api/authentication/password_reset', [
+        ])->put(route(self::PASSWORD_RESET_ROUTE), [
             'email' => $user->email,
             'password' => 'xgrntlle31F',
             'password_confirmation' => 'xgrntlle31F',
@@ -191,7 +196,7 @@ class PasswordTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-        ])->put('/api/authentication/password_reset', [
+        ])->put(route(self::PASSWORD_RESET_ROUTE), [
             'email' => $user->email,
             'password' => 'xgrntlle31F',
             'password_confirmation' => 'xgrntlle31F',
@@ -219,7 +224,7 @@ class PasswordTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-        ])->put('/api/authentication/password_reset', [
+        ])->put(route(self::PASSWORD_RESET_ROUTE), [
             'email' => $user->email,
             'password' => 'xgrntlle31F',
             'password_confirmation' => 'xgrntlle31F',
@@ -243,7 +248,7 @@ class PasswordTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-        ])->put('/api/authentication/password_reset', [
+        ])->put(route(self::PASSWORD_RESET_ROUTE), [
             'email' => 'a' . $user->email,
             'password' => 'xgrntlle31F',
             'password_confirmation' => 'xgrntlle31F',
@@ -269,7 +274,7 @@ class PasswordTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-        ])->put('/api/authentication/password_reset', [
+        ])->put(route(self::PASSWORD_RESET_ROUTE), [
             'email' => 'a' . $user->email,
             'password' => 'xgrntlle31F',
             'password_confirmation' => 'xgrntlle31F',
@@ -296,7 +301,7 @@ class PasswordTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-        ])->put('/api/authentication/password_reset', [
+        ])->put(route(self::PASSWORD_RESET_ROUTE), [
             'email' => $user->email,
             'password' => 'xgrntlle31F',
             'password_confirmation' => 'xgrntlle31F',
@@ -321,7 +326,7 @@ class PasswordTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-        ])->put('/api/authentication/password_reset', [
+        ])->put(route(self::PASSWORD_RESET_ROUTE), [
             'email' => $user->email,
             'password' => 'xgrntlle31F',
             'password_confirmation' => 'xgarntlle31F',
@@ -347,7 +352,7 @@ class PasswordTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json',
-        ])->put('/api/authentication/password_reset', [
+        ])->put(route(self::PASSWORD_RESET_ROUTE), [
             'email' => $user->email,
             'password' => 'xgrntlle31t',
             'password_confirmation' => 'xgrntlle31t',
@@ -373,7 +378,7 @@ class PasswordTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json',
-        ])->put('/api/authentication/password_reset', [
+        ])->put(route(self::PASSWORD_RESET_ROUTE), [
             'email' => $user->email,
             'password' => 'xgrntlleYt',
             'password_confirmation' => 'xgrntlleYt',
@@ -399,7 +404,7 @@ class PasswordTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json',
-        ])->put('/api/authentication/password_reset', [
+        ])->put(route(self::PASSWORD_RESET_ROUTE), [
             'email' => $user->email,
             'password' => 'xS14dFs',
             'password_confirmation' => 'xS14dFs',
@@ -425,7 +430,7 @@ class PasswordTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json',
-        ])->put('/api/authentication/password_reset', [
+        ])->put(route(self::PASSWORD_RESET_ROUTE), [
             'email' => $user->email,
             'password' => 'xgrntlle31F',
             'password_confirmation' => 'xgrntlle31F',
@@ -452,7 +457,7 @@ class PasswordTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json',
-        ])->put('/api/authentication/password_reset', [
+        ])->put(route(self::PASSWORD_RESET_ROUTE), [
             'email' => $user->email,
             'password' => 'xgrntlle31F',
             'password_confirmation' => 'xgrntlle31F',
@@ -479,7 +484,7 @@ class PasswordTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-        ])->put('/api/authentication/password_reset', [
+        ])->put(route(self::PASSWORD_RESET_ROUTE), [
             'email' => $user->email,
             'password' => 'xgrntlle31',
             'password_confirmation' => 'xgrntlle31',
@@ -503,7 +508,7 @@ class PasswordTest extends TestCase
 
         $login_response = $this->withHeaders([
             'Accept' => 'application/json',
-        ])->post('api/authentication/login', [
+        ])->post(route(self::LOGIN_ROUTE), [
             'email' => $user->email,
             'password' => 'password',
         ]);
@@ -512,7 +517,7 @@ class PasswordTest extends TestCase
         $response = $this->withHeaders([
                 'Accept' => 'application/json',
                 'Authorization' => 'Bearer '.$token
-            ])->put('api/authentication/change_password', [
+            ])->put(route(self::PASSWORD_CHANGE_ROUTE), [
             'email' => $user->email,
             'current_password' => 'password',
             'password' => 'a$ltnei31laA',
@@ -533,7 +538,7 @@ class PasswordTest extends TestCase
 
         $login_response = $this->withHeaders([
             'Accept' => 'application/json',
-        ])->post('api/authentication/login', [
+        ])->post(route(self::LOGIN_ROUTE), [
             'email' => $user->email,
             'password' => 'password',
         ]);
@@ -542,7 +547,7 @@ class PasswordTest extends TestCase
         $response = $this->withHeaders([
                 'Accept' => 'application/json',
                 'Authorization' => 'Bearer '.$token
-            ])->put('api/authentication/change_password', [
+            ])->put(route(self::PASSWORD_CHANGE_ROUTE), [
             'current_password' => 'password',
             'password' => 'a$ltnei31laA',
             'password_confirmation' => 'a$ltnei31laA',
@@ -563,7 +568,7 @@ class PasswordTest extends TestCase
 
         $login_response = $this->withHeaders([
             'Accept' => 'application/json',
-        ])->post('api/authentication/login', [
+        ])->post(route(self::LOGIN_ROUTE), [
             'email' => $user->email,
             'password' => 'password',
         ]);
@@ -572,7 +577,7 @@ class PasswordTest extends TestCase
         $response = $this->withHeaders([
                 'Accept' => 'application/json',
                 'Authorization' => 'Bearer '.$token
-            ])->put('api/authentication/change_password', [
+            ])->put(route(self::PASSWORD_CHANGE_ROUTE), [
             'current_password' => 'password',
             'password' => 'a$ltnei31laA',
             'password_confirmation' => 'a$ltnei31laA',
@@ -598,7 +603,7 @@ class PasswordTest extends TestCase
 
         $login_response = $this->withHeaders([
             'Accept' => 'application/json',
-        ])->post('api/authentication/login', [
+        ])->post(route(self::LOGIN_ROUTE), [
             'email' => $user->email,
             'password' => 'password',
         ]);
@@ -607,7 +612,7 @@ class PasswordTest extends TestCase
         $response = $this->withHeaders([
                 'Accept' => 'application/json',
                 'Authorization' => 'Bearer '.$token
-            ])->put('api/authentication/change_password', [
+            ])->put(route(self::PASSWORD_CHANGE_ROUTE), [
             'current_password' => 'password',
             'password' => 'a$ltnei31laA',
             'password_confirmation' => 'a$ltnei31laA',
@@ -629,7 +634,7 @@ class PasswordTest extends TestCase
 
         $login_response = $this->withHeaders([
             'Accept' => 'application/json',
-        ])->post('api/authentication/login', [
+        ])->post(route(self::LOGIN_ROUTE), [
             'email' => $user->email,
             'password' => 'password',
         ]);
@@ -638,7 +643,7 @@ class PasswordTest extends TestCase
         $response = $this->withHeaders([
                 'Accept' => 'application/json',
                 'Authorization' => 'Bearer '.$token
-            ])->put('api/authentication/change_password', [
+            ])->put(route(self::PASSWORD_CHANGE_ROUTE), [
             'current_password' => 'password',
             'password' => '$ltnei31laA',
             'password_confirmation' => 'a$ltnei31laA',
@@ -660,7 +665,7 @@ class PasswordTest extends TestCase
 
         $login_response = $this->withHeaders([
             'Accept' => 'application/json',
-        ])->post('api/authentication/login', [
+        ])->post(route(self::LOGIN_ROUTE), [
             'email' => $user->email,
             'password' => 'password',
         ]);
@@ -669,7 +674,7 @@ class PasswordTest extends TestCase
         $response = $this->withHeaders([
                 'Accept' => 'application/json',
                 'Authorization' => 'Bearer '.$token
-            ])->put('api/authentication/change_password', [
+            ])->put(route(self::PASSWORD_CHANGE_ROUTE), [
             'current_password' => 'passwor',
             'password' => 'a$ltnei31laA',
             'password_confirmation' => 'a$ltnei31laA',
@@ -691,7 +696,7 @@ class PasswordTest extends TestCase
 
         $login_response = $this->withHeaders([
             'Accept' => 'application/json',
-        ])->post('api/authentication/login', [
+        ])->post(route(self::LOGIN_ROUTE), [
             'email' => $user->email,
             'password' => 'password',
         ]);
@@ -700,7 +705,7 @@ class PasswordTest extends TestCase
         $response = $this->withHeaders([
                 'Accept' => 'application/json',
                 'Authorization' => 'Bearer '.$token
-            ])->put('api/authentication/change_password', [
+            ])->put(route(self::PASSWORD_CHANGE_ROUTE), [
             'current_password' => 'password',
             'password' => 'a$ltnei31la',
             'password_confirmation' => 'a$ltnei31la',
@@ -722,7 +727,7 @@ class PasswordTest extends TestCase
 
         $login_response = $this->withHeaders([
             'Accept' => 'application/json',
-        ])->post('api/authentication/login', [
+        ])->post(route(self::LOGIN_ROUTE), [
             'email' => $user->email,
             'password' => 'password',
         ]);
@@ -731,7 +736,7 @@ class PasswordTest extends TestCase
         $response = $this->withHeaders([
                 'Accept' => 'application/json',
                 'Authorization' => 'Bearer '.$token
-            ])->put('api/authentication/change_password', [
+            ])->put(route(self::PASSWORD_CHANGE_ROUTE), [
             'current_password' => 'password',
             'password' => 'a376lLI',
             'password_confirmation' => 'a376lLI',
@@ -753,7 +758,7 @@ class PasswordTest extends TestCase
 
         $login_response = $this->withHeaders([
             'Accept' => 'application/json',
-        ])->post('api/authentication/login', [
+        ])->post(route(self::LOGIN_ROUTE), [
             'email' => $user->email,
             'password' => 'password',
         ]);
@@ -762,7 +767,7 @@ class PasswordTest extends TestCase
         $response = $this->withHeaders([
                 'Accept' => 'application/json',
                 'Authorization' => 'Bearer '.$token
-            ])->put('api/authentication/change_password', [
+            ])->put(route(self::PASSWORD_CHANGE_ROUTE), [
             'current_password' => 'password',
             'password' => 'a$ltneilaA',
             'password_confirmation' => 'a$ltneilaA',
@@ -784,7 +789,7 @@ class PasswordTest extends TestCase
 
         $login_response = $this->withHeaders([
             'Accept' => 'application/json',
-        ])->post('api/authentication/login', [
+        ])->post(route(self::LOGIN_ROUTE), [
             'email' => $user->email,
             'password' => 'password',
         ]);
@@ -793,7 +798,7 @@ class PasswordTest extends TestCase
         $response = $this->withHeaders([
                 'Accept' => 'application/json',
                 'Authorization' => 'Bearer '.$token
-            ])->put('api/authentication/change_password', [
+            ])->put(route(self::PASSWORD_CHANGE_ROUTE), [
             'current_password' => 'password',
             'password' => 'a$ltneilaA',
             'password_confirmation' => 'a$ltneilaA',
@@ -819,7 +824,7 @@ class PasswordTest extends TestCase
 
         $login_response = $this->withHeaders([
             'Accept' => 'application/json',
-        ])->post('api/authentication/login', [
+        ])->post(route(self::LOGIN_ROUTE), [
             'email' => $user->email,
             'password' => 'password',
         ]);
@@ -828,7 +833,7 @@ class PasswordTest extends TestCase
         $response = $this->withHeaders([
                 'Accept' => 'application/json',
                 'Authorization' => 'Bearer '.$token
-            ])->put('api/authentication/change_password', [
+            ])->put(route(self::PASSWORD_CHANGE_ROUTE), [
             'current_password' => 'password',
             'password' => 'a$ltnei31laA',
             'password_confirmation' => 'a$ltnei31laA',

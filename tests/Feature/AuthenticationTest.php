@@ -21,6 +21,9 @@ class AuthenticationTest extends TestCase
 {
     use RefreshDatabase;
 
+    const LOGIN_ROUTE = "authentication.login";
+    const REGISTER_ROUTE = "authentication.register";
+
     /**
     * @test
     */
@@ -28,7 +31,7 @@ class AuthenticationTest extends TestCase
     {
         $response = $this->withHeaders([
                 'Accept' => 'application/json',
-            ])->post('/api/authentication/register', [
+            ])->post(route(self::REGISTER_ROUTE), [
             'name' => 'test',
             'email' => 'test@test.com',
             'password' => 'xs$sl5T^23da',
@@ -47,7 +50,7 @@ class AuthenticationTest extends TestCase
     {
         $response = $this->withHeaders([
                 'Accept' => 'application/json',
-            ])->post('/api/authentication/register', [
+            ])->post(route(self::REGISTER_ROUTE), [
             'name' => 'test',
             'email' => 'test@test.com',
             'password' => 'xsl3$at',
@@ -66,7 +69,7 @@ class AuthenticationTest extends TestCase
     {
         $response = $this->withHeaders([
                 'Accept' => 'application/json',
-            ])->post('/api/authentication/register', [
+            ])->post(route(self::REGISTER_ROUTE), [
             'name' => 'test',
             'email' => 'test@test.com',
             'password' => 'alijewljrwa12',
@@ -85,7 +88,7 @@ class AuthenticationTest extends TestCase
     {
         $response = $this->withHeaders([
                 'Accept' => 'application/json',
-            ])->post('/api/authentication/register', [
+            ])->post(route(self::REGISTER_ROUTE), [
             'name' => 'test',
             'email' => 'test@test.com',
             'password' => 'alijewlJrwa',
@@ -104,7 +107,7 @@ class AuthenticationTest extends TestCase
     {
         $response = $this->withHeaders([
                 'Accept' => 'application/json',
-            ])->post('/api/authentication/register', [
+            ])->post(route(self::REGISTER_ROUTE), [
             'name' => 'test',
             'email' => 'test@test.com',
             'password' => 'Abcdefg123',
@@ -123,7 +126,7 @@ class AuthenticationTest extends TestCase
     {
         $response = $this->withHeaders([
                 'Accept' => 'application/json',
-            ])->post('/api/authentication/register', [
+            ])->post(route(self::REGISTER_ROUTE), [
             'name' => 'test',
             'email' => 'test@test.com',
             'password' => 'Alfjr431JEx',
@@ -154,7 +157,7 @@ class AuthenticationTest extends TestCase
     {
         $response = $this->withHeaders([
                 'Accept' => 'application/json',
-            ])->post('/api/authentication/register', [
+            ])->post(route(self::REGISTER_ROUTE), [
             'name' => 'test',
             'email' => 'test@test.com',
             'password' => 'alijewlJrwa',
@@ -180,7 +183,7 @@ class AuthenticationTest extends TestCase
         ]);
         $response = $this->withHeaders([
                 'Accept' => 'application/json',
-            ])->post('/api/authentication/login', [
+            ])->post(route(self::LOGIN_ROUTE), [
             'email' => $user->email,
             'password' => 'aAlJT32LIfsli',
         ]);
@@ -198,7 +201,7 @@ class AuthenticationTest extends TestCase
         ]);
         $response = $this->withHeaders([
                 'Accept' => 'application/json',
-            ])->post('/api/authentication/login', [
+            ])->post(route(self::LOGIN_ROUTE), [
             'email' => $user->email,
             'password' => 'aAlJT32LIfsli',
         ]);
@@ -228,7 +231,7 @@ class AuthenticationTest extends TestCase
         ]);
         $response = $this->withHeaders([
                 'Accept' => 'application/json',
-            ])->post('/api/authentication/login', [
+            ])->post(route(self::LOGIN_ROUTE), [
             'email' => 'a'.$user->email,
             'password' => 'aAlJT32LIfsli',
         ]);
@@ -246,7 +249,7 @@ class AuthenticationTest extends TestCase
         ]);
         $response = $this->withHeaders([
                 'Accept' => 'application/json',
-            ])->post('/api/authentication/login', [
+            ])->post(route(self::LOGIN_ROUTE), [
             'email' => $user->email,
             'password' => 'aaAlJT32LIfsli',
         ]);
@@ -264,7 +267,7 @@ class AuthenticationTest extends TestCase
         ]);
         $response = $this->withHeaders([
                 'Accept' => 'application/json',
-            ])->post('/api/authentication/login', [
+            ])->post(route(self::LOGIN_ROUTE), [
             'email' => 'a'.$user->email,
             'password' => 'aAlJT32LIfsli',
         ]);
