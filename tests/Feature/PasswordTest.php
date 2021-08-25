@@ -6,6 +6,8 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
+use Laravel\Sanctum\Sanctum;
+
 use Illuminate\Support\Facades\Str;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -43,6 +45,30 @@ class PasswordTest extends TestCase
         ]);
 
         $response->assertStatus(200);
+    }
+
+    /**
+    * @test
+    */
+    public function authenticated_user_can_not_request_for_resetting_password()
+    {
+        Mail::fake();
+        Notification::fake();
+        Event::fake();
+        Sanctum::actingAs(
+            User::factory()->create(),
+            ['*']
+        );
+
+        $user = User::factory()->create();
+        $response = $this->withHeaders([
+                'Accept' => 'application/json',
+            ])->post(route(self::PASSWORD_RESET_LINK_ROUTE), [
+            'email' => $user->email,
+        ]);
+
+        $response->assertStatus(302);
+        Notification::assertNothingSent();
     }
 
     /**
@@ -524,6 +550,27 @@ class PasswordTest extends TestCase
         ]);
 
         $response->assertStatus(200);
+    }
+
+    /**
+    * @test
+    */
+    public function unauthenticated_user_can_not_change_any_password()
+    {
+        $user = User::factory()->create([
+            'password' => bcrypt('password'),
+        ]);
+
+        $response = $this->withHeaders([
+                'Accept' => 'application/json',
+            ])->put(route(self::PASSWORD_CHANGE_ROUTE), [
+            'email' => $user->email,
+            'current_password' => 'password',
+            'password' => 'a$ltnei31laA',
+            'password_confirmation' => 'a$ltnei31laA',
+        ]);
+
+        $response->assertStatus(401);
     }
 
     /**

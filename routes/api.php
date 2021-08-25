@@ -16,10 +16,6 @@ use App\Http\Controllers\UserController;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
-
 Route::middleware('guest')->prefix('authentication')->name('authentication.')->group(function(){
     Route::post('register', [AuthenticationController::class, 'register'])->name('register');
     Route::post('login', [AuthenticationController::class, 'login'])->name('login');
@@ -30,8 +26,4 @@ Route::middleware('guest')->prefix('authentication')->name('authentication.')->g
 
 Route::middleware('auth:sanctum')->prefix('authentication')->name('authentication.')->group(function(){
     Route::put('change_password', [AuthenticationController::class, 'change_password'])->name('password.change');
-});
-
-Route::middleware('auth:sanctum')->group(function(){
-    // Route::Apiresource('/users', UserController::class);
 });
