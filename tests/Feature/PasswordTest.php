@@ -149,9 +149,9 @@ class PasswordTest extends TestCase
         ]);
 
         $response->assertStatus(200);
-        $response->assertJson([
+        $response->assertJsonStructure([
             'data' => [
-                'message' => 'if user with this email exists, password recovery link has been sent',
+                'message',
             ]
         ]);
     }
@@ -173,9 +173,9 @@ class PasswordTest extends TestCase
 
         $response->assertStatus(200);
         Notification::assertNothingSent();
-        $response->assertJson([
+        $response->assertJsonStructure([
             'data' => [
-                'message' => 'if user with this email exists, password recovery link has been sent',
+                'message',
             ]
         ]);
     }

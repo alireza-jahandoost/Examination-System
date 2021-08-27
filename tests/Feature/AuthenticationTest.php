@@ -174,9 +174,11 @@ class AuthenticationTest extends TestCase
         $this->assertDatabaseCount('personal_access_tokens', 1);
         $response->assertJson([
             'data' => [
-                'user_id' => 1,
-                'name' => 'test',
-                'email' => 'test@test.com'
+                'user' => [
+                    'user_id' => 1,
+                    'name' => 'test',
+                    'email' => 'test@test.com'
+                ]
             ]
         ]);
         $response->assertJsonStructure([
@@ -310,9 +312,11 @@ class AuthenticationTest extends TestCase
         $response->assertStatus(200);
         $response->assertJson([
             'data' => [
-                'user_id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
+                'user' => [
+                    'user_id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                ]
             ]
         ]);
         $response->assertJsonStructure([
