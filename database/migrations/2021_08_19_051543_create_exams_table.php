@@ -18,6 +18,7 @@ class CreateExamsTable extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('name');
             $table->boolean('confirmation_required')->default(0);
+            $table->boolean('published')->default(0);
             $table->string('password')->nullable();
             $table->dateTime('start');
             $table->dateTime('end');

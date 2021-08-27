@@ -14,6 +14,7 @@ class Exam extends Model
         'password',
         'created_at',
         'updated_at',
+        'published',
     ];
 
     protected $casts = [

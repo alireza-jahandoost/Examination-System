@@ -26,7 +26,8 @@ class ExamController extends Controller
      */
     public function index()
     {
-        return (new ExamCollection(Exam::paginate()))->response()->setStatusCode(200);
+        $query = Exam::where('published', true)->paginate();
+        return (new ExamCollection($query))->response()->setStatusCode(200);
     }
 
     /**

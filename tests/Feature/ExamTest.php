@@ -662,7 +662,9 @@ class ExamTest extends TestCase
             ['*']
         );
 
-        Exam::factory()->count(30)->for($user)->create();
+        Exam::factory()->state([
+            'published' => true
+            ])->count(30)->for($user)->create();
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
@@ -702,7 +704,9 @@ class ExamTest extends TestCase
     {
         $user = User::factory()->create();
 
-        Exam::factory()->count(30)->for($user)->create();
+        Exam::factory()->state([
+            'published' => true
+            ])->count(30)->for($user)->create();
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
@@ -747,7 +751,9 @@ class ExamTest extends TestCase
             ['*']
         );
 
-        $exam = Exam::factory()->for($user)->create();
+        $exam = Exam::factory()->state([
+            'published' => true,
+            ])->for($user)->create();
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
@@ -773,12 +779,14 @@ class ExamTest extends TestCase
     /**
     * @test
     */
-    public function guest_users_can_show_an_exam()
+    public function guest_users_can_see_exams()
     {
 
         $user = User::factory()->create();
 
-        $exam = Exam::factory()->for($user)->create();
+        $exam = Exam::factory()->state([
+            'published' => true
+            ])->for($user)->create();
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
@@ -837,5 +845,84 @@ class ExamTest extends TestCase
 
         $response->assertStatus(403);
         $this->assertDatabaseCount('exams', 1);
+    }
+
+    /**
+    * @test
+    */
+    public function user_can_see_his_unpublished_exam()
+    {
+        Sanctum::actingAs(
+            $user = User::factory()->create(),
+            ['*'],
+        );
+
+        $exam = Exam::factory()->for($user)->create();
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json'
+            ])->get(route(self::SHOW_EXAM_ROUTE, $exam->id));
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            'data' => [
+                'exam' => [
+                    'exam_id',
+                    'exam_name',
+                    'needs_confirmation',
+                    'start_of_exam',
+                    'end_of_exam',
+                    'total_score',
+                    'creation_time',
+                    'last_update',
+                ]
+            ]
+        ]);
+    }
+
+    /**
+    * @test
+    */
+    public function user_can_not_see_unpublished_exam_of_another_user_in_show_page()
+    {
+        Sanctum::actingAs(
+            $user = User::factory()->create(),
+            ['*'],
+        );
+
+        $anotherUser = User::factory()->create();
+
+        $exam = Exam::factory()->for($anotherUser)->create();
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json'
+            ])->get(route(self::SHOW_EXAM_ROUTE, $exam->id));
+
+        $response->assertStatus(403);
+    }
+
+    /**
+    * @test
+    */
+    public function user_can_not_see_unpublished_exam_of_another_user_in_index_page()
+    {
+        Sanctum::actingAs(
+            $user = User::factory()->create(),
+            ['*'],
+        );
+
+        $anotherUser = User::factory()->create();
+        $exam = Exam::factory()->for($anotherUser)->create();
+        Exam::factory()->for($anotherUser)->state([
+            'published' => true,
+            ])->count(5)->create();
+
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json'
+            ])->get(route(self::INDEX_EXAM_ROUTE));
+
+        $response->assertStatus(200);
+        $response->assertDontSee('"exam_id":1', false);
     }
 }

@@ -30,6 +30,9 @@ class ExamPolicy
      */
     public function view(?User $user, Exam $exam)
     {
+        if(!$exam->published){
+            return $exam->user_id === $user->id;
+        }
         return true;
     }
 
