@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthenticationController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ExamController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,4 +27,13 @@ Route::middleware('guest')->prefix('authentication')->name('authentication.')->g
 
 Route::middleware('auth:sanctum')->prefix('authentication')->name('authentication.')->group(function(){
     Route::put('change_password', [AuthenticationController::class, 'change_password'])->name('password.change');
+});
+
+Route::middleware('api')->group(function(){
+    Route::get('exams', [ExamController::class, 'index'])->name('exams.index');
+    Route::get('exams/{exam}', [ExamController::class, 'show'])->name('exams.show');
+});
+
+Route::middleware('auth:sanctum')->group(function(){
+    Route::apiResource('exams', ExamController::class)->except(['index', 'show']);
 });

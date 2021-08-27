@@ -9,6 +9,25 @@ class Exam extends Model
 {
     use HasFactory;
 
+    protected $guarded = [
+        'user_id',
+        'password',
+        'created_at',
+        'updated_at',
+    ];
+
+    protected $casts = [
+        'total_score' => 'integer',
+        'user_id' => 'integer',
+        'confirmation_required' => 'boolean',
+    ];
+
+    //mutators
+    public function setPasswordAttribute($value)
+    {
+        $this->attributes['password'] = bcrypt($value);
+    }
+
     // RelationShips
     public function user()
     {
