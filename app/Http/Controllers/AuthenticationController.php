@@ -10,16 +10,20 @@ use Illuminate\Auth\Events\PasswordReset;
 
 use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
-use App\Actions\Fortify\PasswordValidationRules;
 use App\Actions\Fortify\UpdateUserPassword;
+
 use App\Http\Resources\AuthenticationResource;
 use App\Http\Resources\MessageResource;
+
+use App\Http\Requests\LoginRequest;
+use App\Http\Requests\PasswordResetRequest;
+use App\Http\Requests\EmailValidationRequest;
+
 
 use App\Models\User;
 
 class AuthenticationController extends Controller
 {
-    use PasswordValidationRules;
 
     const TOKEN_COUNT_LIMIT = 6;
 
@@ -31,26 +35,24 @@ class AuthenticationController extends Controller
             'token' => $token,
             ]))->response()->setStatusCode($status);
     }
+
     public function register(Request $request, CreateNewUser $action)
     {
         $user = $action->create($request->input());
         return self::make_token_and_make_response($user, 201);
     }
 
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
-        $data = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|string',
-        ]);
+        $data = $request->validated();
+
         $user = User::where('email', $data['email'])->first();
+
         if(!$user || !Hash::check($data['password'], $user->password)){
             return (new MessageResource([
                 'message' => 'Invalid email or password',
                 ]))->response()->setStatusCode(401);
         }
-
-        $tokens = DB::table('personal_access_tokens')->get();
 
         if($user->tokens()->count() >= self::TOKEN_COUNT_LIMIT){
             $user->tokens()->first()->delete();
@@ -59,11 +61,8 @@ class AuthenticationController extends Controller
         return self::make_token_and_make_response($user, 200);
     }
 
-    public function password_reset_link(Request $request)
+    public function password_reset_link(EmailValidationRequest $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-        ]);
         if(User::where('email', $request->input('email'))->exists()){
             $status = Password::sendResetLink($request->only('email'));
         }
@@ -73,13 +72,9 @@ class AuthenticationController extends Controller
             ]))->response()->setStatusCode(200);
     }
 
-    public function password_reset(Request $request, ResetUserPassword $action)
+    public function password_reset(PasswordResetRequest $request, ResetUserPassword $action)
     {
-        $data = $request->validate([
-            'email' => 'required|email|exists:users,email',
-            'password' => $this->passwordRules(),
-            'token' => 'required|string',
-        ]);
+        $data = $request->validated();
         $user = User::where('email', $data['email'])->firstOrFail();
 
         $status = Password::reset(
