@@ -19,8 +19,7 @@ class CreateAnswersTable extends Migration
             $table->foreignId('question_id')->constrained()->onDelete('cascade');
             $table->text('text_answer')->nullable();
             $table->integer('integer_answer')->nullable();
-            $table->integer('total_score');
-            $table->integer('participant_score')->nullable();
+            $table->integer('grade')->nullable();
             $table->timestamps();
         });
     }

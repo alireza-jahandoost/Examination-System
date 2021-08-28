@@ -17,8 +17,8 @@ class CreateQuestionsTable extends Migration
             $table->id();
             $table->foreignId('exam_id')->constrained()->onDelete('cascade');
             $table->foreignId('question_type_id')->constrained()->onDelete('cascade');
-            $table->integer('type');
-            $table->text('text');
+            $table->text('question_text');
+            $table->integer('score');
             $table->boolean('can_be_shuffled')->default(0);
             $table->timestamps();
         });
