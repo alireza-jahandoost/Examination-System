@@ -17,8 +17,8 @@ class CreateAnswersTable extends Migration
             $table->id();
             $table->foreignId('participant_id')->constrained()->onDelete('cascade');
             $table->foreignId('question_id')->constrained()->onDelete('cascade');
-            $table->text('text')->nullable();
-            $table->integer('answer')->nullable();
+            $table->text('text_answer')->nullable();
+            $table->integer('integer_answer')->nullable();
             $table->integer('total_score');
             $table->integer('participant_score')->nullable();
             $table->timestamps();

@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthenticationController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ExamController;
+use App\Http\Controllers\QuestionController;
+use App\Http\Controllers\QuestionTypeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,6 +19,7 @@ use App\Http\Controllers\ExamController;
 |
 */
 
+// Authentication Routes
 Route::middleware('guest')->prefix('authentication')->name('authentication.')->group(function(){
     Route::post('register', [AuthenticationController::class, 'register'])->name('register');
     Route::post('login', [AuthenticationController::class, 'login'])->name('login');
@@ -25,15 +28,23 @@ Route::middleware('guest')->prefix('authentication')->name('authentication.')->g
     Route::put('password_reset', [AuthenticationController::class, 'password_reset'])->name('password.reset');
 });
 
+// Authentication Routes
 Route::middleware('auth:sanctum')->prefix('authentication')->name('authentication.')->group(function(){
     Route::put('change_password', [AuthenticationController::class, 'change_password'])->name('password.change');
 });
 
+// Program routes that dont need authentication to see
 Route::middleware('api')->group(function(){
+    // Exams
     Route::get('exams', [ExamController::class, 'index'])->name('exams.index');
     Route::get('exams/{exam}', [ExamController::class, 'show'])->name('exams.show');
+
+    //Question Types
+    Route::get('question_types', [QuestionTypeController::class, 'index'])->name('question_types.index');
+    Route::get('question_types/{questionType:slug}', [QuestionTypeController::class, 'show'])->name('question_types.show');
 });
 
+// Program routes that need authentication to see
 Route::middleware('auth:sanctum')->group(function(){
     Route::apiResource('exams', ExamController::class)->except(['index', 'show']);
 });
