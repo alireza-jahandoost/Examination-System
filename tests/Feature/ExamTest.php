@@ -744,6 +744,31 @@ class ExamTest extends TestCase
     /**
     * @test
     */
+    public function user_can_not_see_unpublished_exam_of_another_user_in_index_page()
+    {
+        Sanctum::actingAs(
+            $user = User::factory()->create(),
+            ['*'],
+        );
+
+        $anotherUser = User::factory()->create();
+        $exam = Exam::factory()->for($anotherUser)->create();
+        Exam::factory()->for($anotherUser)->state([
+            'published' => true,
+            ])->count(5)->create();
+
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json'
+            ])->get(route(self::INDEX_EXAM_ROUTE));
+
+        $response->assertStatus(200);
+        $response->assertDontSee('"exam_id":1', false);
+    }
+
+    /**
+    * @test
+    */
     public function user_can_receive_an_exam_information()
     {
         Sanctum::actingAs(
@@ -812,44 +837,6 @@ class ExamTest extends TestCase
     /**
     * @test
     */
-    public function user_can_delete_his_exam()
-    {
-        Sanctum::actingAs(
-            $user = User::factory()->create(),
-            ['*']
-        );
-
-        $exam = Exam::factory()->for($user)->create();
-
-        $response = $this->withHeaders([])->delete(route(self::DELETE_EXAM_ROUTE, $exam->id));
-
-        $response->assertStatus(202);
-        $this->assertDeleted($exam);
-    }
-
-    /**
-    * @test
-    */
-    public function user_can_not_delete_others_exams()
-    {
-        Sanctum::actingAs(
-            $user = User::factory()->create(),
-            ['*']
-        );
-
-        $anotherUser = User::factory()->create();
-
-        $exam = Exam::factory()->for($anotherUser)->create();
-
-        $response = $this->withHeaders([])->delete(route(self::DELETE_EXAM_ROUTE, $exam->id));
-
-        $response->assertStatus(403);
-        $this->assertDatabaseCount('exams', 1);
-    }
-
-    /**
-    * @test
-    */
     public function user_can_see_his_unpublished_exam()
     {
         Sanctum::actingAs(
@@ -904,25 +891,75 @@ class ExamTest extends TestCase
     /**
     * @test
     */
-    public function user_can_not_see_unpublished_exam_of_another_user_in_index_page()
+    public function guest_user_can_not_see_any_unpublished_exams()
     {
-        Sanctum::actingAs(
-            $user = User::factory()->create(),
-            ['*'],
-        );
+        $user = User::factory()->create();
 
-        $anotherUser = User::factory()->create();
-        $exam = Exam::factory()->for($anotherUser)->create();
-        Exam::factory()->for($anotherUser)->state([
-            'published' => true,
-            ])->count(5)->create();
-
+        $exam = Exam::factory()->for($user)->create();
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-            ])->get(route(self::INDEX_EXAM_ROUTE));
+            ])->get(route(self::SHOW_EXAM_ROUTE, $exam->id));
 
-        $response->assertStatus(200);
-        $response->assertDontSee('"exam_id":1', false);
+        $response->assertStatus(403);
+    }
+
+    /**
+    * @test
+    */
+    public function user_can_delete_his_exam()
+    {
+        Sanctum::actingAs(
+            $user = User::factory()->create(),
+            ['*']
+        );
+
+        $exam = Exam::factory()->for($user)->create();
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json'
+            ])->delete(route(self::DELETE_EXAM_ROUTE, $exam->id));
+
+        $response->assertStatus(202);
+        $this->assertDeleted($exam);
+    }
+
+    /**
+    * @test
+    */
+    public function user_can_not_delete_others_exams()
+    {
+        Sanctum::actingAs(
+            $user = User::factory()->create(),
+            ['*']
+        );
+
+        $anotherUser = User::factory()->create();
+
+        $exam = Exam::factory()->for($anotherUser)->create();
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json'
+            ])->delete(route(self::DELETE_EXAM_ROUTE, $exam->id));
+
+        $response->assertStatus(403);
+        $this->assertDatabaseCount('exams', 1);
+    }
+
+    /**
+    * @test
+    */
+    public function a_guest_user_can_not_delete_any_exam()
+    {
+        $user = User::factory()->create();
+
+        $exam = Exam::factory()->for($user)->create();
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json'
+            ])->delete(route(self::DELETE_EXAM_ROUTE, $exam->id));
+
+        $response->assertStatus(401);
+        $this->assertDatabaseCount('exams', 1);
     }
 }
