@@ -7,6 +7,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ExamController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\QuestionTypeController;
+use App\Http\Controllers\StateController;
 
 /*
 |--------------------------------------------------------------------------
@@ -51,4 +52,7 @@ Route::middleware('auth:sanctum')->group(function(){
 
     // Question Routes
     Route::apiResource('exams/{exam}/questions', QuestionController::class);
+
+    // State Routes
+    Route::apiResource('exams/{exam}/questions/{question}/states', StateController::class);
 });

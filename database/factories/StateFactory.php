@@ -22,8 +22,8 @@ class StateFactory extends Factory
     public function definition()
     {
         return [
-            'text' => $this->faker->sentence(),
-            'answer' => rand(1,50)
+            'text_answer' => $this->faker->sentence(),
+            'integer_answer' => rand(1,50)
         ];
     }
 }

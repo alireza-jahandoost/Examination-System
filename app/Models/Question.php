@@ -12,6 +12,7 @@ class Question extends Model
     use HasFactory;
 
     protected $guarded = [
+        'id',
         'exam_id',
         'question_type_id',
         'created_at',

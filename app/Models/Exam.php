@@ -10,6 +10,7 @@ class Exam extends Model
     use HasFactory;
 
     protected $guarded = [
+        'id',
         'user_id',
         'password',
         'created_at',
