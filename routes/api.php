@@ -46,5 +46,9 @@ Route::middleware('api')->group(function(){
 
 // Program routes that need authentication to see
 Route::middleware('auth:sanctum')->group(function(){
+    // Exam Routes
     Route::apiResource('exams', ExamController::class)->except(['index', 'show']);
+
+    // Question Routes
+    Route::apiResource('exams/{exam}/questions', QuestionController::class);
 });

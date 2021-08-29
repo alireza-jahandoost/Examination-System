@@ -11,6 +11,20 @@ class Question extends Model
 {
     use HasFactory;
 
+    protected $guarded = [
+        'exam_id',
+        'question_type_id',
+        'created_at',
+        'updated_at',
+    ];
+
+    protected $casts = [
+        'exam_id' => 'integer',
+        'question_type_id' => 'integer',
+        'score' => 'integer',
+        'can_be_shuffled' => 'boolean',
+    ];
+
     // RelationShips
     public function answers()
     {
