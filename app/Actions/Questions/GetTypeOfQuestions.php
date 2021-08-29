@@ -46,7 +46,7 @@ class GetTypeOfQuestions
                     'slug' => Str::slug($name),
                     'number_of_states' => 'multiple',
                     'number_of_answers' => 'multiple',
-                    'type_of_answer' => 'integer',
+                    'type_of_answer' => 'text and integer',
                 ];
                 break;
             case 4:
@@ -57,7 +57,7 @@ class GetTypeOfQuestions
                     'slug' => Str::slug($name),
                     'number_of_states' => 'multiple',
                     'number_of_answers' => 1,
-                    'type_of_answer' => 'integer',
+                    'type_of_answer' => 'text and integer',
                 ];
                 break;
             case 5:
@@ -79,7 +79,7 @@ class GetTypeOfQuestions
                     'slug' => Str::slug($name),
                     'number_of_states' => 'multiple',
                     'number_of_answers' => 'multiple',
-                    'type_of_answer' => 'integer',
+                    'type_of_answer' => 'text and integer',
                 ];
                 break;
             default:
