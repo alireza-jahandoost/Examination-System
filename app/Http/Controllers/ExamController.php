@@ -10,6 +10,9 @@ use App\Http\Requests\UpdateExamRequest;
 
 use App\Http\Resources\ExamResource;
 use App\Http\Resources\ExamCollection;
+use App\Http\Resources\MessageResource;
+
+use App\Actions\Exams\CanExamBePublished;
 
 class ExamController extends Controller
 {
@@ -103,5 +106,19 @@ class ExamController extends Controller
     {
         $exam->delete();
         return response(null, 202);
+    }
+
+    public function publish(Exam $exam, CanExamBePublished $action)
+    {
+        $this->authorize('publish', [$exam]);
+        $status = $action->check($exam);
+        if($status !== 'success'){
+            return (new MessageResource([
+                'message' => $status
+                ]))->response()->setStatusCode(401);
+        }
+
+        $exam->published = true;
+        $exam->save();
     }
 }

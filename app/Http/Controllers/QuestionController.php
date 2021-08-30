@@ -35,7 +35,7 @@ class QuestionController extends Controller
      */
     public function store(Exam $exam, CreateQuestionRequest $request)
     {
-        $this->authorize('create', [Question::class, $exam->user_id]);
+        $this->authorize('create', [Question::class, $exam]);
         $data = $request->validated();
         $question_type = QuestionType::findOrFail($data['question_type_id']);
 

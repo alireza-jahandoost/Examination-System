@@ -59,6 +59,9 @@ class ExamPolicy
      */
     public function update(User $user, Exam $exam)
     {
+        if($exam->published){
+            return false;
+        }
         return $exam->user_id === $user->id;
     }
 
@@ -96,5 +99,10 @@ class ExamPolicy
     public function forceDelete(User $user, Exam $exam)
     {
         //
+    }
+
+    public function publish(User $user, Exam $exam)
+    {
+        return $user->id === $exam->user_id;
     }
 }

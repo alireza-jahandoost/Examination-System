@@ -43,6 +43,9 @@ class StatePolicy
      */
     public function create(User $user, Exam $exam, Question $question)
     {
+        if($exam->published){
+            return false;
+        }
         return ($user->id === $exam->user_id && $exam->id === $question->exam_id);
     }
 
@@ -55,6 +58,9 @@ class StatePolicy
      */
     public function update(User $user, State $state, Exam $exam, Question $question)
     {
+        if($exam->published){
+            return false;
+        }
         return ($user->id === $exam->user_id && $question->exam_id === $exam->id && $question->id === $state->question_id);
     }
 
@@ -67,6 +73,9 @@ class StatePolicy
      */
     public function delete(User $user, State $state, Exam $exam, Question $question)
     {
+        if($exam->published){
+            return false;
+        }
         return ($user->id === $exam->user_id && $exam->id === $question->exam_id && $state->question_id === $question->id);
     }
 

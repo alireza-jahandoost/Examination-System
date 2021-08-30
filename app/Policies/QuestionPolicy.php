@@ -40,9 +40,12 @@ class QuestionPolicy
      * @param  \App\Models\User  $user
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function create(User $user, int $exam_user_id)
+    public function create(User $user, Exam $exam)
     {
-        return $exam_user_id === $user->id;
+        if($exam->published){
+            return false;
+        }
+        return $exam->user_id === $user->id;
     }
 
     /**
@@ -54,6 +57,9 @@ class QuestionPolicy
      */
     public function update(User $user, Question $question, Exam $exam)
     {
+        if($exam->published){
+            return false;
+        }
         return ($exam->user_id === $user->id && $question->exam_id === $exam->id);
     }
 
@@ -66,6 +72,9 @@ class QuestionPolicy
      */
     public function delete(User $user, Question $question, Exam $exam)
     {
+        if($exam->published){
+            return false;
+        }
         return ($exam->user_id === $user->id && $question->exam_id === $exam->id);
     }
 

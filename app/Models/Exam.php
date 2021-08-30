@@ -22,6 +22,7 @@ class Exam extends Model
         'total_score' => 'integer',
         'user_id' => 'integer',
         'confirmation_required' => 'boolean',
+        'published' => 'boolean',
     ];
 
     //mutators
