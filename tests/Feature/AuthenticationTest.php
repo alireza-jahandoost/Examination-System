@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Str;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Notification;
@@ -25,6 +26,7 @@ class AuthenticationTest extends TestCase
 
     const LOGIN_ROUTE = "authentication.login";
     const REGISTER_ROUTE = "authentication.register";
+    const LOGOUT_ROUTE = "authentication.logout";
 
     /**
     * @test
@@ -387,4 +389,102 @@ class AuthenticationTest extends TestCase
         ]);
     }
 
+    /**
+    * @test
+    */
+    public function an_authenticated_user_can_logout()
+    {
+        Sanctum::actingAs(
+            $user = User::factory()->create(),
+            ['*']
+        );
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+            ])->post(route(self::LOGOUT_ROUTE));
+        $response->assertStatus(202);
+        $this->assertDatabaseCount('personal_access_tokens', 0);
+    }
+
+    /**
+    * @test
+    */
+    public function a_user_can_login_and_logout()
+    {
+        $user = User::factory()->create([
+            'email' => 'test@test.com',
+        ]);
+        $login_response = $this->withHeaders([
+            'Accept' => 'application/json'
+            ])->post(route(self::LOGIN_ROUTE), [
+            'email' => 'test@test.com',
+            'password' => 'password'
+        ]);
+        $token = $login_response->json()['data']['token'];
+        $login_response->assertStatus(200);
+        $this->assertDatabaseCount('personal_access_tokens', 1);
+
+        $logout_response = $this->withHeaders([
+            'Accept' => 'application/json',
+            'Authorization' => 'Bearer '.$token
+            ])->post(route(self::LOGOUT_ROUTE));
+        $logout_response->assertStatus(202);
+        $this->assertDatabaseCount('personal_access_tokens', 0);
+    }
+
+    /**
+    * @test
+    */
+    public function after_logout_just_the_logged_in_token_will_be_removed()
+    {
+        $this->withoutExceptionHandling();
+        $user = User::factory()->create([
+            'email' => 'test@test.com',
+        ]);
+        $login_response = $this->withHeaders([
+            'Accept' => 'application/json'
+            ])->post(route(self::LOGIN_ROUTE), [
+            'email' => 'test@test.com',
+            'password' => 'password'
+        ]);
+        $token = $login_response->json()['data']['token'];
+        $this->assertDatabaseCount('personal_access_tokens', 1);
+
+        $login_response2 = $this->withHeaders([
+            'Accept' => 'application/json',
+            ])->post(route(self::LOGIN_ROUTE), [
+            'email' => 'test@test.com',
+            'password' => 'password'
+        ]);
+        $token2 = $login_response2->json()['data']['token'];
+        $this->assertDatabaseCount('personal_access_tokens', 2);
+
+        $logout_response = $this->withHeaders([
+            'Accept' => 'application/json',
+            'Authorization' => 'Bearer '.$token
+            ])->post(route(self::LOGOUT_ROUTE));
+        $this->assertDatabaseCount('personal_access_tokens', 1);
+        $logout_response->assertStatus(202);
+
+        $this->app->get('auth')->forgetGuards();
+
+        $logout_response = $this->withHeaders([
+            'Accept' => 'application/json',
+            'Authorization' => 'Bearer '.$token2
+            ])->post(route(self::LOGOUT_ROUTE));
+            $logout_response->assertStatus(202);
+        $this->assertDatabaseCount('personal_access_tokens', 0);
+
+    }
+
+    /**
+    * @test
+    */
+    public function a_guest_user_can_not_logout()
+    {
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+            ])->post(route(self::LOGOUT_ROUTE));
+        $response->assertStatus(401);
+    }
 }

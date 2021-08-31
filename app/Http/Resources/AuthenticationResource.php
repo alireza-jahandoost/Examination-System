@@ -20,7 +20,7 @@ class AuthenticationResource extends JsonResource
                 'name' => $this['user']->name,
                 'email' => $this['user']->email,
             ],
-            'token' => $this['token']->plainTextToken,
+            'token' => $this['token'],
         ];
     }
 }

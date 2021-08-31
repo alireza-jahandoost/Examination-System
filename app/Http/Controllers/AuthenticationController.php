@@ -29,10 +29,10 @@ class AuthenticationController extends Controller
 
     private static function make_token_and_make_response(User $user, $status)
     {
-        $token = $user->createToken('token');
+        $token = $user->createToken('SanctumAuthenticationToken');
         return (new AuthenticationResource([
             'user' => $user,
-            'token' => $token,
+            'token' => $token->plainTextToken,
             ]))->response()->setStatusCode($status);
     }
 
@@ -107,5 +107,12 @@ class AuthenticationController extends Controller
         return (new MessageResource([
             'message' => 'password changed successfully'
         ]))->response()->setStatusCode(200);
+    }
+
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+
+        return response(null, 202);
     }
 }

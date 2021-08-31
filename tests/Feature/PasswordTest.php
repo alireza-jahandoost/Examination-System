@@ -537,7 +537,7 @@ class PasswordTest extends TestCase
             'email' => $user->email,
             'password' => 'password',
         ]);
-        $token = $login_response->original['token']->plainTextToken;
+        $token = $login_response->json()['data']['token'];
 
         $response = $this->withHeaders([
                 'Accept' => 'application/json',
@@ -588,7 +588,7 @@ class PasswordTest extends TestCase
             'email' => $user->email,
             'password' => 'password',
         ]);
-        $token = $login_response->original['token']->plainTextToken;
+        $token = $login_response->json()['data']['token'];
 
         $response = $this->withHeaders([
                 'Accept' => 'application/json',
@@ -618,7 +618,7 @@ class PasswordTest extends TestCase
             'email' => $user->email,
             'password' => 'password',
         ]);
-        $token = $login_response->original['token']->plainTextToken;
+        $token = $login_response->json()['data']['token'];
 
         $response = $this->withHeaders([
                 'Accept' => 'application/json',
@@ -653,7 +653,7 @@ class PasswordTest extends TestCase
             'email' => $user->email,
             'password' => 'password',
         ]);
-        $token = $login_response->original['token']->plainTextToken;
+        $token = $login_response->json()['data']['token'];
 
         $response = $this->withHeaders([
                 'Accept' => 'application/json',
@@ -684,7 +684,7 @@ class PasswordTest extends TestCase
             'email' => $user->email,
             'password' => 'password',
         ]);
-        $token = $login_response->original['token']->plainTextToken;
+        $token = $login_response->json()['data']['token'];
 
         $response = $this->withHeaders([
                 'Accept' => 'application/json',
@@ -715,7 +715,7 @@ class PasswordTest extends TestCase
             'email' => $user->email,
             'password' => 'password',
         ]);
-        $token = $login_response->original['token']->plainTextToken;
+        $token = $login_response->json()['data']['token'];
 
         $response = $this->withHeaders([
                 'Accept' => 'application/json',
@@ -746,7 +746,7 @@ class PasswordTest extends TestCase
             'email' => $user->email,
             'password' => 'password',
         ]);
-        $token = $login_response->original['token']->plainTextToken;
+        $token = $login_response->json()['data']['token'];
 
         $response = $this->withHeaders([
                 'Accept' => 'application/json',
@@ -777,7 +777,7 @@ class PasswordTest extends TestCase
             'email' => $user->email,
             'password' => 'password',
         ]);
-        $token = $login_response->original['token']->plainTextToken;
+        $token = $login_response->json()['data']['token'];
 
         $response = $this->withHeaders([
                 'Accept' => 'application/json',
@@ -808,7 +808,7 @@ class PasswordTest extends TestCase
             'email' => $user->email,
             'password' => 'password',
         ]);
-        $token = $login_response->original['token']->plainTextToken;
+        $token = $login_response->json()['data']['token'];
 
         $response = $this->withHeaders([
                 'Accept' => 'application/json',
@@ -839,7 +839,7 @@ class PasswordTest extends TestCase
             'email' => $user->email,
             'password' => 'password',
         ]);
-        $token = $login_response->original['token']->plainTextToken;
+        $token = $login_response->json()['data']['token'];
 
         $response = $this->withHeaders([
                 'Accept' => 'application/json',
@@ -874,7 +874,7 @@ class PasswordTest extends TestCase
             'email' => $user->email,
             'password' => 'password',
         ]);
-        $token = $login_response->original['token']->plainTextToken;
+        $token = $login_response->json()['data']['token'];
 
         $response = $this->withHeaders([
                 'Accept' => 'application/json',
