@@ -5,7 +5,10 @@ namespace App\Policies;
 use App\Models\Question;
 use App\Models\User;
 use App\Models\Exam;
+use App\Models\Participant;
 use Illuminate\Auth\Access\HandlesAuthorization;
+
+use Carbon\Carbon;
 
 class QuestionPolicy
 {
@@ -19,7 +22,28 @@ class QuestionPolicy
      */
     public function viewAny(User $user, Exam $exam)
     {
-        return $exam->user_id === $user->id;
+        if($user->id !== $exam->user_id){
+            $start = Carbon::make($exam->start);
+            $user_participant = Participant::where([
+                'user_id' => $user->id,
+                'exam_id' => $exam->id
+                ])->first();
+            if(Carbon::now() >= $start && $user_participant){
+                if($exam->confirmation_required){
+                    if($user_participant->is_accepted){
+                        return true;
+                    }else{
+                        return false;
+                    }
+                }else{
+                    return true;
+                }
+            }else{
+                return false;
+            }
+        }else{
+            return true;
+        }
     }
 
     /**

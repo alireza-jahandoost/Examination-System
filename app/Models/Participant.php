@@ -9,6 +9,12 @@ class Participant extends Model
 {
     use HasFactory;
 
+    protected $casts = [
+        'exam_id' => 'integer',
+        'user_id' => 'integer',
+        'is_accepted' => 'boolean',
+    ];
+
     // RelationShips
     public function exam()
     {

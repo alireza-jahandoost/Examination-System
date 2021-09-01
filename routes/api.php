@@ -8,6 +8,7 @@ use App\Http\Controllers\ExamController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\QuestionTypeController;
 use App\Http\Controllers\StateController;
+use App\Http\Controllers\ParticipantController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,7 +22,7 @@ use App\Http\Controllers\StateController;
 */
 
 // Authentication Routes
-Route::middleware('guest')->prefix('authentication')->name('authentication.')->group(function(){
+Route::middleware('guest:sanctum')->prefix('authentication')->name('authentication.')->group(function(){
     Route::post('register', [AuthenticationController::class, 'register'])->name('register');
     Route::post('login', [AuthenticationController::class, 'login'])->name('login');
 
@@ -32,6 +33,7 @@ Route::middleware('guest')->prefix('authentication')->name('authentication.')->g
 // Authentication Routes
 Route::middleware('auth:sanctum')->prefix('authentication')->name('authentication.')->group(function(){
     Route::put('change_password', [AuthenticationController::class, 'change_password'])->name('password.change');
+    Route::post('logout', [AuthenticationController::class, 'logout'])->name('logout');
 });
 
 // Program routes that dont need authentication to see
@@ -56,4 +58,10 @@ Route::middleware('auth:sanctum')->group(function(){
 
     // State Routes
     Route::apiResource('exams/{exam}/questions/{question}/states', StateController::class);
+
+    // Participant Routes
+    Route::post('exams/{exam}/register', [ParticipantController::class, 'store'])->name('exams.register');
+    Route::put('accept_participant/{exam}', [ParticipantController::class, 'update'])->name('exams.accept_user');
+    Route::get('exams/{exam}/participants', [ParticipantController::class, 'index'])->name('participants.index');
+    Route::get('exams/{exam}/participants/{participant}', [ParticipantController::class, 'show'])->name('participants.show');
 });

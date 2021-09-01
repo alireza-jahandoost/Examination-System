@@ -3,7 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Models\Participant;
+use App\Models\Exam;
+use App\Models\User;
 use Illuminate\Http\Request;
+
+use App\Http\Requests\CreateParticipantRequest;
+use App\Http\Requests\AcceptParticipantRequest;
+
+use App\Actions\Participants\CanUserRegisterInExam;
+
+use App\Http\Resources\MessageResource;
+use App\Http\Resources\ParticipantResource;
+use App\Http\Resources\ParticipantCollection;
 
 class ParticipantController extends Controller
 {
@@ -12,9 +23,10 @@ class ParticipantController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Exam $exam)
     {
-        //
+        $this->authorize('viewAny', [Participant::class, $exam]);
+        return (new ParticipantCollection($exam->participants()->paginate()))->response()->setStatusCode(200);
     }
 
     /**
@@ -33,9 +45,21 @@ class ParticipantController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(CreateParticipantRequest $request, Exam $exam, CanUserRegisterInExam $action)
     {
-        //
+        $this->authorize('create', [Participant::class, $exam]);
+        $status = $action->check($exam, $request->validated());
+        if($status !== 'success'){
+            return (new MessageResource([
+                'message' => $status
+                ]))->response()->setStatusCode(401);
+        }
+        $participant = new Participant;
+        $participant->user_id = auth()->id();
+        $participant->exam_id = $exam->id;
+        $participant->save();
+
+        return response(null, 201);
     }
 
     /**
@@ -44,9 +68,10 @@ class ParticipantController extends Controller
      * @param  \App\Models\Participant  $participant
      * @return \Illuminate\Http\Response
      */
-    public function show(Participant $participant)
+    public function show(Exam $exam, Participant $participant)
     {
-        //
+        $this->authorize('view', [$participant, $exam]);
+        return (new ParticipantResource($participant))->response()->setStatusCode(200);
     }
 
     /**
@@ -67,9 +92,21 @@ class ParticipantController extends Controller
      * @param  \App\Models\Participant  $participant
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Participant $participant)
+    public function update(AcceptParticipantRequest $request, Exam $exam)
     {
-        //
+        $this->authorize('accept', [Participant::class, $exam]);
+        $data = $request->validated();
+        $user = User::find($request->input('user_id'));
+        $participant = Participant::where(['user_id' => $user->id, 'exam_id' => $exam->id]);
+
+        if($participant->exists()){
+            $participant = $participant->first();
+            $participant->is_accepted = true;
+            $participant->save();
+
+            return response(null, 202);
+        }
+        abort(404);
     }
 
     /**
