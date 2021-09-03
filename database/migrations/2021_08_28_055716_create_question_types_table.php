@@ -20,6 +20,7 @@ class CreateQuestionTypesTable extends Migration
             $table->integer('number_of_states');
             $table->integer('number_of_answers');
             $table->string('type_of_answer');
+            $table->string('can_correct_by_system');
             $table->timestamps();
         });
     }

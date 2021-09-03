@@ -24,7 +24,8 @@ class GetTypeOfQuestions
                     'slug' => Str::slug($name),
                     'number_of_states' => 0,
                     'number_of_answers' => 1,
-                    'type_of_answer' => 'text'
+                    'type_of_answer' => 'text',
+                    'can_correct_by_system' => false,
                 ];
                 break;
             case 2:
@@ -35,7 +36,8 @@ class GetTypeOfQuestions
                     'slug' => Str::slug($name),
                     'number_of_states' => 'multiple',
                     'number_of_answers' => 1,
-                    'type_of_answer' => 'text'
+                    'type_of_answer' => 'text',
+                    'can_correct_by_system' => true,
                 ];
                 break;
             case 3:
@@ -47,6 +49,7 @@ class GetTypeOfQuestions
                     'number_of_states' => 'multiple',
                     'number_of_answers' => 'multiple',
                     'type_of_answer' => 'text and integer',
+                    'can_correct_by_system' => true,
                 ];
                 break;
             case 4:
@@ -58,6 +61,7 @@ class GetTypeOfQuestions
                     'number_of_states' => 'multiple',
                     'number_of_answers' => 1,
                     'type_of_answer' => 'text and integer',
+                    'can_correct_by_system' => true,
                 ];
                 break;
             case 5:
@@ -69,6 +73,7 @@ class GetTypeOfQuestions
                     'number_of_states' => 1,
                     'number_of_answers' => 1,
                     'type_of_answer' => 'integer',
+                    'can_correct_by_system' => true,
                 ];
                 break;
             case 6:
@@ -80,6 +85,7 @@ class GetTypeOfQuestions
                     'number_of_states' => 'multiple',
                     'number_of_answers' => 'multiple',
                     'type_of_answer' => 'text and integer',
+                    'can_correct_by_system' => true,
                 ];
                 break;
             default:
