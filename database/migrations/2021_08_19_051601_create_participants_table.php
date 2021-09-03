@@ -18,6 +18,8 @@ class CreateParticipantsTable extends Migration
             $table->foreignId('exam_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->contrained()->onDelete('cascade');
             $table->boolean('is_accepted')->default(0);
+            $table->integer('status')->default(0);
+            $table->integer('grade')->default(0);
             $table->timestamps();
         });
     }
