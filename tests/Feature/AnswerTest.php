@@ -1256,9 +1256,14 @@ class AnswerTest extends TestCase
             'text_part' => 'test',
         ]);
 
+        $participant = Participant::where([
+            'user_id' => $user->id,
+            'exam_id' => $data['exam']->id,
+        ])->first();
+
         $response = $this->withHeaders([
             'Accept' => 'application/json',
-        ])->get(route(self::INDEX_ANSWER_ROUTE, [$data['questions'][0]]));
+        ])->get(route(self::INDEX_ANSWER_ROUTE, [$data['questions'][0], $participant]));
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
@@ -1310,21 +1315,26 @@ class AnswerTest extends TestCase
 
         Sanctum::actingAs($anotherUser, ['*']);
 
+        $participant = Participant::where([
+            'user_id' => $user->id,
+            'exam_id' => $data['exam']->id,
+        ])->first();
+
         $response = $this->withHeaders([
             'Accept' => 'application/json',
-        ])->get(route(self::INDEX_ANSWER_ROUTE, [$data['questions'][0]]));
-        $response->assertStatus(200);
-        $response->assertExactJson([
-            'data' => [
-                'answers' => []
-            ]
-        ]);
+        ])->get(route(self::INDEX_ANSWER_ROUTE, [$data['questions'][0], $participant]));
+        $response->assertStatus(403);
 
         Sanctum::actingAs($user, ['*']);
 
+        $participant = Participant::where([
+            'user_id' => $user->id,
+            'exam_id' => $data['exam']->id,
+        ])->first();
+
         $response = $this->withHeaders([
             'Accept' => 'application/json',
-        ])->get(route(self::INDEX_ANSWER_ROUTE, [$data['questions'][0]]));
+        ])->get(route(self::INDEX_ANSWER_ROUTE, [$data['questions'][0], $participant]));
         $response->assertStatus(200);
         $response->assertExactJson([
             'data' => [
@@ -1357,10 +1367,11 @@ class AnswerTest extends TestCase
             'end' => $end->format('Y-m-d H:i:s'),
         ], 1);
         $user = User::factory()->create();
+        $anotherUser = User::factory()->create();
 
         // $this->register_user($user, $data['exam'], true);
-        // $this->register_user($user, $data['exam'], false);
-        $this->assertDatabaseCount('participants', 0);
+        $this->register_user($user, $data['exam'], false);
+        $this->assertDatabaseCount('participants', 1);
 
         Sanctum::actingAs($user, ['*']);
 
@@ -1370,9 +1381,16 @@ class AnswerTest extends TestCase
             'text_part' => 'test',
         ]);
 
+        $participant = Participant::where([
+            'user_id' => $user->id,
+            'exam_id' => $data['exam']->id,
+        ])->first();
+
+        Sanctum::actingAs($anotherUser, ['*']);
+
         $response = $this->withHeaders([
             'Accept' => 'application/json',
-        ])->get(route(self::INDEX_ANSWER_ROUTE, [$data['questions'][0]]));
+        ])->get(route(self::INDEX_ANSWER_ROUTE, [$data['questions'][0], $participant]));
         $response->assertStatus(403);
     }
 
@@ -1393,8 +1411,8 @@ class AnswerTest extends TestCase
         $user = User::factory()->create();
 
         // $this->register_user($user, $data['exam'], true);
-        // $this->register_user($user, $data['exam'], false);
-        $this->assertDatabaseCount('participants', 0);
+        $this->register_user($user, $data['exam'], false);
+        $this->assertDatabaseCount('participants', 1);
 
         Sanctum::actingAs($user, ['*']);
 
@@ -1404,6 +1422,11 @@ class AnswerTest extends TestCase
             'text_part' => 'test',
         ]);
 
+        $participant = Participant::where([
+            'user_id' => $user->id,
+            'exam_id' => $data['exam']->id,
+        ])->first();
+
         $logout = $this->withHeaders([
             'Accept' => 'application/json'
         ])->post(route(self::LOGOUT_ROUTE));
@@ -1412,7 +1435,7 @@ class AnswerTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json',
-        ])->get(route(self::INDEX_ANSWER_ROUTE, [$data['questions'][0]]));
+        ])->get(route(self::INDEX_ANSWER_ROUTE, [$data['questions'][0], $participant]));
         $response->assertStatus(401);
     }
 
@@ -1438,9 +1461,14 @@ class AnswerTest extends TestCase
 
         Sanctum::actingAs($user, ['*']);
 
+        $participant = Participant::where([
+            'user_id' => $user->id,
+            'exam_id' => $data['exam']->id,
+        ])->first();
+
         $response = $this->withHeaders([
             'Accept' => 'application/json',
-        ])->get(route(self::INDEX_ANSWER_ROUTE, [$data['questions'][0]]));
+        ])->get(route(self::INDEX_ANSWER_ROUTE, [$data['questions'][0], $participant]));
         $response->assertStatus(403);
     }
 
@@ -1466,9 +1494,14 @@ class AnswerTest extends TestCase
 
         Sanctum::actingAs($user, ['*']);
 
+        $participant = Participant::where([
+            'user_id' => $user->id,
+            'exam_id' => $data['exam']->id,
+        ])->first();
+
         $response = $this->withHeaders([
             'Accept' => 'application/json',
-        ])->get(route(self::INDEX_ANSWER_ROUTE, [$data['questions'][0]]));
+        ])->get(route(self::INDEX_ANSWER_ROUTE, [$data['questions'][0], $participant]));
         $response->assertStatus(403);
     }
 
@@ -1494,10 +1527,56 @@ class AnswerTest extends TestCase
 
         Sanctum::actingAs($user, ['*']);
 
+        $participant = Participant::where([
+            'user_id' => $user->id,
+            'exam_id' => $data['exam']->id,
+        ])->first();
+
         $response = $this->withHeaders([
             'Accept' => 'application/json',
-        ])->get(route(self::INDEX_ANSWER_ROUTE, [$data['questions'][0]]));
+        ])->get(route(self::INDEX_ANSWER_ROUTE, [$data['questions'][0], $participant]));
         $response->assertStatus(200);
+    }
+
+    /**
+    * @test
+    */
+    public function for_indexing_answers_question_and_participant_must_be_related_to_each_other()
+    {
+        $this->seed(QuestionTypeSeeder::class);
+        $start = Carbon::now()->subMinute();
+        $end = Carbon::make($start)->addHours(2);
+        $data = $this->create_and_publish_an_exam([
+            // 'confirmation_required' => false,
+            'confirmation_required' => true,
+            'start' => $start->format('Y-m-d H:i:s'),
+            'end' => $end->format('Y-m-d H:i:s'),
+        ], 1);
+        $user = User::factory()->create();
+        $data2 = $this->create_and_publish_an_exam([
+            // 'confirmation_required' => false,
+            'confirmation_required' => true,
+            'start' => $start->format('Y-m-d H:i:s'),
+            'end' => $end->format('Y-m-d H:i:s'),
+        ], 1);
+
+        $user = User::factory()->create();
+
+        $this->register_user($user, $data['exam'], true);
+        // $this->register_user($user, $data['exam'], false);
+        $this->assertDatabaseCount('participants', 1);
+
+        Sanctum::actingAs($user, ['*']);
+
+        $participant = Participant::where([
+            'user_id' => $user->id,
+            'exam_id' => $data['exam']->id,
+        ])->first();
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->get(route(self::INDEX_ANSWER_ROUTE, [$data2['questions'][0], $participant]));
+        $response->assertStatus(403);
     }
 
     /**

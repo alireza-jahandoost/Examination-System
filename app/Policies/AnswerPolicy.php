@@ -20,14 +20,10 @@ class AnswerPolicy
      * @param  \App\Models\User  $user
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function viewAny(User $user, Question $question)
+    public function viewAny(User $user, Question $question, Participant $participant)
     {
-        $exam = $question->exam;
-        $participant = Participant::where([
-            'user_id' => $user->id,
-            'exam_id' => $question->exam_id,
-        ])->first();
-        if($participant){
+        if($participant->user_id === auth()->id() && $question->exam_id === $participant->exam_id){
+            $exam = $question->exam;
             $start = Carbon::make($exam->start);
             if($start <= Carbon::now()){
                 if($exam->confirmation_required){

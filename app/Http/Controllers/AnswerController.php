@@ -22,13 +22,9 @@ class AnswerController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Question $question)
+    public function index(Question $question, Participant $participant)
     {
-        $this->authorize('viewAny', [Answer::class, $question]);
-        $participant = Participant::where([
-            'user_id' => auth()->id(),
-            'exam_id' => $question->exam_id
-        ])->first();
+        $this->authorize('viewAny', [Answer::class, $question, $participant]);
         $answers = Answer::where([
             'question_id' => $question->id,
             'participant_id' => $participant->id,
