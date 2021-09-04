@@ -768,7 +768,7 @@ class ParticipantTest extends TestCase
         $response->assertStatus(200);
 
         $iterator = 1;
-        foreach($response->json()['data'] as $current){
+        foreach($response->json()['data']['participants'] as $current){
             if($iterator === $current['participant']['participant_id']){
                 $iterator ++;
             }
@@ -838,7 +838,7 @@ class ParticipantTest extends TestCase
         $response->assertStatus(200);
 
         $iterator = 1;
-        foreach($response->json()['data'] as $current){
+        foreach($response->json()['data']['participants'] as $current){
             if($iterator === $current['participant']['participant_id']){
                 $iterator ++;
             }

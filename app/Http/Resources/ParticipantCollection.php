@@ -14,6 +14,8 @@ class ParticipantCollection extends ResourceCollection
      */
     public function toArray($request)
     {
-        return parent::toArray($request);
+        return [
+            'participants' => parent::toArray($request),
+        ];
     }
 }
