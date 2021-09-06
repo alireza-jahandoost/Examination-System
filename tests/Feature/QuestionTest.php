@@ -355,77 +355,7 @@ class QuestionTest extends TestCase
     /**
      * @test
      */
-     public function user_can_update_all_the_fields_of_questions_of_his_exams()
-     {
-         Sanctum::actingAs(
-             $user = User::factory()->create(),
-             ['*']
-         );
-
-         $this->seed(QuestionTypeSeeder::class);
-
-         $exam = Exam::factory()->for($user)->create();
-         $question_type = QuestionType::find(3);
-
-         $question = Question::factory()->for($exam)->for($question_type)->create([
-             'can_be_shuffled' => false
-         ]);
-
-         $response = $this->withHeaders([
-             'Accept' => 'application/json'
-             ])->put(route(self::QUESTION_UPDATE_ROUTE, [$exam->id, $question->id]), [
-             'question_text' => 'test',
-             'question_type_id' => 1,
-             'question_score' => 20,
-             'can_be_shuffled' => true
-         ]);
-
-         $question->refresh();
-         $response->assertStatus(200);
-         $this->assertTrue($question->question_text === 'test');
-         $this->assertTrue($question->question_type_id === 1);
-         $this->assertTrue($question->score === 20);
-         $this->assertTrue($question->can_be_shuffled === true);
-     }
-
-    /**
-     * @test
-     */
-     public function for_updating_question_test_is_nullable()
-     {
-         Sanctum::actingAs(
-             $user = User::factory()->create(),
-             ['*']
-         );
-
-         $this->seed(QuestionTypeSeeder::class);
-
-         $exam = Exam::factory()->for($user)->create();
-         $question_type = QuestionType::find(3);
-
-         $question = Question::factory()->for($exam)->for($question_type)->create([
-             'can_be_shuffled' => false
-         ]);
-
-         $response = $this->withHeaders([
-             'Accept' => 'application/json'
-             ])->put(route(self::QUESTION_UPDATE_ROUTE, [$exam->id, $question->id]), [
-             'question_type_id' => 1,
-             'question_score' => 20,
-             'can_be_shuffled' => true
-         ]);
-
-         $question->refresh();
-         $response->assertStatus(200);
-         $this->assertTrue($question->question_type_id === 1);
-         $this->assertTrue($question->score === 20);
-         $this->assertTrue($question->can_be_shuffled === true);
-     }
-
-    /**
-     * @test
-     */
-     public function for_updating_question_type_id_is_nullable()
+     public function user_can_update_all_the_fields_of_questions_of_his_exams_except_question_type()
      {
          Sanctum::actingAs(
              $user = User::factory()->create(),
@@ -454,6 +384,68 @@ class QuestionTest extends TestCase
          $this->assertTrue($question->question_text === 'test');
          $this->assertTrue($question->score === 20);
          $this->assertTrue($question->can_be_shuffled === true);
+     }
+
+    /**
+     * @test
+     */
+     public function for_updating_question_text_is_nullable()
+     {
+         Sanctum::actingAs(
+             $user = User::factory()->create(),
+             ['*']
+         );
+
+         $this->seed(QuestionTypeSeeder::class);
+
+         $exam = Exam::factory()->for($user)->create();
+         $question_type = QuestionType::find(3);
+
+         $question = Question::factory()->for($exam)->for($question_type)->create([
+             'can_be_shuffled' => false
+         ]);
+
+         $response = $this->withHeaders([
+             'Accept' => 'application/json'
+             ])->put(route(self::QUESTION_UPDATE_ROUTE, [$exam->id, $question->id]), [
+             'question_score' => 20,
+             'can_be_shuffled' => true
+         ]);
+
+         $question->refresh();
+         $response->assertStatus(200);
+         $this->assertTrue($question->score === 20);
+         $this->assertTrue($question->can_be_shuffled === true);
+     }
+
+    /**
+     * @test
+     */
+     public function question_type_id_can_not_be_modified()
+     {
+         Sanctum::actingAs(
+             $user = User::factory()->create(),
+             ['*']
+         );
+
+         $this->seed(QuestionTypeSeeder::class);
+
+         $exam = Exam::factory()->for($user)->create();
+         $question_type = QuestionType::find(3);
+
+         $question = Question::factory()->for($exam)->for($question_type)->create([
+             'can_be_shuffled' => false
+         ]);
+
+         $response = $this->withHeaders([
+             'Accept' => 'application/json'
+             ])->put(route(self::QUESTION_UPDATE_ROUTE, [$exam->id, $question->id]), [
+                'question_type_id' => 2,
+         ]);
+
+         $question->refresh();
+         $response->assertStatus(200);
+         $this->assertTrue($question->question_type_id === 3);
      }
 
     /**
@@ -479,14 +471,12 @@ class QuestionTest extends TestCase
              'Accept' => 'application/json'
              ])->put(route(self::QUESTION_UPDATE_ROUTE, [$exam->id, $question->id]), [
              'question_text' => 'test',
-             'question_type_id' => 1,
              'question_score' => 20,
          ]);
 
          $question->refresh();
          $response->assertStatus(200);
          $this->assertTrue($question->question_text === 'test');
-         $this->assertTrue($question->question_type_id === 1);
          $this->assertTrue($question->score === 20);
      }
 
@@ -513,14 +503,12 @@ class QuestionTest extends TestCase
              'Accept' => 'application/json'
              ])->put(route(self::QUESTION_UPDATE_ROUTE, [$exam->id, $question->id]), [
              'question_text' => 'test',
-             'question_type_id' => 1,
              'can_be_shuffled' => true
          ]);
 
          $question->refresh();
          $response->assertStatus(200);
          $this->assertTrue($question->question_text === 'test');
-         $this->assertTrue($question->question_type_id === 1);
          $this->assertTrue($question->can_be_shuffled === true);
      }
 
@@ -548,7 +536,6 @@ class QuestionTest extends TestCase
              'Accept' => 'application/json'
              ])->put(route(self::QUESTION_UPDATE_ROUTE, [$anotherExam->id, $question->id]), [
              'question_text' => 'test',
-             'question_type_id' => 1,
              'can_be_shuffled' => true
          ]);
 
@@ -582,14 +569,12 @@ class QuestionTest extends TestCase
              'Accept' => 'application/json'
              ])->put(route(self::QUESTION_UPDATE_ROUTE, [$exam->id, $question->id]), [
              'question_text' => 'test',
-             'question_type_id' => 1,
              'can_be_shuffled' => true
          ]);
 
          $question->refresh();
          $response->assertStatus(200);
          $this->assertTrue($question->question_text === 'test');
-         $this->assertTrue($question->question_type_id === 1);
          $this->assertTrue($question->can_be_shuffled === true);
          $response->assertJsonStructure([
              'data' => [
@@ -627,7 +612,6 @@ class QuestionTest extends TestCase
              'Accept' => 'application/json'
              ])->put(route(self::QUESTION_UPDATE_ROUTE, [$exam->id, $question->id]), [
              'question_text' => 'test',
-             'question_type_id' => 1,
              'can_be_shuffled' => true
          ]);
 
@@ -663,7 +647,6 @@ class QuestionTest extends TestCase
              'Accept' => 'application/json'
              ])->put(route(self::QUESTION_UPDATE_ROUTE, [$exam->id, $question->id]), [
              'question_text' => 'test',
-             'question_type_id' => 1,
              'can_be_shuffled' => true
          ]);
 

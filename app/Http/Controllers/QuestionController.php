@@ -78,10 +78,6 @@ class QuestionController extends Controller
         $this->authorize('update', [$question, $exam]);
         $data = $request->validated();
 
-        if(isset($data['question_type_id'])){
-            $question->question_type_id = $data['question_type_id'];
-            // TODO: states and something will change after changing type of question
-        }
         if(isset($data['question_text']))
             $question->question_text = $data['question_text'];
         if(isset($data['question_score']))

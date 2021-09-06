@@ -24,7 +24,6 @@ class UpdateQuestionRequest extends FormRequest
     public function rules()
     {
         return [
-            'question_type_id' => 'nullable|numeric|exists:question_types,id',
             'question_text' => 'nullable|string|max:10000',
             'question_score' => 'nullable|numeric|max:1000000',
             'can_be_shuffled' => 'nullable|boolean'
