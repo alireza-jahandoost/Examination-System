@@ -22,6 +22,13 @@ class AnswerPolicy
      */
     public function viewAny(User $user, Question $question, Participant $participant)
     {
+        if($user->id === $question->exam->user_id){
+            if($participant->exam_id === $question->exam_id){
+                return true;
+            }else{
+                return false;
+            }
+        }
         if($participant->user_id === auth()->id() && $question->exam_id === $participant->exam_id){
             $exam = $question->exam;
             $start = Carbon::make($exam->start);

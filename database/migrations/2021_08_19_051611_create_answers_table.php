@@ -20,6 +20,7 @@ class CreateAnswersTable extends Migration
             $table->text('text_answer')->nullable();
             $table->integer('integer_answer')->nullable();
             $table->integer('grade')->nullable();
+            $table->boolean('scored')->default(false);
             $table->timestamps();
         });
     }

@@ -13,6 +13,7 @@ class Participant extends Model
         'exam_id' => 'integer',
         'user_id' => 'integer',
         'is_accepted' => 'boolean',
+        'status' => 'integer',
     ];
 
     // RelationShips

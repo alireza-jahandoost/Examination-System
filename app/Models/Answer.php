@@ -9,6 +9,10 @@ class Answer extends Model
 {
     use HasFactory;
 
+    protected $casts = [
+        'integer_answer' => 'integer',
+    ];
+
     // RelationShips
     public function question()
     {

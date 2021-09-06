@@ -5,16 +5,25 @@ namespace App\Http\Controllers;
 use App\Models\Participant;
 use App\Models\Exam;
 use App\Models\User;
+use App\Models\Question;
+use App\Models\Answer;
 use Illuminate\Http\Request;
 
 use App\Http\Requests\CreateParticipantRequest;
 use App\Http\Requests\AcceptParticipantRequest;
+use App\Http\Requests\SaveScoreRequest;
 
 use App\Actions\Participants\CanUserRegisterInExam;
+use App\Actions\Correcting\AreManualQuestionsScored;
 
 use App\Http\Resources\MessageResource;
 use App\Http\Resources\ParticipantResource;
+use App\Http\Resources\QuestionGradeResource;
 use App\Http\Resources\ParticipantCollection;
+
+use App\Jobs\CorrectExamJob;
+
+use App\Actions\Correcting\CalculateQuestionGrade;
 
 class ParticipantController extends Controller
 {
@@ -118,5 +127,77 @@ class ParticipantController extends Controller
     public function destroy(Participant $participant)
     {
         //
+    }
+
+    public function finish_exam(Exam $exam)
+    {
+        $this->authorize('finishExam', [Participant::class, $exam]);
+        $participant = Participant::where([
+            'user_id' => auth()->id(),
+            'exam_id' => $exam->id
+        ])->first();
+        $participant->status = 1;
+        $participant->save();
+
+        CorrectExamJob::dispatch($participant);
+
+        return response(null, 202);
+    }
+
+    public function save_score(SaveScoreRequest $request, Question $question, Participant $participant, AreManualQuestionsScored $action)
+    {
+        $this->authorize('saveScore', [$participant, $question]);
+        $data = $request->validated();
+
+        switch($question->questionType->id){
+            case 1:
+                $answer = Answer::where([
+                    'question_id' => $question->id,
+                    'participant_id' => $participant->id,
+                ])->first();
+                if(!$answer){
+                    $answer = new Answer;
+                    $answer->grade = $data['grade'];
+                    $answer->participant_id = $participant->id;
+                    $answer->question_id = $question->id;
+                }else{
+                    $answer->grade = $data['grade'];
+                }
+                $answer->scored = true;
+                $answer->save();
+
+                $participant->grade += $answer->grade;
+
+                if($action->check($question->exam, $participant)){
+                    $participant->status = 3;
+                }
+
+                $participant->save();
+
+                return response(null, 202);
+        }
+    }
+
+    public function question_grade(Participant $participant, Question $question, CalculateQuestionGrade $action)
+    {
+        $this->authorize('questionGrade', [$participant, $question]);
+        switch ($question->questionType->id) {
+            case 1:
+                return (new QuestionGradeResource([
+                    'grade' => Answer::where([
+                        'participant_id' => $participant->id,
+                        'question_id' => $question->id,
+                    ])->first()->grade,
+                    'question_id' => $question->id,
+                    'participant_id' => $participant->id,
+                ]))->response()->setStatusCode(200);
+
+            default:
+                return (new QuestionGradeResource([
+                    'grade' => $action->calculate($participant, $question),
+                    'question_id' => $question->id,
+                    'participant_id' => $participant->id,
+                ]))->response()->setStatusCode(200);
+        }
     }
 }

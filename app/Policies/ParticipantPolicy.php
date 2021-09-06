@@ -5,7 +5,10 @@ namespace App\Policies;
 use App\Models\Participant;
 use App\Models\User;
 use App\Models\Exam;
+use App\Models\Question;
 use Illuminate\Auth\Access\HandlesAuthorization;
+
+use Carbon\Carbon;
 
 class ParticipantPolicy
 {
@@ -31,7 +34,15 @@ class ParticipantPolicy
      */
     public function view(User $user, Participant $participant, Exam $exam)
     {
-        return ($user->id === $exam->user_id && $participant->exam_id === $exam->id);
+        if($user->id === $participant->user_id){
+            return true;
+        }
+        if($user->id === $exam->user_id){
+            if($participant->exam_id === $exam->id){
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -92,9 +103,67 @@ class ParticipantPolicy
     {
         //
     }
-    
+
     public function accept(User $user, Exam $exam)
     {
         return $user->id === $exam->user_id;
+    }
+
+    public function finishExam(User $user,Exam $exam)
+    {
+        $participant = Participant::where([
+            'user_id' => $user->id,
+            'exam_id' => $exam->id,
+        ])->first();
+
+        if($participant){
+            $start = Carbon::make($exam->start);
+            $end = Carbon::make($exam->end);
+            if($end >= Carbon::now() && $start <= Carbon::now()){
+                if($exam->confirmation_required){
+                    if($participant->is_accepted){
+                        return $participant->status === 0;
+                    }else{
+                        return false;
+                    }
+                }else{
+                    return $participant->status === 0;
+                }
+            }else{
+                return false;
+            }
+        }else{
+            return false;
+        }
+    }
+
+    public function saveScore(User $user, Participant $participant, Question $question)
+    {
+        if($user->id === $question->exam->user_id){
+            if($participant->exam_id === $question->exam_id){
+                if($participant->status === 2){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public function questionGrade(User $user, Participant $participant, Question $question)
+    {
+        if($participant->status !== 3){
+            return false;
+        }
+        if($user->id === $participant->user_id){
+            if($participant->exam_id === $question->exam_id){
+                return true;
+            }
+        }
+        if($user->id === $question->exam->user_id){
+            if($participant->exam_id === $question->exam_id){
+                return true;
+            }
+        }
+        return false;
     }
 }
