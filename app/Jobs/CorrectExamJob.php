@@ -10,10 +10,11 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
 use App\Models\Participant;
+use App\Models\QuestionGrade;
 use App\Models\User;
 use App\Models\Exam;
 
-use App\Actions\Correcting\CalculateGrade;
+use App\Actions\Correcting\CalculateQuestionGrade;
 use App\Actions\Correcting\CanAllTheExamCorrectBySystem;
 
 class CorrectExamJob implements ShouldQueue
@@ -36,9 +37,21 @@ class CorrectExamJob implements ShouldQueue
      *
      * @return void
      */
-    public function handle(CalculateGrade $action1, CanAllTheExamCorrectBySystem $action2)
+    public function handle(CalculateQuestionGrade $action1, CanAllTheExamCorrectBySystem $action2)
     {
-        $this->participant->grade = $action1->calculate($this->participant);
+        $this->participant->grade = 0;
+
+        foreach ($this->participant->exam->questions as $question) {
+            if($question->questionType->can_correct_by_system){
+                $questionGrade = new QuestionGrade;
+                $questionGrade->participant_id = $this->participant->id;
+                $questionGrade->question_id = $question->id;
+                $questionGrade->grade = $action1->calculate($this->participant, $question);
+                $questionGrade->save();
+
+                $this->participant->grade += $questionGrade->grade;
+            }
+        }
 
         if($action2->can($this->participant->exam)){
             $this->participant->status = 3;

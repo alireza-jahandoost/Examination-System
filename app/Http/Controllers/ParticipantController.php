@@ -7,6 +7,7 @@ use App\Models\Exam;
 use App\Models\User;
 use App\Models\Question;
 use App\Models\Answer;
+use App\Models\QuestionGrade;
 use Illuminate\Http\Request;
 
 use App\Http\Requests\CreateParticipantRequest;
@@ -151,22 +152,21 @@ class ParticipantController extends Controller
 
         switch($question->questionType->id){
             case 1:
-                $answer = Answer::where([
-                    'question_id' => $question->id,
+                $questionGrade = QuestionGrade::where([
                     'participant_id' => $participant->id,
+                    'question_id' => $question->id,
                 ])->first();
-                if(!$answer){
-                    $answer = new Answer;
-                    $answer->grade = $data['grade'];
-                    $answer->participant_id = $participant->id;
-                    $answer->question_id = $question->id;
-                }else{
-                    $answer->grade = $data['grade'];
-                }
-                $answer->scored = true;
-                $answer->save();
 
-                $participant->grade += $answer->grade;
+                if(!$questionGrade){
+                    $questionGrade = new QuestionGrade;
+                    $questionGrade->participant_id = $participant->id;
+                    $questionGrade->question_id = $question->id;
+                }
+
+                $questionGrade->grade = $data['grade'];
+                $questionGrade->save();
+
+                $participant->recalculateGrade();
 
                 if($action->check($question->exam, $participant)){
                     $participant->status = 3;
@@ -175,29 +175,22 @@ class ParticipantController extends Controller
                 $participant->save();
 
                 return response(null, 202);
+
+            default:
+                dd('unknown type of question(ParticipantController)');
+                break;
         }
     }
 
     public function question_grade(Participant $participant, Question $question, CalculateQuestionGrade $action)
     {
         $this->authorize('questionGrade', [$participant, $question]);
-        switch ($question->questionType->id) {
-            case 1:
-                return (new QuestionGradeResource([
-                    'grade' => Answer::where([
-                        'participant_id' => $participant->id,
-                        'question_id' => $question->id,
-                    ])->first()->grade,
-                    'question_id' => $question->id,
-                    'participant_id' => $participant->id,
-                ]))->response()->setStatusCode(200);
+        $grade = $participant->grades()->where('question_id', $question->id)->first()->grade;
 
-            default:
-                return (new QuestionGradeResource([
-                    'grade' => $action->calculate($participant, $question),
-                    'question_id' => $question->id,
-                    'participant_id' => $participant->id,
-                ]))->response()->setStatusCode(200);
-        }
+        return (new QuestionGradeResource([
+            'participant_id' => $participant->id,
+            'question_id' => $question->id,
+            'grade' => $grade,
+        ]))->response()->setStatusCode(200);
     }
 }

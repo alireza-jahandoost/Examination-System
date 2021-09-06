@@ -141,7 +141,7 @@ class ParticipantPolicy
     {
         if($user->id === $question->exam->user_id){
             if($participant->exam_id === $question->exam_id){
-                if($participant->status === 2){
+                if($participant->status === 2 || $participant->status === 3){
                     return true;
                 }
             }

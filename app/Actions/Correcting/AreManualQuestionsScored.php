@@ -5,6 +5,7 @@ namespace App\Actions\Correcting;
 use Illuminate\Support\Str;
 
 use App\Models\Exam;
+use App\Models\QuestionGrade;
 use App\Models\Participant;
 
 class AreManualQuestionsScored
@@ -22,8 +23,12 @@ class AreManualQuestionsScored
             if(! $question->questionType->can_correct_by_system){
                 switch ($question->questionType->id) {
                     case 1:
-                        $answer = $question->answers()->where('participant_id', $participant->id)->first();
-                        if(!$answer || !$answer->scored){
+                        $questionGrade = QuestionGrade::where([
+                            'question_id' => $question->id,
+                            'participant_id' => $participant->id
+                        ])->first();
+
+                        if(!$questionGrade){
                             return false;
                         }
                         break;

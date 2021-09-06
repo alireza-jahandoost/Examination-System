@@ -16,6 +16,16 @@ class Participant extends Model
         'status' => 'integer',
     ];
 
+    public function recalculateGrade()
+    {
+        $total_grade = 0;
+        foreach($this->grades as $grade){
+            $total_grade += $grade->grade;
+        }
+
+        $this->attributes['grade'] = $total_grade;
+    }
+
     // RelationShips
     public function exam()
     {
@@ -28,5 +38,9 @@ class Participant extends Model
     public function answers()
     {
         return $this->hasMany(Answer::class);
+    }
+    public function grades()
+    {
+        return $this->hasMany(QuestionGrade::class);
     }
 }

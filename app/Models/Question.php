@@ -43,4 +43,8 @@ class Question extends Model
     {
         return $this->belongsTo(QuestionType::class);
     }
+    public function grades()
+    {
+        return $this->hasMany(QuestionGrade::class);
+    }
 }

@@ -17,6 +17,7 @@ use Laravel\Sanctum\Sanctum;
 use App\Models\User;
 use App\Models\Exam;
 use App\Models\Question;
+use App\Models\QuestionGrade;
 use App\Models\QuestionType;
 use App\Models\Participant;
 use App\Models\State;
@@ -2928,5 +2929,85 @@ class CorrectAnswersTest extends TestCase
             ]
         ]);
 
+    }
+
+    /**
+    * @test
+    */
+    public function if_owner_change_the_grade_of_a_manual_correcting_question_the_program_must_not_create_another_QuestionGrade_and_we_just_have_to_modify_that()
+    {
+        $this->seed(QuestionTypeSeeder::class);
+        $start = Carbon::now()->subHour();
+        $end = Carbon::make($start)->addHours(2);
+        $data = $this->create_and_publish_an_exam([
+            'confirmation_required' => false,
+            'start' => $start->format('Y-m-d H:i:s'),
+            'end' => $end->format('Y-m-d H:i:s'),
+        ], 4, true);
+
+        $user = User::factory()->create();
+
+        $this->register_user($user, $data['exam']);
+        $this->assertDatabaseCount('participants', 1);
+
+        $participant = Participant::where([
+            'user_id' => $user->id,
+            'exam_id' => $data['exam']->id,
+        ])->first();
+
+        $this->send_answer_for_user($user, $data['questions'][0], false);
+        $this->send_answer_for_user($user, $data['questions'][1], true);
+        $this->send_answer_for_user($user, $data['questions'][3], true);
+        $this->send_answer_for_user($user, $data['questions'][5], true);
+
+        $this->assertDatabaseMissing('participants', [
+            'status' => 1,
+        ]);
+
+        Sanctum::actingAs($user, ['*']);
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->put(route(self::FINISH_EXAM_ROUTE, [$data['exam']]));
+
+        $response->assertStatus(202);
+
+        Sanctum::actingAs($data['owner'],['*']);
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->post(route(self::SUBMIT_GRADE_ROUTE, [$data['questions'][5], $participant]),[
+            'grade' => 20,
+        ]);
+
+        $response->assertStatus(202);
+
+        $this->assertDatabaseCount('question_grades', 6);
+        $this->assertDatabaseHas('question_grades', [
+            'grade' => 20,
+            'participant_id' => $participant->id,
+            'question_id' => $data['questions'][5]->id,
+        ]);
+        $this->assertDatabaseHas('participants', [
+            'grade' => 60,
+        ]);
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->post(route(self::SUBMIT_GRADE_ROUTE, [$data['questions'][5], $participant]),[
+            'grade' => 10,
+        ]);
+
+        $response->assertStatus(202);
+
+        $this->assertDatabaseHas('participants', [
+            'grade' => 50,
+        ]);
+        $this->assertDatabaseCount('question_grades', 6);
+        $this->assertDatabaseHas('question_grades', [
+            'grade' => 10,
+            'participant_id' => $participant->id,
+            'question_id' => $data['questions'][5]->id,
+        ]);
     }
 }
