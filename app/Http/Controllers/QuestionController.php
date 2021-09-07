@@ -17,9 +17,8 @@ use App\Http\Resources\QuestionCollection;
 class QuestionController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     * index questions of specific exam
+     * @param  Exam   $exam
      */
     public function index(Exam $exam)
     {
@@ -28,10 +27,9 @@ class QuestionController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * store a question for specific exam
+     * @param  Exam                  $exam
+     * @param  CreateQuestionRequest $request
      */
     public function store(Exam $exam, CreateQuestionRequest $request)
     {
@@ -46,7 +44,7 @@ class QuestionController extends Controller
 
         $question->question_type_id = $data['question_type_id'];
 
-        if(isset($data['can_be_shuffled'])){
+        if (isset($data['can_be_shuffled'])) {
             $question->can_be_shuffled = $data['can_be_shuffled'];
         }
         $question->save();
@@ -55,10 +53,9 @@ class QuestionController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Question  $question
-     * @return \Illuminate\Http\Response
+     * show a specific question of Exam
+     * @param  Exam     $exam
+     * @param  Question $question
      */
     public function show(Exam $exam, Question $question)
     {
@@ -67,23 +64,25 @@ class QuestionController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Question  $question
-     * @return \Illuminate\Http\Response
+     * update a question
+     * @param  UpdateQuestionRequest $request
+     * @param  Exam                  $exam
+     * @param  Question              $question
      */
     public function update(UpdateQuestionRequest $request, Exam $exam, Question $question)
     {
         $this->authorize('update', [$question, $exam]);
         $data = $request->validated();
 
-        if(isset($data['question_text']))
+        if (isset($data['question_text'])) {
             $question->question_text = $data['question_text'];
-        if(isset($data['question_score']))
+        }
+        if (isset($data['question_score'])) {
             $question->score = $data['question_score'];
-        if(isset($data['can_be_shuffled']))
+        }
+        if (isset($data['can_be_shuffled'])) {
             $question->can_be_shuffled = $data['can_be_shuffled'];
+        }
 
         $question->save();
 
@@ -91,10 +90,9 @@ class QuestionController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Question  $question
-     * @return \Illuminate\Http\Response
+     * delete question
+     * @param  Exam     $exam
+     * @param  Question $question
      */
     public function destroy(Exam $exam, Question $question)
     {

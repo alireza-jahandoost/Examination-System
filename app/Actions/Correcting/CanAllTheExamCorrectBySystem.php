@@ -8,17 +8,15 @@ use App\Models\Exam;
 
 class CanAllTheExamCorrectBySystem
 {
-
     /**
-     * get a type id and return an array about that type
-     *
-     * @param  integer $type
-     * @return array
+     * checks whether exams can be currected by system
+     * @param  Exam $exam
+     * @return bool
      */
-    public function can(Exam $exam)
+    public function can(Exam $exam): bool
     {
-        foreach($exam->questions as $question){
-            if(! $question->questionType->can_correct_by_system){
+        foreach ($exam->questions as $question) {
+            if (! $question->questionType->can_correct_by_system) {
                 return false;
             }
         }

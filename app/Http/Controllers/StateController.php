@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\State;
-use App\Models\User;
 use App\Models\Exam;
 use App\Models\Question;
 use Illuminate\Http\Request;
@@ -22,8 +21,6 @@ class StateController extends Controller
 {
     /**
      * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
      */
     public function index(Exam $exam, Question $question)
     {
@@ -32,20 +29,19 @@ class StateController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \App\Http\Requests\CreateStateRequest  $request
-     * @param  \App\Models\Exam  $exam
-     * @param  \App\Models\Question  $question
-     * @return \Illuminate\Http\Response
+     * store a new state for question
+     * @param  CreateStateRequest $request
+     * @param  CanUserCreateState $action
+     * @param  Exam               $exam
+     * @param  Question           $question
      */
-    public function store(CreateStateRequest $request,CanUserCreateState $action, Exam $exam, Question $question)
+    public function store(CreateStateRequest $request, CanUserCreateState $action, Exam $exam, Question $question)
     {
         $this->authorize('create', [State::class, $exam, $question]);
         $data = $request->validated();
 
         $status = $action->check($question, $data);
-        if($status !== 'success'){
+        if ($status !== 'success') {
             return (new MessageResource([
                 'message' => $status
             ]))->response()->setStatusCode(401);
@@ -59,10 +55,10 @@ class StateController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\State  $state
-     * @return \Illuminate\Http\Response
+     * show a specific state of question
+     * @param  Exam     $exam
+     * @param  Question $question
+     * @param  State    $state
      */
     public function show(Exam $exam, Question $question, State $state)
     {
@@ -71,27 +67,30 @@ class StateController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\State  $state
-     * @return \Illuminate\Http\Response
+     * update an specific state of question
+     * @param  UpdateStateRequest $request
+     * @param  CanUserUpdateState $action
+     * @param  Exam               $exam
+     * @param  Question           $question
+     * @param  State              $state
      */
-    public function update(UpdateStateRequest $request,CanUserUpdateState $action, Exam $exam, Question $question,  State $state)
+    public function update(UpdateStateRequest $request, CanUserUpdateState $action, Exam $exam, Question $question, State $state)
     {
         $this->authorize('update', [$state, $exam, $question]);
         $data = $request->validated();
         $status = $action->check($question, $data);
-        if($status !== 'success'){
+        if ($status !== 'success') {
             return (new MessageResource([
                 'message' => $status
                 ]))->response()->setStatusCode(401);
         }
 
-        if(isset($data['text_part']))
+        if (isset($data['text_part'])) {
             $state->text_answer = $data['text_part'];
-        if(isset($data['integer_part']))
+        }
+        if (isset($data['integer_part'])) {
             $state->integer_answer = $data['integer_part'];
+        }
 
         $state->save();
 
@@ -99,10 +98,10 @@ class StateController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\State  $state
-     * @return \Illuminate\Http\Response
+     * destroy a state
+     * @param  Exam     $exam
+     * @param  Question $question
+     * @param  State    $state
      */
     public function destroy(Exam $exam, Question $question, State $state)
     {

@@ -8,7 +8,6 @@ use App\Actions\Fortify\PasswordValidationRules;
 
 class PasswordResetRequest extends FormRequest
 {
-
     use PasswordValidationRules;
     /**
      * Determine if the user is authorized to make this request.

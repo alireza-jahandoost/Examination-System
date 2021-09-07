@@ -16,10 +16,13 @@ class Participant extends Model
         'status' => 'integer',
     ];
 
+    /**
+     * calculate the grade of participant based on calculated answers
+     */
     public function recalculateGrade()
     {
         $total_grade = 0;
-        foreach($this->grades as $grade){
+        foreach ($this->grades as $grade) {
             $total_grade += $grade->grade;
         }
 

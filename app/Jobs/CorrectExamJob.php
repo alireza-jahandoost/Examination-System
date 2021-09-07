@@ -11,15 +11,16 @@ use Illuminate\Queue\SerializesModels;
 
 use App\Models\Participant;
 use App\Models\QuestionGrade;
-use App\Models\User;
-use App\Models\Exam;
 
 use App\Actions\Correcting\CalculateQuestionGrade;
 use App\Actions\Correcting\CanAllTheExamCorrectBySystem;
 
 class CorrectExamJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     /**
      * Create a new job instance.
@@ -42,8 +43,8 @@ class CorrectExamJob implements ShouldQueue
         $this->participant->grade = 0;
 
         foreach ($this->participant->exam->questions as $question) {
-            if($question->questionType->can_correct_by_system){
-                $questionGrade = new QuestionGrade;
+            if ($question->questionType->can_correct_by_system) {
+                $questionGrade = new QuestionGrade();
                 $questionGrade->participant_id = $this->participant->id;
                 $questionGrade->question_id = $question->id;
                 $questionGrade->grade = $action1->calculate($this->participant, $question);
@@ -53,9 +54,9 @@ class CorrectExamJob implements ShouldQueue
             }
         }
 
-        if($action2->can($this->participant->exam)){
+        if ($action2->can($this->participant->exam)) {
             $this->participant->status = 3;
-        }else{
+        } else {
             $this->participant->status = 2;
         }
 

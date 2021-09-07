@@ -6,7 +6,6 @@ use App\Models\Participant;
 use App\Models\Exam;
 use App\Models\User;
 use App\Models\Question;
-use App\Models\Answer;
 use App\Models\QuestionGrade;
 use Illuminate\Http\Request;
 
@@ -29,9 +28,8 @@ use App\Actions\Correcting\CalculateQuestionGrade;
 class ParticipantController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     * index the participants of an exam
+     * @param  Exam   $exam
      */
     public function index(Exam $exam)
     {
@@ -40,31 +38,21 @@ class ParticipantController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * store new participant
+     * @param  CreateParticipantRequest $request
+     * @param  Exam                     $exam
+     * @param  CanUserRegisterInExam    $action
      */
     public function store(CreateParticipantRequest $request, Exam $exam, CanUserRegisterInExam $action)
     {
         $this->authorize('create', [Participant::class, $exam]);
         $status = $action->check($exam, $request->validated());
-        if($status !== 'success'){
+        if ($status !== 'success') {
             return (new MessageResource([
                 'message' => $status
                 ]))->response()->setStatusCode(401);
         }
-        $participant = new Participant;
+        $participant = new Participant();
         $participant->user_id = auth()->id();
         $participant->exam_id = $exam->id;
         $participant->save();
@@ -73,10 +61,9 @@ class ParticipantController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Participant  $participant
-     * @return \Illuminate\Http\Response
+     * show participant
+     * @param  Exam        $exam
+     * @param  Participant $participant
      */
     public function show(Exam $exam, Participant $participant)
     {
@@ -85,22 +72,9 @@ class ParticipantController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Participant  $participant
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Participant $participant)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Participant  $participant
-     * @return \Illuminate\Http\Response
+     * accept participant if exam needs confirmation
+     * @param  AcceptParticipantRequest $request
+     * @param  Exam                     $exam
      */
     public function update(AcceptParticipantRequest $request, Exam $exam)
     {
@@ -109,7 +83,7 @@ class ParticipantController extends Controller
         $user = User::find($request->input('user_id'));
         $participant = Participant::where(['user_id' => $user->id, 'exam_id' => $exam->id]);
 
-        if($participant->exists()){
+        if ($participant->exists()) {
             $participant = $participant->first();
             $participant->is_accepted = true;
             $participant->save();
@@ -120,16 +94,9 @@ class ParticipantController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Participant  $participant
-     * @return \Illuminate\Http\Response
+     * make the exam of current user finished
+     * @param  Exam   $exam
      */
-    public function destroy(Participant $participant)
-    {
-        //
-    }
-
     public function finish_exam(Exam $exam)
     {
         $this->authorize('finishExam', [Participant::class, $exam]);
@@ -145,20 +112,27 @@ class ParticipantController extends Controller
         return response(null, 202);
     }
 
+    /**
+     * save score for manual correcting questions by owner of exam
+     * @param  SaveScoreRequest         $request
+     * @param  Question                 $question
+     * @param  Participant              $participant
+     * @param  AreManualQuestionsScored $action
+     */
     public function save_score(SaveScoreRequest $request, Question $question, Participant $participant, AreManualQuestionsScored $action)
     {
         $this->authorize('saveScore', [$participant, $question]);
         $data = $request->validated();
 
-        switch($question->questionType->id){
+        switch ($question->questionType->id) {
             case 1:
                 $questionGrade = QuestionGrade::where([
                     'participant_id' => $participant->id,
                     'question_id' => $question->id,
                 ])->first();
 
-                if(!$questionGrade){
-                    $questionGrade = new QuestionGrade;
+                if (!$questionGrade) {
+                    $questionGrade = new QuestionGrade();
                     $questionGrade->participant_id = $participant->id;
                     $questionGrade->question_id = $question->id;
                 }
@@ -168,7 +142,7 @@ class ParticipantController extends Controller
 
                 $participant->recalculateGrade();
 
-                if($action->check($question->exam, $participant)){
+                if ($action->check($question->exam, $participant)) {
                     $participant->status = 3;
                 }
 
@@ -182,6 +156,12 @@ class ParticipantController extends Controller
         }
     }
 
+    /**
+     * show the grade of question for participant
+     * @param  Participant            $participant
+     * @param  Question               $question
+     * @param  CalculateQuestionGrade $action
+     */
     public function question_grade(Participant $participant, Question $question, CalculateQuestionGrade $action)
     {
         $this->authorize('questionGrade', [$participant, $question]);

@@ -2,25 +2,22 @@
 
 namespace App\Actions\Correcting;
 
-use Illuminate\Support\Str;
-
 use App\Models\Exam;
 use App\Models\QuestionGrade;
 use App\Models\Participant;
 
 class AreManualQuestionsScored
 {
-
     /**
-     * get a type id and return an array about that type
-     *
-     * @param  integer $type
-     * @return array
+     * check whether manual questions scored
+     * @param  Exam        $exam
+     * @param  Participant $participant
+     * @return bool
      */
-    public function check(Exam $exam, Participant $participant)
+    public function check(Exam $exam, Participant $participant): bool
     {
-        foreach($exam->questions as $question){
-            if(! $question->questionType->can_correct_by_system){
+        foreach ($exam->questions as $question) {
+            if (! $question->questionType->can_correct_by_system) {
                 switch ($question->questionType->id) {
                     case 1:
                         $questionGrade = QuestionGrade::where([
@@ -28,7 +25,7 @@ class AreManualQuestionsScored
                             'participant_id' => $participant->id
                         ])->first();
 
-                        if(!$questionGrade){
+                        if (!$questionGrade) {
                             return false;
                         }
                         break;

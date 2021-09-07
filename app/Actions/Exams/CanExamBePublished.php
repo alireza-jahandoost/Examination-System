@@ -2,34 +2,30 @@
 
 namespace App\Actions\Exams;
 
-use Illuminate\Support\Str;
-
 use App\Models\Exam;
 use App\Models\Question;
 
 class CanExamBePublished
 {
-
     /**
-     * get a type id and return an array about that type
-     *
-     * @param  integer $type
-     * @return array
+     * check that exam can be published or not
+     * @param  Exam   $exam
+     * @return string
      */
-    public function check(Exam $exam)
+    public function check(Exam $exam): string
     {
-        $sum_of_scores = $exam->questions->reduce(function($carry, $question){
+        $sum_of_scores = $exam->questions->reduce(function ($carry, $question) {
             return $carry + $question->score;
         }, 0);
 
-        if($sum_of_scores !== $exam->total_score){
+        if ($sum_of_scores !== $exam->total_score) {
             return 'sum of scores of questions is not equal to total score of exam';
         }
 
 
         foreach ($exam->questions as $question) {
             $status = $this->has_minimums($question);
-            if($status !== 'success'){
+            if ($status !== 'success') {
                 return $status;
             }
         }
@@ -37,38 +33,55 @@ class CanExamBePublished
 
         foreach ($exam->questions as $question) {
             $status = $this->has_valid_answer($question);
-            if($status !== 'success'){
+            if ($status !== 'success') {
                 return $status;
             }
         }
         return 'success';
     }
 
-    protected function has_minimums(Question $question)
+    /**
+     * check that question has the lower bound of states
+     * @param  Question $question
+     * @return string
+     */
+    protected function has_minimums(Question $question): string
     {
-        switch($question->questionType->id){
+        switch ($question->questionType->id) {
             case 1:
-                if($question->states()->count() === 0) return 'success';
+                if ($question->states()->count() === 0) {
+                    return 'success';
+                }
                 return 'descriptive questions do not have to got state';
 
             case 2:
-                if($question->states()->count() >= 1) return 'success';
+                if ($question->states()->count() >= 1) {
+                    return 'success';
+                }
                 return 'fill the blank questions must have 1 state';
 
             case 3:
-                if($question->states()->count() >= 2) return 'success';
+                if ($question->states()->count() >= 2) {
+                    return 'success';
+                }
                 return 'multiple questions must have more than 2 states';
 
             case 4:
-                if($question->states()->count() >= 2) return 'success';
+                if ($question->states()->count() >= 2) {
+                    return 'success';
+                }
                 return 'select questions must have more than 2 states';
 
             case 5:
-                if($question->states()->count() === 1) return 'success';
+                if ($question->states()->count() === 1) {
+                    return 'success';
+                }
                 return 'true or false questions must have 1 state';
 
             case 6:
-                if($question->states()->count() >= 2) return 'success';
+                if ($question->states()->count() >= 2) {
+                    return 'success';
+                }
                 return 'ordering questions must have more than 2 states';
 
             default:
@@ -76,7 +89,12 @@ class CanExamBePublished
         }
     }
 
-    protected function has_valid_answer(Question $question)
+    /**
+     * check that the answer of question exists and valid
+     * @param  Question $question
+     * @return string
+     */
+    protected function has_valid_answer(Question $question): string
     {
         switch ($question->questionType->id) {
             case 1:
@@ -91,7 +109,9 @@ class CanExamBePublished
                 $answers = $question->states()->orderBy('integer_answer')->pluck('integer_answer');
                 $iterator = 1;
                 foreach ($answers as $answer) {
-                    if($iterator === $answer) $iterator++;
+                    if ($iterator === $answer) {
+                        $iterator++;
+                    }
                 }
                 return $iterator === count($answers) + 1 ? 'success' : 'orders must start from 1 and must dont have repeated order';
 

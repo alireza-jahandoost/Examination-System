@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Auth\Events\PasswordReset;
 
 use App\Actions\Fortify\CreateNewUser;
@@ -24,10 +23,17 @@ use App\Models\User;
 
 class AuthenticationController extends Controller
 {
+    /**
+     * limit of tokens that a user can have
+     * @var integer
+     */
+    public const TOKEN_COUNT_LIMIT = 6;
 
-    const TOKEN_COUNT_LIMIT = 6;
-
-    private static function make_token_and_make_response(User $user, $status)
+    /**
+     * @param  User   $user
+     * @param  int    $status
+     */
+    private static function make_token_and_make_response(User $user, int $status)
     {
         $token = $user->createToken('SanctumAuthenticationToken');
         return (new AuthenticationResource([
@@ -36,34 +42,47 @@ class AuthenticationController extends Controller
             ]))->response()->setStatusCode($status);
     }
 
+    /**
+     * register a new user
+     * @param  Request                $request
+     * @param  CreateNewUser          $action
+     */
     public function register(Request $request, CreateNewUser $action)
     {
         $user = $action->create($request->input());
         return self::make_token_and_make_response($user, 201);
     }
 
+    /**
+     * login a user
+     * @param  LoginRequest           $request
+     */
     public function login(LoginRequest $request)
     {
         $data = $request->validated();
 
         $user = User::where('email', $data['email'])->first();
 
-        if(!$user || !Hash::check($data['password'], $user->password)){
+        if (!$user || !Hash::check($data['password'], $user->password)) {
             return (new MessageResource([
                 'message' => 'Invalid email or password',
                 ]))->response()->setStatusCode(401);
         }
 
-        if($user->tokens()->count() >= self::TOKEN_COUNT_LIMIT){
+        if ($user->tokens()->count() >= self::TOKEN_COUNT_LIMIT) {
             $user->tokens()->first()->delete();
         }
 
         return self::make_token_and_make_response($user, 200);
     }
 
+    /**
+     * send a link for reseting password
+     * @param EmailValidationRequest $request
+     */
     public function password_reset_link(EmailValidationRequest $request)
     {
-        if(User::where('email', $request->input('email'))->exists()){
+        if (User::where('email', $request->input('email'))->exists()) {
             $status = Password::sendResetLink($request->only('email'));
         }
 
@@ -72,6 +91,11 @@ class AuthenticationController extends Controller
             ]))->response()->setStatusCode(200);
     }
 
+    /**
+     * reset user's password
+     * @param PasswordResetRequest $request
+     * @param ResetUserPassword    $action
+     */
     public function password_reset(PasswordResetRequest $request, ResetUserPassword $action)
     {
         $data = $request->validated();
@@ -91,13 +115,18 @@ class AuthenticationController extends Controller
             }
         );
 
-        if($status === Password::PASSWORD_RESET){
+        if ($status === Password::PASSWORD_RESET) {
             return (new MessageResource([
                 'message' => 'password changed successfully'
             ]))->response()->setStatusCode(200);
         }
     }
 
+    /**
+     * change user's password
+     * @param  Request            $request
+     * @param  UpdateUserPassword $action
+     */
     public function change_password(Request $request, UpdateUserPassword $action)
     {
         $action->update(auth()->user(), $request->input());
@@ -109,6 +138,10 @@ class AuthenticationController extends Controller
         ]))->response()->setStatusCode(200);
     }
 
+    /**
+     * logout the user
+     * @param  Request $request
+     */
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();

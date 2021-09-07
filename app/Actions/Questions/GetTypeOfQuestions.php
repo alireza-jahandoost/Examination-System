@@ -4,16 +4,14 @@ namespace App\Actions\Questions;
 
 use Illuminate\Support\Str;
 
-
 class GetTypeOfQuestions
 {
     /**
      * get a type id and return an array about that type
-     *
-     * @param  integer $type
+     * @param  int $type
      * @return array
      */
-    public function get($type)
+    public function get(int $type): array
     {
         switch ($type) {
             case 1:
@@ -87,10 +85,8 @@ class GetTypeOfQuestions
                     'type_of_answer' => 'text and integer',
                     'can_correct_by_system' => true,
                 ];
-                break;
             default:
-                return "invalid";
-                break;
+                return [];
         }
     }
     /**
@@ -99,11 +95,11 @@ class GetTypeOfQuestions
      * @param  integer $type
      * @return array
      */
-    public function getAll()
+    public function getAll(): array
     {
         $output = [];
-        for($i = 1; true ;$i ++){
-            if($this->get($i) === "invalid"){
+        for ($i = 1; true ;$i ++) {
+            if ($this->get($i) === []) {
                 break;
             }
             $output[] = $this->get($i);

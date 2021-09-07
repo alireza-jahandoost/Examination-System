@@ -2,7 +2,6 @@
 
 namespace App\Actions\Participants;
 
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 
 use App\Models\Exam;
@@ -10,21 +9,21 @@ use App\Models\Exam;
 class CanUserRegisterInExam
 {
     /**
-     * get a type id and return an array about that type
-     *
-     * @param  integer $type
-     * @return array
+     * check user can register in exam or not
+     * @param  Exam   $exam
+     * @param  array  $inputs
+     * @return string
      */
-     public function check(Exam $exam, $inputs)
-     {
-         if($exam->password){
-             if(! isset($inputs['password'])){
-                 return 'this exam needs password for registering';
-             }else if(! Hash::check($inputs['password'], $exam->password)){
-                 return 'password is not correct';
-             }
-         }
+    public function check(Exam $exam, array $inputs): string
+    {
+        if ($exam->password) {
+            if (! isset($inputs['password'])) {
+                return 'this exam needs password for registering';
+            } elseif (! Hash::check($inputs['password'], $exam->password)) {
+                return 'password is not correct';
+            }
+        }
 
-         return 'success';
-     }
+        return 'success';
+    }
 }
