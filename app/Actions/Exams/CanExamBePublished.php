@@ -36,7 +36,7 @@ class CanExamBePublished
 
 
         foreach ($exam->questions as $question) {
-            $status = $this->has_enough_answer($question);
+            $status = $this->has_valid_answer($question);
             if($status !== 'success'){
                 return $status;
             }
@@ -76,7 +76,7 @@ class CanExamBePublished
         }
     }
 
-    protected function has_enough_answer(Question $question)
+    protected function has_valid_answer(Question $question)
     {
         switch ($question->questionType->id) {
             case 1:
@@ -86,7 +86,7 @@ class CanExamBePublished
             case 3:
                 return $question->states()->where('integer_answer', 1)->exists() ? 'success' : 'multiple questions must have atleast one answer';
             case 4:
-                return $question->states()->where('integer_answer', 1)->exists() ? 'success' : 'select questions must have atleast one answer';
+                return $question->states()->where('integer_answer', 1)->count() === 1 ? 'success' : 'select questions must have atleast one answer';
             case 6:
                 $answers = $question->states()->orderBy('integer_answer')->pluck('integer_answer');
                 $iterator = 1;

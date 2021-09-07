@@ -6,6 +6,8 @@ use App\Models\Exam;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
+use Carbon\Carbon;
+
 class ExamPolicy
 {
     use HandlesAuthorization;
@@ -104,5 +106,16 @@ class ExamPolicy
     public function publish(User $user, Exam $exam)
     {
         return $user->id === $exam->user_id;
+    }
+
+    public function unpublish(User $user, Exam $exam)
+    {
+        $start = Carbon::make($exam->start);
+        if($user->id === $exam->user_id){
+            if($start > Carbon::now()){
+                return true;
+            }
+        }
+        return false;
     }
 }

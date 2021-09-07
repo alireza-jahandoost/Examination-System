@@ -60,6 +60,8 @@ class CorrectAnswersTest extends TestCase
         $exam = Exam::factory()->for($this->owner)->create(array_merge([
             'total_score' => ($includes_descriptive ? 120 : 100)
         ], $exam_inputs));
+        $exam->published = true;
+        $exam->save();
         if(isset($exam_inputs['password'])){
             $exam->password = $exam_inputs['password'];
             $exam->save();
@@ -120,12 +122,6 @@ class CorrectAnswersTest extends TestCase
                 'score' => 20,
             ]);
         }
-
-        $response = $this->withHeaders([
-            'Accept' => 'application/json'
-        ])->post(route(self::PUBLISH_EXAM_ROUTE, [$exam]));
-
-        $response->assertStatus(200);
 
         $this->app->get('auth')->forgetGuards();
 

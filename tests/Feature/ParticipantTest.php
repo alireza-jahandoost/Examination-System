@@ -52,6 +52,8 @@ class ParticipantTest extends TestCase
         $exam = Exam::factory()->for($this->owner)->create(array_merge([
             'total_score' => 100
         ], $exam_inputs));
+        $exam->published = true;
+        $exam->save();
         if(isset($exam_inputs['password'])){
             $exam->password = $exam_inputs['password'];
             $exam->save();
@@ -61,12 +63,6 @@ class ParticipantTest extends TestCase
         $questions = Question::factory()->count(5)->for($exam)->for($question_type)->create([
             'score' => 20
         ]);
-
-        $response = $this->withHeaders([
-            'Accept' => 'application/json'
-        ])->post(route(self::PUBLISH_EXAM_ROUTE, [$exam]));
-
-        $response->assertStatus(200);
 
         $this->app->get('auth')->forgetGuards();
 

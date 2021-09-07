@@ -126,5 +126,16 @@ class ExamController extends Controller
 
         $exam->published = true;
         $exam->save();
+
+        return response(null, 202);
+    }
+
+    public function unpublish(Exam $exam)
+    {
+        $this->authorize('unpublish', $exam);
+        $exam->published = false;
+        $exam->save();
+
+        return response(null, 202);
     }
 }

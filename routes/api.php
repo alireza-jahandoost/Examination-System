@@ -54,6 +54,7 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::apiResource('exams', ExamController::class)->except(['index', 'show']);
     Route::get('own_exams', [ExamController::class, 'index_own'])->name('exams.own.index');
     Route::post('publish_exams/{exam}', [ExamController::class, 'publish'])->name('exams.publish');
+    Route::post('unpublish_exams/{exam}', [ExamController::class, 'unpublish'])->name('exams.unpublish');
 
     // Question Routes
     Route::apiResource('exams/{exam}/questions', QuestionController::class);
