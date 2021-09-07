@@ -23,8 +23,10 @@ class ExamTest extends TestCase
     const CREATE_EXAM_ROUTE = 'exams.store';
     const UPDATE_EXAM_ROUTE = 'exams.update';
     const INDEX_EXAM_ROUTE = 'exams.index';
+    const INDEX_OWN_EXAM_ROUTE = 'exams.own.index';
     const SHOW_EXAM_ROUTE = 'exams.show';
     const DELETE_EXAM_ROUTE = 'exams.destroy';
+    const LOGOUT_ROUTE = 'authentication.logout';
 
     /**
     * @test
@@ -961,5 +963,150 @@ class ExamTest extends TestCase
 
         $response->assertStatus(401);
         $this->assertDatabaseCount('exams', 1);
+    }
+
+    /**
+    * @test
+    */
+    public function user_can_index_all_of_his_exams_in_own_exam_index_page_even_if_they_are_not_published()
+    {
+        Sanctum::actingAs(
+            $user = User::factory()->create(),
+            ['*']
+        );
+
+        Exam::factory()->state([
+            'published' => true
+        ])->for($user)->create();
+        Exam::factory()->state([
+            'published' => false
+        ])->for($user)->create();
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json'
+        ])->get(route(self::INDEX_OWN_EXAM_ROUTE));
+
+        $response->assertStatus(200);
+
+        $response->assertJson([
+            'data' => [
+                [
+                    'exam' => [
+                        'exam_id' => 1
+                    ],
+                ],
+                [
+                    'exam' => [
+                        'exam_id' => 2
+                    ]
+                ]
+            ]
+        ]);
+    }
+
+    /**
+    * @test
+    */
+    public function index_owned_exams_must_be_paginated()
+    {
+        Sanctum::actingAs(
+            $user = User::factory()->create(),
+            ['*']
+        );
+
+        Exam::factory()->count(20)->state([
+            'published' => true
+        ])->for($user)->create();
+        Exam::factory()->count(20)->state([
+            'published' => false
+        ])->for($user)->create();
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json'
+        ])->get(route(self::INDEX_OWN_EXAM_ROUTE));
+
+        $response->assertStatus(200);
+
+        $response->assertJsonStructure([
+            'data' => [
+                [
+                    'exam' => [
+                        'exam_id',
+                        'exam_name',
+                        'needs_confirmation',
+                        'start_of_exam',
+                        'end_of_exam',
+                        'total_score',
+                        'creation_time',
+                        'last_update',
+                    ]
+                ]
+            ],
+            'links' => [
+                'first',
+                'last',
+                'prev',
+                'next',
+            ],
+            'meta' => [
+                'current_page',
+            ]
+        ]);
+    }
+
+    /**
+    * @test
+    */
+    public function another_user_will_see_his_owned_exams_and_can_not_see_another_users_exam_in_index_owned_exams()
+    {
+        Sanctum::actingAs(
+            $user = User::factory()->create(),
+            ['*']
+        );
+
+        Exam::factory()->state([
+            'published' => true
+        ])->count(30)->for($user)->create();
+
+        Sanctum::actingAs(
+            User::factory()->create(),
+            ['*']
+        );
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json'
+        ])->get(route(self::INDEX_OWN_EXAM_ROUTE));
+
+        $response->assertStatus(200);
+
+        $this->assertTrue($response->json()['data'] === []);
+    }
+
+    /**
+    * @test
+    */
+    public function guest_user_can_not_request_to_index_owned_exams()
+    {
+        Sanctum::actingAs(
+            $user = User::factory()->create(),
+            ['*']
+        );
+
+        Exam::factory()->state([
+            'published' => true
+        ])->count(30)->for($user)->create();
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->post(route(self::LOGOUT_ROUTE));
+
+        $response->assertStatus(202);
+        $this->app->get('auth')->forgetGuards();
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json'
+        ])->get(route(self::INDEX_OWN_EXAM_ROUTE));
+
+        $response->assertStatus(401);
     }
 }

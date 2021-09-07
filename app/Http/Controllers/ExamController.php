@@ -33,6 +33,12 @@ class ExamController extends Controller
         return (new ExamCollection($query))->response()->setStatusCode(200);
     }
 
+    public function index_own()
+    {
+        $query = auth()->user()->ownedExams()->paginate();
+        return (new ExamCollection($query))->response()->setStatusCode(200);
+    }
+
     /**
      * Store a newly created resource in storage.
      *
