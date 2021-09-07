@@ -34,11 +34,11 @@ class ParticipantPolicy
      */
     public function view(User $user, Participant $participant, Exam $exam)
     {
-        if($user->id === $participant->user_id){
+        if ($user->id === $participant->user_id) {
             return true;
         }
-        if($user->id === $exam->user_id){
-            if($participant->exam_id === $exam->id){
+        if ($user->id === $exam->user_id) {
+            if ($participant->exam_id === $exam->id) {
                 return true;
             }
         }
@@ -53,7 +53,17 @@ class ParticipantPolicy
      */
     public function create(User $user, Exam $exam)
     {
-        return $user->id !== $exam->user_id;
+        $participant_registered = Participant::where([
+            'user_id' => $user->id,
+            'exam_id' => $exam->id,
+        ])->exists();
+
+        if (! $participant_registered) {
+            if ($user->id !== $exam->user_id) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -109,39 +119,39 @@ class ParticipantPolicy
         return $user->id === $exam->user_id;
     }
 
-    public function finishExam(User $user,Exam $exam)
+    public function finishExam(User $user, Exam $exam)
     {
         $participant = Participant::where([
             'user_id' => $user->id,
             'exam_id' => $exam->id,
         ])->first();
 
-        if($participant){
+        if ($participant) {
             $start = Carbon::make($exam->start);
             $end = Carbon::make($exam->end);
-            if($end >= Carbon::now() && $start <= Carbon::now()){
-                if($exam->confirmation_required){
-                    if($participant->is_accepted){
+            if ($end >= Carbon::now() && $start <= Carbon::now()) {
+                if ($exam->confirmation_required) {
+                    if ($participant->is_accepted) {
                         return $participant->status === 0;
-                    }else{
+                    } else {
                         return false;
                     }
-                }else{
+                } else {
                     return $participant->status === 0;
                 }
-            }else{
+            } else {
                 return false;
             }
-        }else{
+        } else {
             return false;
         }
     }
 
     public function saveScore(User $user, Participant $participant, Question $question)
     {
-        if($user->id === $question->exam->user_id){
-            if($participant->exam_id === $question->exam_id){
-                if($participant->status === 2 || $participant->status === 3){
+        if ($user->id === $question->exam->user_id) {
+            if ($participant->exam_id === $question->exam_id) {
+                if ($participant->status === 2 || $participant->status === 3) {
                     return true;
                 }
             }
@@ -151,16 +161,16 @@ class ParticipantPolicy
 
     public function questionGrade(User $user, Participant $participant, Question $question)
     {
-        if($participant->status !== 3){
+        if ($participant->status !== 3) {
             return false;
         }
-        if($user->id === $participant->user_id){
-            if($participant->exam_id === $question->exam_id){
+        if ($user->id === $participant->user_id) {
+            if ($participant->exam_id === $question->exam_id) {
                 return true;
             }
         }
-        if($user->id === $question->exam->user_id){
-            if($participant->exam_id === $question->exam_id){
+        if ($user->id === $question->exam->user_id) {
+            if ($participant->exam_id === $question->exam_id) {
                 return true;
             }
         }

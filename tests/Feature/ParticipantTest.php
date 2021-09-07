@@ -1141,4 +1141,33 @@ class ParticipantTest extends TestCase
             ])->get(route(self::SHOW_PARTICIPANT_ROUTE, [$data['exam'], $second_participant]));
         $response->assertStatus(401);
     }
+
+    /**
+    * @test
+    */
+    public function an_authenticated_user_can_not_register_in_an_exam_twice()
+    {
+        $this->seed(QuestionTypeSeeder::class);
+
+        $data = $this->create_and_publish_an_exam([
+            'confirmation_required' => false,
+        ]);
+
+        Sanctum::actingAs(
+            $user = User::factory()->create(),
+            ['*']
+        );
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+            ])->post(route(self::EXAM_REGISTER_ROUTE, [$data['exam']]));
+        $response->assertStatus(201);
+        $this->assertDatabaseCount('participants', 1);
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+            ])->post(route(self::EXAM_REGISTER_ROUTE, [$data['exam']]));
+        $response->assertStatus(403);
+        $this->assertDatabaseCount('participants', 1);
+    }
 }
