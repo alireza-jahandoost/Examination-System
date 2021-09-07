@@ -116,7 +116,12 @@ class ParticipantPolicy
 
     public function accept(User $user, Exam $exam)
     {
-        return $user->id === $exam->user_id;
+        if ($exam->confirmation_required) {
+            if ($user->id === $exam->user_id) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public function finishExam(User $user, Exam $exam)

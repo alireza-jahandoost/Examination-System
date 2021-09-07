@@ -539,6 +539,49 @@ class ParticipantTest extends TestCase
     /**
     * @test
     */
+    public function owner_of_exam_can_not_confirm_users_if_exam_dont_need_confirmation()
+    {
+        $this->seed(QuestionTypeSeeder::class);
+        $start = Carbon::now()->subMinute();
+        $end = Carbon::make($start)->addHours(2);
+        $data = $this->create_and_publish_an_exam([
+            'confirmation_required' => false,
+            'start' => $start->format('Y-m-d H:i:s'),
+            'end' => $end->format('Y-m-d H:i:s'),
+        ]);
+
+        Sanctum::actingAs(
+            $user = User::factory()->create(),
+            ['*']
+        );
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+            ])->post(route(self::EXAM_REGISTER_ROUTE, [
+                $data['exam'],
+            ]), [
+            ]);
+        $response->assertStatus(201);
+        $this->assertDatabaseHas('participants', [
+            'is_accepted' => false
+        ]);
+
+        Sanctum::actingAs($data['owner'], ['*']);
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json'
+            ])->put(route(self::ACCEPT_REGISTERED_USERS_ROUTE, [$data['exam']]), [
+            'user_id' => $user->id
+        ]);
+        $response->assertStatus(403);
+        $this->assertDatabaseHas('participants', [
+            'is_accepted' => false
+        ]);
+    }
+
+    /**
+    * @test
+    */
     public function a_guest_can_not_confirm_any_user_for_any_exam()
     {
         $this->seed(QuestionTypeSeeder::class);
