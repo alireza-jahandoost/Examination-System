@@ -5,6 +5,8 @@ namespace App\Actions\Exams;
 use App\Models\Exam;
 use App\Models\Question;
 
+use Carbon\Carbon;
+
 class CanExamBePublished
 {
     /**
@@ -17,6 +19,15 @@ class CanExamBePublished
         $sum_of_scores = $exam->questions->reduce(function ($carry, $question) {
             return $carry + $question->score;
         }, 0);
+
+        $start_of_exam = Carbon::make($exam->start);
+        $end_of_exam = Carbon::make($exam->end);
+        if ($start_of_exam <= Carbon::now()) {
+            return 'start time has passed';
+        } elseif ($start_of_exam >= $end_of_exam) {
+            return 'ending time of exam must be before the start';
+        }
+
 
         if ($sum_of_scores !== $exam->total_score) {
             return 'sum of scores of questions is not equal to total score of exam';
