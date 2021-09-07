@@ -22,28 +22,24 @@ use App\Models\State;
 
 use Database\Seeders\QuestionTypeSeeder;
 
-
 class ParticipantTest extends TestCase
 {
-
     use RefreshDatabase;
 
-    const EXAM_REGISTER_ROUTE = 'exams.register';
-    const INDEX_PARTICIPANT_ROUTE = 'participants.index';
-    const SHOW_PARTICIPANT_ROUTE = 'participants.show';
-    const PUBLISH_EXAM_ROUTE = 'exams.publish';
-    const LOGOUT_ROUTE = "authentication.logout";
-    const QUESTION_INDEX_ROUTE = 'questions.index';
-    const QUESTION_SHOW_ROUTE = 'put.show';
-    const ACCEPT_REGISTERED_USERS_ROUTE = 'exams.accept_user';
+    public const EXAM_REGISTER_ROUTE = 'exams.register';
+    public const INDEX_PARTICIPANT_ROUTE = 'participants.index';
+    public const SHOW_PARTICIPANT_ROUTE = 'participants.show';
+    public const LOGOUT_ROUTE = "authentication.logout";
+    public const QUESTION_INDEX_ROUTE = 'questions.index';
+    public const QUESTION_SHOW_ROUTE = 'put.show';
+    public const ACCEPT_REGISTERED_USERS_ROUTE = 'exams.accept_user';
 
 
     protected $owner = null;
     protected function create_and_publish_an_exam($exam_inputs = [])
     {
-        if($this->owner === null){
+        if ($this->owner === null) {
             $this->owner = User::factory()->create();
-
         }
         Sanctum::actingAs(
             $this->owner,
@@ -54,7 +50,7 @@ class ParticipantTest extends TestCase
         ], $exam_inputs));
         $exam->published = true;
         $exam->save();
-        if(isset($exam_inputs['password'])){
+        if (isset($exam_inputs['password'])) {
             $exam->password = $exam_inputs['password'];
             $exam->save();
         }
@@ -75,7 +71,6 @@ class ParticipantTest extends TestCase
             'exam' => $exam,
             'questions' => $questions
         ];
-
     }
 
     /**
@@ -164,7 +159,7 @@ class ParticipantTest extends TestCase
             'Accept' => 'application/json',
             ])->post(route(self::EXAM_REGISTER_ROUTE, [
                 $data['exam'],
-            ]),[
+            ]), [
                 'password' => 'password',
             ]);
         $response->assertStatus(201);
@@ -192,7 +187,7 @@ class ParticipantTest extends TestCase
             'Accept' => 'application/json',
             ])->post(route(self::EXAM_REGISTER_ROUTE, [
                 $data['exam'],
-            ]),[
+            ]), [
                 'password' => Str::repeat('a', 300),
             ]);
         $response->assertStatus(422);
@@ -220,7 +215,7 @@ class ParticipantTest extends TestCase
             'Accept' => 'application/json',
             ])->post(route(self::EXAM_REGISTER_ROUTE, [
                 $data['exam'],
-            ]),[
+            ]), [
             ]);
         $response->assertStatus(401);
         $this->assertDatabaseCount('participants', 0);
@@ -247,7 +242,7 @@ class ParticipantTest extends TestCase
             'Accept' => 'application/json',
             ])->post(route(self::EXAM_REGISTER_ROUTE, [
                 $data['exam'],
-            ]),[
+            ]), [
                 'password' => '1234'
             ]);
         $response->assertStatus(401);
@@ -275,7 +270,7 @@ class ParticipantTest extends TestCase
             'Accept' => 'application/json',
             ])->post(route(self::EXAM_REGISTER_ROUTE, [
                 $data['exam'],
-            ]),[
+            ]), [
                 'password' => '1234'
             ]);
         $response->assertStatus(401);
@@ -307,7 +302,7 @@ class ParticipantTest extends TestCase
             'Accept' => 'application/json',
             ])->post(route(self::EXAM_REGISTER_ROUTE, [
                 $data['exam'],
-            ]),[
+            ]), [
             ]);
         $response->assertStatus(401);
         $response->assertJsonStructure([
@@ -340,7 +335,7 @@ class ParticipantTest extends TestCase
             'Accept' => 'application/json',
             ])->post(route(self::EXAM_REGISTER_ROUTE, [
                 $data['exam'],
-            ]),[
+            ]), [
             ]);
         $response->assertStatus(201);
         $questions_response = $this->withHeaders([
@@ -390,7 +385,7 @@ class ParticipantTest extends TestCase
             'Accept' => 'application/json',
             ])->post(route(self::EXAM_REGISTER_ROUTE, [
                 $data['exam'],
-            ]),[
+            ]), [
             ]);
         $response->assertStatus(201);
         $questions_response = $this->withHeaders([
@@ -447,7 +442,7 @@ class ParticipantTest extends TestCase
             'Accept' => 'application/json',
             ])->post(route(self::EXAM_REGISTER_ROUTE, [
                 $data['exam'],
-            ]),[
+            ]), [
             ]);
         $response->assertStatus(201);
 
@@ -480,7 +475,7 @@ class ParticipantTest extends TestCase
             'Accept' => 'application/json',
             ])->post(route(self::EXAM_REGISTER_ROUTE, [
                 $data['exam'],
-            ]),[
+            ]), [
             ]);
         $response->assertStatus(201);
         $this->assertDatabaseHas('participants', [
@@ -522,7 +517,7 @@ class ParticipantTest extends TestCase
             'Accept' => 'application/json',
             ])->post(route(self::EXAM_REGISTER_ROUTE, [
                 $data['exam'],
-            ]),[
+            ]), [
             ]);
         $response->assertStatus(201);
         $this->assertDatabaseHas('participants', [
@@ -564,7 +559,7 @@ class ParticipantTest extends TestCase
             'Accept' => 'application/json',
             ])->post(route(self::EXAM_REGISTER_ROUTE, [
                 $data['exam'],
-            ]),[
+            ]), [
             ]);
         $response->assertStatus(201);
         $this->assertDatabaseHas('participants', [
@@ -611,7 +606,7 @@ class ParticipantTest extends TestCase
             'Accept' => 'application/json',
             ])->post(route(self::EXAM_REGISTER_ROUTE, [
                 $data['exam'],
-            ]),[
+            ]), [
             ]);
         $response->assertStatus(201);
         $this->assertDatabaseHas('participants', [
@@ -677,7 +672,7 @@ class ParticipantTest extends TestCase
             'Accept' => 'application/json',
             ])->post(route(self::EXAM_REGISTER_ROUTE, [
                 $data['exam'],
-            ]),[
+            ]), [
             ]);
         $response->assertStatus(201);
         $this->assertDatabaseHas('participants', [
@@ -715,8 +710,7 @@ class ParticipantTest extends TestCase
             'start' => $start->format('Y-m-d H:i:s'),
             'end' => $end->format('Y-m-d H:i:s'),
         ]);
-        for($i = 0; $i<5; $i++){
-
+        for ($i = 0; $i<5; $i++) {
             Sanctum::actingAs(
                 $user = User::factory()->create(),
                 ['*']
@@ -726,7 +720,7 @@ class ParticipantTest extends TestCase
                 'Accept' => 'application/json',
                 ])->post(route(self::EXAM_REGISTER_ROUTE, [
                     $data['exam'],
-                ]),[
+                ]), [
                 ]);
 
             $response->assertStatus(201);
@@ -739,8 +733,7 @@ class ParticipantTest extends TestCase
             ]);
             $response->assertStatus(202);
         }
-        for($i = 0; $i<5; $i++){
-
+        for ($i = 0; $i<5; $i++) {
             Sanctum::actingAs(
                 $user = User::factory()->create(),
                 ['*']
@@ -750,7 +743,7 @@ class ParticipantTest extends TestCase
                 'Accept' => 'application/json',
                 ])->post(route(self::EXAM_REGISTER_ROUTE, [
                     $data['exam'],
-                ]),[
+                ]), [
                 ]);
 
             $response->assertStatus(201);
@@ -764,8 +757,8 @@ class ParticipantTest extends TestCase
         $response->assertStatus(200);
 
         $iterator = 1;
-        foreach($response->json()['data']['participants'] as $current){
-            if($iterator === $current['participant']['participant_id']){
+        foreach ($response->json()['data']['participants'] as $current) {
+            if ($iterator === $current['participant']['participant_id']) {
                 $iterator ++;
             }
         }
@@ -785,8 +778,7 @@ class ParticipantTest extends TestCase
             'start' => $start->format('Y-m-d H:i:s'),
             'end' => $end->format('Y-m-d H:i:s'),
         ]);
-        for($i = 0; $i<5; $i++){
-
+        for ($i = 0; $i<5; $i++) {
             Sanctum::actingAs(
                 $user = User::factory()->create(),
                 ['*']
@@ -796,7 +788,7 @@ class ParticipantTest extends TestCase
                 'Accept' => 'application/json',
                 ])->post(route(self::EXAM_REGISTER_ROUTE, [
                     $data['exam'],
-                ]),[
+                ]), [
                 ]);
 
             $response->assertStatus(201);
@@ -809,8 +801,7 @@ class ParticipantTest extends TestCase
             ]);
             $response->assertStatus(202);
         }
-        for($i = 0; $i<5; $i++){
-
+        for ($i = 0; $i<5; $i++) {
             Sanctum::actingAs(
                 $user = User::factory()->create(),
                 ['*']
@@ -820,7 +811,7 @@ class ParticipantTest extends TestCase
                 'Accept' => 'application/json',
                 ])->post(route(self::EXAM_REGISTER_ROUTE, [
                     $data['exam'],
-                ]),[
+                ]), [
                 ]);
 
             $response->assertStatus(201);
@@ -834,8 +825,8 @@ class ParticipantTest extends TestCase
         $response->assertStatus(200);
 
         $iterator = 1;
-        foreach($response->json()['data']['participants'] as $current){
-            if($iterator === $current['participant']['participant_id']){
+        foreach ($response->json()['data']['participants'] as $current) {
+            if ($iterator === $current['participant']['participant_id']) {
                 $iterator ++;
             }
         }
@@ -866,8 +857,7 @@ class ParticipantTest extends TestCase
             'start' => $start->format('Y-m-d H:i:s'),
             'end' => $end->format('Y-m-d H:i:s'),
         ]);
-        for($i = 0; $i<5; $i++){
-
+        for ($i = 0; $i<5; $i++) {
             Sanctum::actingAs(
                 $user = User::factory()->create(),
                 ['*']
@@ -877,7 +867,7 @@ class ParticipantTest extends TestCase
                 'Accept' => 'application/json',
                 ])->post(route(self::EXAM_REGISTER_ROUTE, [
                     $data['exam'],
-                ]),[
+                ]), [
                 ]);
 
             $response->assertStatus(201);
@@ -890,8 +880,7 @@ class ParticipantTest extends TestCase
             ]);
             $response->assertStatus(202);
         }
-        for($i = 0; $i<5; $i++){
-
+        for ($i = 0; $i<5; $i++) {
             Sanctum::actingAs(
                 $user = User::factory()->create(),
                 ['*']
@@ -901,7 +890,7 @@ class ParticipantTest extends TestCase
                 'Accept' => 'application/json',
                 ])->post(route(self::EXAM_REGISTER_ROUTE, [
                     $data['exam'],
-                ]),[
+                ]), [
                 ]);
 
             $response->assertStatus(201);
@@ -928,8 +917,7 @@ class ParticipantTest extends TestCase
             'start' => $start->format('Y-m-d H:i:s'),
             'end' => $end->format('Y-m-d H:i:s'),
         ]);
-        for($i = 0; $i<5; $i++){
-
+        for ($i = 0; $i<5; $i++) {
             Sanctum::actingAs(
                 $user = User::factory()->create(),
                 ['*']
@@ -939,7 +927,7 @@ class ParticipantTest extends TestCase
                 'Accept' => 'application/json',
                 ])->post(route(self::EXAM_REGISTER_ROUTE, [
                     $data['exam'],
-                ]),[
+                ]), [
                 ]);
 
             $response->assertStatus(201);
@@ -952,8 +940,7 @@ class ParticipantTest extends TestCase
             ]);
             $response->assertStatus(202);
         }
-        for($i = 0; $i<5; $i++){
-
+        for ($i = 0; $i<5; $i++) {
             Sanctum::actingAs(
                 $user = User::factory()->create(),
                 ['*']
@@ -963,7 +950,7 @@ class ParticipantTest extends TestCase
                 'Accept' => 'application/json',
                 ])->post(route(self::EXAM_REGISTER_ROUTE, [
                     $data['exam'],
-                ]),[
+                ]), [
                 ]);
 
             $response->assertStatus(201);
@@ -1060,7 +1047,7 @@ class ParticipantTest extends TestCase
             'is_accepted' => true,
         ]);
 
-        Sanctum::actingAs(User::factory()->create() , ['*']);
+        Sanctum::actingAs(User::factory()->create(), ['*']);
 
         $response = $this->withHeaders([
             'Accept' => 'application/json',

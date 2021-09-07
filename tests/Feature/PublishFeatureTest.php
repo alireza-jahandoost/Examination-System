@@ -59,7 +59,7 @@ class PublishFeatureTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-            ])->post(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
+            ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
         $response->assertStatus(202);
         $this->assertDatabaseHas('exams', [
@@ -86,7 +86,7 @@ class PublishFeatureTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-            ])->post(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
+            ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
         $response->assertStatus(401);
         $this->assertDatabaseMissing('exams', [
             'published' => true
@@ -116,7 +116,7 @@ class PublishFeatureTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-            ])->post(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
+            ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
         $response->assertStatus(403);
         $this->assertDatabaseMissing('exams', [
             'published' => true
@@ -145,7 +145,7 @@ class PublishFeatureTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-            ])->post(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
+            ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
         $response->assertStatus(401);
         $this->assertDatabaseMissing('exams', [
@@ -179,7 +179,7 @@ class PublishFeatureTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-            ])->post(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
+            ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
         $response->assertStatus(401);
         $this->assertDatabaseMissing('exams', [
@@ -192,7 +192,7 @@ class PublishFeatureTest extends TestCase
 
         $second_response = $this->withHeaders([
             'Accept' => 'application/json'
-            ])->post(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
+            ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
         $second_response->assertStatus(202);
         $this->assertDatabaseHas('exams', [
@@ -205,7 +205,7 @@ class PublishFeatureTest extends TestCase
 
         $third_response = $this->withHeaders([
             'Accept' => 'application/json'
-            ])->post(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
+            ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
         $third_response->assertStatus(202);
         $this->assertDatabaseHas('exams', [
@@ -243,7 +243,7 @@ class PublishFeatureTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-            ])->post(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
+            ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
         $response->assertStatus(401);
         $this->assertDatabaseMissing('exams', [
@@ -256,7 +256,7 @@ class PublishFeatureTest extends TestCase
 
         $second_response = $this->withHeaders([
             'Accept' => 'application/json'
-            ])->post(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
+            ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
         $second_response->assertStatus(202);
         $this->assertDatabaseHas('exams', [
@@ -269,7 +269,7 @@ class PublishFeatureTest extends TestCase
 
         $third_response = $this->withHeaders([
             'Accept' => 'application/json'
-            ])->post(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
+            ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
         $third_response->assertStatus(202);
         $this->assertDatabaseHas('exams', [
@@ -307,7 +307,7 @@ class PublishFeatureTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-            ])->post(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
+            ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
         $response->assertStatus(401);
         $this->assertDatabaseMissing('exams', [
@@ -320,7 +320,7 @@ class PublishFeatureTest extends TestCase
 
         $second_response = $this->withHeaders([
             'Accept' => 'application/json'
-            ])->post(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
+            ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
         $second_response->assertStatus(202);
         $this->assertDatabaseHas('exams', [
@@ -333,7 +333,7 @@ class PublishFeatureTest extends TestCase
 
         $third_response = $this->withHeaders([
             'Accept' => 'application/json'
-            ])->post(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
+            ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
         $third_response->assertStatus(202);
         $this->assertDatabaseHas('exams', [
@@ -367,7 +367,7 @@ class PublishFeatureTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-            ])->post(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
+            ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
         $response->assertStatus(401);
         $this->assertDatabaseMissing('exams', [
@@ -382,7 +382,7 @@ class PublishFeatureTest extends TestCase
 
         $second_response = $this->withHeaders([
             'Accept' => 'application/json'
-            ])->post(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
+            ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
         $second_response->assertStatus(401);
         $this->assertDatabaseMissing('exams', [
@@ -392,7 +392,7 @@ class PublishFeatureTest extends TestCase
 
         $third_response = $this->withHeaders([
             'Accept' => 'application/json'
-            ])->post(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
+            ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
         $third_response->assertStatus(202);
         $this->assertDatabaseHas('exams', [
@@ -430,7 +430,7 @@ class PublishFeatureTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-            ])->post(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
+            ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
         $response->assertStatus(401);
         $this->assertDatabaseMissing('exams', [
@@ -443,7 +443,7 @@ class PublishFeatureTest extends TestCase
 
         $second_response = $this->withHeaders([
             'Accept' => 'application/json'
-            ])->post(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
+            ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
         $second_response->assertStatus(202);
         $this->assertDatabaseHas('exams', [
@@ -456,7 +456,7 @@ class PublishFeatureTest extends TestCase
 
         $third_response = $this->withHeaders([
             'Accept' => 'application/json'
-            ])->post(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
+            ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
         $third_response->assertStatus(202);
         $this->assertDatabaseHas('exams', [
@@ -498,7 +498,7 @@ class PublishFeatureTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-            ])->post(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
+            ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
         $response->assertStatus(401);
         $this->assertDatabaseMissing('exams', [
@@ -511,7 +511,7 @@ class PublishFeatureTest extends TestCase
         ]);
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-            ])->post(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
+            ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
         $response->assertStatus(202);
         $this->assertDatabaseHas('exams', [
@@ -553,7 +553,7 @@ class PublishFeatureTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-            ])->post(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
+            ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
         $response->assertStatus(401);
         $this->assertDatabaseMissing('exams', [
@@ -566,7 +566,7 @@ class PublishFeatureTest extends TestCase
         ]);
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-            ])->post(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
+            ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
         $response->assertStatus(202);
         $this->assertDatabaseHas('exams', [
@@ -608,7 +608,7 @@ class PublishFeatureTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-            ])->post(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
+            ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
         $response->assertStatus(401);
         $this->assertDatabaseMissing('exams', [
@@ -626,7 +626,7 @@ class PublishFeatureTest extends TestCase
         ]);
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-            ])->post(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
+            ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
         $response->assertStatus(401);
         $this->assertDatabaseMissing('exams', [
@@ -637,7 +637,7 @@ class PublishFeatureTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-            ])->post(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
+            ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
         $response->assertStatus(202);
         $this->assertDatabaseHas('exams', [
@@ -679,7 +679,7 @@ class PublishFeatureTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-            ])->post(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
+            ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
         $response->assertStatus(401);
         $this->assertDatabaseMissing('exams', [
@@ -692,7 +692,7 @@ class PublishFeatureTest extends TestCase
         ]);
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-            ])->post(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
+            ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
         $response->assertStatus(202);
         $this->assertDatabaseHas('exams', [
@@ -734,7 +734,7 @@ class PublishFeatureTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-            ])->post(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
+            ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
         $response->assertStatus(401);
         $this->assertDatabaseMissing('exams', [
@@ -748,7 +748,7 @@ class PublishFeatureTest extends TestCase
         $state->delete();
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-            ])->post(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
+            ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
         $response->assertStatus(202);
         $this->assertDatabaseHas('exams', [
@@ -778,7 +778,7 @@ class PublishFeatureTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-            ])->post(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
+            ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
         $response->assertStatus(202);
         $this->assertDatabaseHas('exams', [
@@ -816,7 +816,7 @@ class PublishFeatureTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-            ])->post(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
+            ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
         $response->assertStatus(202);
         $this->assertDatabaseHas('exams', [
@@ -854,7 +854,7 @@ class PublishFeatureTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-            ])->post(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
+            ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
         $response->assertStatus(202);
         $this->assertDatabaseHas('exams', [
@@ -894,7 +894,7 @@ class PublishFeatureTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-            ])->post(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
+            ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
         $response->assertStatus(202);
         $this->assertDatabaseHas('exams', [
@@ -937,7 +937,7 @@ class PublishFeatureTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-            ])->post(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
+            ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
         $response->assertStatus(202);
         $this->assertDatabaseHas('exams', [
@@ -982,7 +982,7 @@ class PublishFeatureTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-            ])->post(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
+            ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
         $response->assertStatus(202);
         $this->assertDatabaseHas('exams', [
@@ -1027,7 +1027,7 @@ class PublishFeatureTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-            ])->post(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
+            ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
         $response->assertStatus(202);
         $this->assertDatabaseHas('exams', [
@@ -1065,7 +1065,7 @@ class PublishFeatureTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-        ])->post(route(PublishFeatureTest::UNPUBLISH_EXAM_ROUTE, [$exam]));
+        ])->put(route(PublishFeatureTest::UNPUBLISH_EXAM_ROUTE, [$exam]));
 
         $response->assertStatus(202);
         $this->assertDatabaseHas('exams', [
@@ -1100,7 +1100,7 @@ class PublishFeatureTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-        ])->post(route(PublishFeatureTest::UNPUBLISH_EXAM_ROUTE, [$exam]));
+        ])->put(route(PublishFeatureTest::UNPUBLISH_EXAM_ROUTE, [$exam]));
 
         $response->assertStatus(202);
 
@@ -1150,7 +1150,7 @@ class PublishFeatureTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-        ])->post(route(PublishFeatureTest::UNPUBLISH_EXAM_ROUTE, [$exam]));
+        ])->put(route(PublishFeatureTest::UNPUBLISH_EXAM_ROUTE, [$exam]));
 
         $response->assertStatus(202);
 
@@ -1208,7 +1208,7 @@ class PublishFeatureTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-        ])->post(route(PublishFeatureTest::UNPUBLISH_EXAM_ROUTE, [$exam]));
+        ])->put(route(PublishFeatureTest::UNPUBLISH_EXAM_ROUTE, [$exam]));
 
         $response->assertStatus(202);
 
@@ -1262,13 +1262,13 @@ class PublishFeatureTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-        ])->post(route(PublishFeatureTest::UNPUBLISH_EXAM_ROUTE, [$exam]));
+        ])->put(route(PublishFeatureTest::UNPUBLISH_EXAM_ROUTE, [$exam]));
 
         $response->assertStatus(202);
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-        ])->post(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
+        ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
         $response->assertStatus(202);
 
@@ -1330,13 +1330,13 @@ class PublishFeatureTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-        ])->post(route(PublishFeatureTest::UNPUBLISH_EXAM_ROUTE, [$exam]));
+        ])->put(route(PublishFeatureTest::UNPUBLISH_EXAM_ROUTE, [$exam]));
 
         $response->assertStatus(202);
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-        ])->post(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
+        ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
         $response->assertStatus(202);
 
@@ -1386,13 +1386,13 @@ class PublishFeatureTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-        ])->post(route(PublishFeatureTest::UNPUBLISH_EXAM_ROUTE, [$exam]));
+        ])->put(route(PublishFeatureTest::UNPUBLISH_EXAM_ROUTE, [$exam]));
 
         $response->assertStatus(202);
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-        ])->post(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
+        ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
         $response->assertStatus(202);
 
@@ -1452,7 +1452,7 @@ class PublishFeatureTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-        ])->post(route(PublishFeatureTest::UNPUBLISH_EXAM_ROUTE, [$exam]));
+        ])->put(route(PublishFeatureTest::UNPUBLISH_EXAM_ROUTE, [$exam]));
 
         $response->assertStatus(403);
         $this->assertDatabaseMissing('exams', [
@@ -1494,7 +1494,7 @@ class PublishFeatureTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-        ])->post(route(PublishFeatureTest::UNPUBLISH_EXAM_ROUTE, [$exam]));
+        ])->put(route(PublishFeatureTest::UNPUBLISH_EXAM_ROUTE, [$exam]));
 
         $response->assertStatus(403);
         $this->assertDatabaseMissing('exams', [
@@ -1530,7 +1530,7 @@ class PublishFeatureTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-        ])->post(route(PublishFeatureTest::UNPUBLISH_EXAM_ROUTE, [$exam]));
+        ])->put(route(PublishFeatureTest::UNPUBLISH_EXAM_ROUTE, [$exam]));
 
         $response->assertStatus(202);
 
@@ -1569,7 +1569,7 @@ class PublishFeatureTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-        ])->post(route(PublishFeatureTest::UNPUBLISH_EXAM_ROUTE, [$exam]));
+        ])->put(route(PublishFeatureTest::UNPUBLISH_EXAM_ROUTE, [$exam]));
 
         $response->assertStatus(202);
 
@@ -1608,7 +1608,7 @@ class PublishFeatureTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-        ])->post(route(PublishFeatureTest::UNPUBLISH_EXAM_ROUTE, [$exam]));
+        ])->put(route(PublishFeatureTest::UNPUBLISH_EXAM_ROUTE, [$exam]));
 
         $response->assertStatus(202);
 
@@ -1652,7 +1652,7 @@ class PublishFeatureTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-        ])->post(route(PublishFeatureTest::UNPUBLISH_EXAM_ROUTE, [$exam]));
+        ])->put(route(PublishFeatureTest::UNPUBLISH_EXAM_ROUTE, [$exam]));
 
         $response->assertStatus(202);
 
@@ -1697,7 +1697,7 @@ class PublishFeatureTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-        ])->post(route(PublishFeatureTest::UNPUBLISH_EXAM_ROUTE, [$exam]));
+        ])->put(route(PublishFeatureTest::UNPUBLISH_EXAM_ROUTE, [$exam]));
 
         $response->assertStatus(202);
 
@@ -1744,7 +1744,7 @@ class PublishFeatureTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-        ])->post(route(PublishFeatureTest::UNPUBLISH_EXAM_ROUTE, [$exam]));
+        ])->put(route(PublishFeatureTest::UNPUBLISH_EXAM_ROUTE, [$exam]));
 
         $response->assertStatus(202);
 
@@ -1791,7 +1791,7 @@ class PublishFeatureTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-        ])->post(route(PublishFeatureTest::UNPUBLISH_EXAM_ROUTE, [$exam]));
+        ])->put(route(PublishFeatureTest::UNPUBLISH_EXAM_ROUTE, [$exam]));
 
         $response->assertStatus(202);
 
@@ -1831,7 +1831,7 @@ class PublishFeatureTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-            ])->post(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
+            ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
         $response->assertStatus(401);
         $this->assertDatabaseHas('exams', [
@@ -1865,7 +1865,7 @@ class PublishFeatureTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
-            ])->post(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
+            ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
         $response->assertStatus(401);
         $this->assertDatabaseHas('exams', [

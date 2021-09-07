@@ -26,32 +26,28 @@ use Database\Seeders\QuestionTypeSeeder;
 
 use App\Jobs\CorrectExamJob;
 
-
 class CorrectAnswersTest extends TestCase
 {
-
     use RefreshDatabase;
 
 
-    const LOGOUT_ROUTE = "authentication.logout";
-    const ACCEPT_REGISTERED_USERS_ROUTE = 'exams.accept_user';
-    const PUBLISH_EXAM_ROUTE = 'exams.publish';
-    const EXAM_REGISTER_ROUTE = 'exams.register';
-    const CREATE_ANSWER_ROUTE = 'answers.store';
-    const FINISH_EXAM_ROUTE = 'participants.finish_exam';
-    const PARTICIPANT_INDEX_ROUTE = 'participants.index';
-    const PARTICIPANT_SHOW_ROUTE = 'participants.show';
-    const ANSWER_INDEX_ROUTE = 'answers.index';
-    const SUBMIT_GRADE_ROUTE = 'participants.save_score';
-    const GET_QUESTION_GRADE_ROUTE = 'participants.grade.question';
+    public const LOGOUT_ROUTE = "authentication.logout";
+    public const ACCEPT_REGISTERED_USERS_ROUTE = 'exams.accept_user';
+    public const EXAM_REGISTER_ROUTE = 'exams.register';
+    public const CREATE_ANSWER_ROUTE = 'answers.store';
+    public const FINISH_EXAM_ROUTE = 'participants.finish_exam';
+    public const PARTICIPANT_INDEX_ROUTE = 'participants.index';
+    public const PARTICIPANT_SHOW_ROUTE = 'participants.show';
+    public const ANSWER_INDEX_ROUTE = 'answers.index';
+    public const SUBMIT_GRADE_ROUTE = 'participants.save_score';
+    public const GET_QUESTION_GRADE_ROUTE = 'participants.grade.question';
 
 
     protected $owner = null;
     protected function create_and_publish_an_exam($exam_inputs = [], $type_of_question = 1, $includes_descriptive = false)
     {
-        if($this->owner === null){
+        if ($this->owner === null) {
             $this->owner = User::factory()->create();
-
         }
         Sanctum::actingAs(
             $this->owner,
@@ -62,7 +58,7 @@ class CorrectAnswersTest extends TestCase
         ], $exam_inputs));
         $exam->published = true;
         $exam->save();
-        if(isset($exam_inputs['password'])){
+        if (isset($exam_inputs['password'])) {
             $exam->password = $exam_inputs['password'];
             $exam->save();
         }
@@ -74,15 +70,16 @@ class CorrectAnswersTest extends TestCase
 
         switch ($type_of_question) {
             case 2:
-                foreach($questions as $question){
+                foreach ($questions as $question) {
                     $question->states()->create([
                         'text_answer' => 'test test',
                     ]);
                 }
+                // no break
             case 3:
             case 4:
-                foreach($questions as $question){
-                    for($i = 0;$i < 3; $i ++){
+                foreach ($questions as $question) {
+                    for ($i = 0;$i < 3; $i ++) {
                         $question->states()->create([
                             'text_answer' => 'test',
                             'integer_answer' => 0,
@@ -96,7 +93,7 @@ class CorrectAnswersTest extends TestCase
                 break;
 
             case 5:
-                foreach($questions as $question){
+                foreach ($questions as $question) {
                     $question->states()->create([
                         'integer_answer' => 1
                     ]);
@@ -104,8 +101,8 @@ class CorrectAnswersTest extends TestCase
                 break;
 
             case 6:
-                foreach($questions as $question){
-                    for($i = 1;$i < 5; $i ++){
+                foreach ($questions as $question) {
+                    for ($i = 1;$i < 5; $i ++) {
                         $question->states()->create([
                             'text_answer' => 'test',
                             'integer_answer' => $i,
@@ -116,7 +113,7 @@ class CorrectAnswersTest extends TestCase
 
         }
 
-        if($includes_descriptive){
+        if ($includes_descriptive) {
             $descriptive = QuestionType::find(1);
             $questions[] = Question::factory()->for($exam)->for($descriptive)->create([
                 'score' => 20,
@@ -134,7 +131,6 @@ class CorrectAnswersTest extends TestCase
             'exam' => $exam,
             'questions' => $questions
         ];
-
     }
 
     protected function register_user($user, $exam, $confirm_user = false)
@@ -149,7 +145,7 @@ class CorrectAnswersTest extends TestCase
             ])->post(route(self::EXAM_REGISTER_ROUTE, [$exam]));
         $response->assertStatus(201);
 
-        if($confirm_user){
+        if ($confirm_user) {
             Sanctum::actingAs($this->owner, ['*']);
             $response = $this->withHeaders([
                 'Accept' => 'application/json'
@@ -213,7 +209,7 @@ class CorrectAnswersTest extends TestCase
                 ])->pluck('id');
 
                 $answers = $correct ? $correct_answers : $wrong_answers;
-                foreach($answers as $answer){
+                foreach ($answers as $answer) {
                     $response = $this->withHeaders([
                         'Accept' => 'application/json',
                     ])->post(route(self::CREATE_ANSWER_ROUTE, [$question]), [
@@ -264,12 +260,12 @@ class CorrectAnswersTest extends TestCase
                 $answers = State::where([
                     'question_id' => $question->id,
                 ]);
-                if($correct){
+                if ($correct) {
                     $answers = $answers->orderBy('integer_answer')->get();
-                }else{
+                } else {
                     $answers = $answers->orderByDesc('integer_answer')->get();
                 }
-                foreach($answers as $answer){
+                foreach ($answers as $answer) {
                     $response = $this->withHeaders([
                         'Accept' => 'application/json',
                     ])->post(route(self::CREATE_ANSWER_ROUTE, [$question]), [
@@ -312,7 +308,7 @@ class CorrectAnswersTest extends TestCase
         $this->register_user($user, $data['exam']);
         $this->assertDatabaseCount('participants', 1);
 
-        foreach($data['questions'] as $question){
+        foreach ($data['questions'] as $question) {
             $this->send_answer_for_user($user, $question);
         }
 
@@ -352,7 +348,7 @@ class CorrectAnswersTest extends TestCase
         $this->register_user($user, $data['exam']);
         $this->assertDatabaseCount('participants', 1);
 
-        foreach($data['questions'] as $question){
+        foreach ($data['questions'] as $question) {
             $this->send_answer_for_user($user, $question);
         }
 
@@ -394,7 +390,7 @@ class CorrectAnswersTest extends TestCase
         $this->register_user($user, $data['exam']);
         $this->assertDatabaseCount('participants', 1);
 
-        foreach($data['questions'] as $question){
+        foreach ($data['questions'] as $question) {
             $this->send_answer_for_user($user, $question);
         }
 
@@ -615,7 +611,7 @@ class CorrectAnswersTest extends TestCase
         $this->register_user($user, $data['exam']);
         $this->assertDatabaseCount('participants', 1);
 
-        for($i = 0;$i < 5;$i ++){
+        for ($i = 0;$i < 5;$i ++) {
             $question = $data['questions'][$i];
             $this->send_answer_for_user($user, $question, $i % 2);
         }
@@ -698,7 +694,7 @@ class CorrectAnswersTest extends TestCase
         $this->register_user($user, $data['exam']);
         $this->assertDatabaseCount('participants', 1);
 
-        for($i = 0;$i < 5;$i ++){
+        for ($i = 0;$i < 5;$i ++) {
             $question = $data['questions'][$i];
             $this->send_answer_for_user($user, $question, $i % 2);
         }
@@ -781,7 +777,7 @@ class CorrectAnswersTest extends TestCase
         $this->register_user($user, $data['exam']);
         $this->assertDatabaseCount('participants', 1);
 
-        for($i = 0;$i < 5;$i ++){
+        for ($i = 0;$i < 5;$i ++) {
             $question = $data['questions'][$i];
             $this->send_answer_for_user($user, $question, $i % 2);
         }
@@ -864,7 +860,7 @@ class CorrectAnswersTest extends TestCase
         $this->register_user($user, $data['exam']);
         $this->assertDatabaseCount('participants', 1);
 
-        for($i = 0;$i < 5;$i ++){
+        for ($i = 0;$i < 5;$i ++) {
             $question = $data['questions'][$i];
             $this->send_answer_for_user($user, $question, $i % 2);
         }
@@ -947,7 +943,7 @@ class CorrectAnswersTest extends TestCase
         $this->register_user($user, $data['exam']);
         $this->assertDatabaseCount('participants', 1);
 
-        for($i = 0;$i < 5;$i ++){
+        for ($i = 0;$i < 5;$i ++) {
             $question = $data['questions'][$i];
             $this->send_answer_for_user($user, $question, $i % 2);
         }
@@ -1087,7 +1083,7 @@ class CorrectAnswersTest extends TestCase
 
         $response->assertStatus(202);
 
-        Sanctum::actingAs($data['owner'],['*']);
+        Sanctum::actingAs($data['owner'], ['*']);
 
         $response = $this->withHeaders([
             'Accept' => 'application/json',
@@ -1145,7 +1141,7 @@ class CorrectAnswersTest extends TestCase
 
         $response->assertStatus(202);
 
-        Sanctum::actingAs($data['owner'],['*']);
+        Sanctum::actingAs($data['owner'], ['*']);
 
         $response = $this->withHeaders([
             'Accept' => 'application/json',
@@ -1202,7 +1198,7 @@ class CorrectAnswersTest extends TestCase
         //
         // $response->assertStatus(202);
 
-        Sanctum::actingAs($data['owner'],['*']);
+        Sanctum::actingAs($data['owner'], ['*']);
 
         $response = $this->withHeaders([
             'Accept' => 'application/json',
@@ -1260,7 +1256,7 @@ class CorrectAnswersTest extends TestCase
 
         $response->assertStatus(202);
 
-        Sanctum::actingAs($data['owner'],['*']);
+        Sanctum::actingAs($data['owner'], ['*']);
 
         $response = $this->withHeaders([
             'Accept' => 'application/json',
@@ -1316,7 +1312,7 @@ class CorrectAnswersTest extends TestCase
 
         $response->assertStatus(202);
 
-        Sanctum::actingAs($data['owner'],['*']);
+        Sanctum::actingAs($data['owner'], ['*']);
 
         $response = $this->withHeaders([
             'Accept' => 'application/json',
@@ -1372,7 +1368,7 @@ class CorrectAnswersTest extends TestCase
 
         $response->assertStatus(202);
 
-        Sanctum::actingAs($data['owner'],['*']);
+        Sanctum::actingAs($data['owner'], ['*']);
 
         $response = $this->withHeaders([
             'Accept' => 'application/json',
@@ -1433,7 +1429,7 @@ class CorrectAnswersTest extends TestCase
 
         $response->assertStatus(202);
 
-        Sanctum::actingAs($data['owner'],['*']);
+        Sanctum::actingAs($data['owner'], ['*']);
 
         $response = $this->withHeaders([
             'Accept' => 'application/json',
@@ -1487,7 +1483,7 @@ class CorrectAnswersTest extends TestCase
 
         $response->assertStatus(202);
 
-        Sanctum::actingAs($data2['owner'],['*']);
+        Sanctum::actingAs($data2['owner'], ['*']);
 
         $response = $this->withHeaders([
             'Accept' => 'application/json',
@@ -1537,11 +1533,11 @@ class CorrectAnswersTest extends TestCase
 
         $response->assertStatus(202);
 
-        Sanctum::actingAs($data['owner'],['*']);
+        Sanctum::actingAs($data['owner'], ['*']);
 
         $response = $this->withHeaders([
             'Accept' => 'application/json',
-        ])->post(route(self::SUBMIT_GRADE_ROUTE, [$data['questions'][5], $participant]),[
+        ])->post(route(self::SUBMIT_GRADE_ROUTE, [$data['questions'][5], $participant]), [
             'grade' => 20,
         ]);
 
@@ -1593,11 +1589,11 @@ class CorrectAnswersTest extends TestCase
 
         $response->assertStatus(202);
 
-        Sanctum::actingAs($data['owner'],['*']);
+        Sanctum::actingAs($data['owner'], ['*']);
 
         $response = $this->withHeaders([
             'Accept' => 'application/json',
-        ])->post(route(self::SUBMIT_GRADE_ROUTE, [$data['questions'][5], $participant]),[
+        ])->post(route(self::SUBMIT_GRADE_ROUTE, [$data['questions'][5], $participant]), [
             'grade' => 30,
         ]);
 
@@ -1649,11 +1645,11 @@ class CorrectAnswersTest extends TestCase
 
         $response->assertStatus(202);
 
-        Sanctum::actingAs($data['owner'],['*']);
+        Sanctum::actingAs($data['owner'], ['*']);
 
         $response = $this->withHeaders([
             'Accept' => 'application/json',
-        ])->post(route(self::SUBMIT_GRADE_ROUTE, [$data['questions'][5], $participant]),[
+        ])->post(route(self::SUBMIT_GRADE_ROUTE, [$data['questions'][5], $participant]), [
             'grade' => -5,
         ]);
 
@@ -1704,11 +1700,11 @@ class CorrectAnswersTest extends TestCase
 
         $response->assertStatus(202);
 
-        Sanctum::actingAs($data['owner'],['*']);
+        Sanctum::actingAs($data['owner'], ['*']);
 
         $response = $this->withHeaders([
             'Accept' => 'application/json',
-        ])->post(route(self::SUBMIT_GRADE_ROUTE, [$data['questions'][5], $participant]),[
+        ])->post(route(self::SUBMIT_GRADE_ROUTE, [$data['questions'][5], $participant]), [
             'grade' => 0,
         ]);
 
@@ -1759,13 +1755,12 @@ class CorrectAnswersTest extends TestCase
 
         $response->assertStatus(202);
 
-        Sanctum::actingAs($data['owner'],['*']);
+        Sanctum::actingAs($data['owner'], ['*']);
 
-        for($i = 0;$i < 4;$i ++){
-
+        for ($i = 0;$i < 4;$i ++) {
             $response = $this->withHeaders([
                 'Accept' => 'application/json',
-            ])->post(route(self::SUBMIT_GRADE_ROUTE, [$data['questions'][$i], $participant]),[
+            ])->post(route(self::SUBMIT_GRADE_ROUTE, [$data['questions'][$i], $participant]), [
                 'grade' => 10,
             ]);
 
@@ -1774,12 +1769,11 @@ class CorrectAnswersTest extends TestCase
             $this->assertDatabaseHas('participants', [
                 'status' => 2,
             ]);
-
         }
 
         $response = $this->withHeaders([
             'Accept' => 'application/json',
-        ])->post(route(self::SUBMIT_GRADE_ROUTE, [$data['questions'][4], $participant]),[
+        ])->post(route(self::SUBMIT_GRADE_ROUTE, [$data['questions'][4], $participant]), [
             'grade' => 10,
         ]);
 
@@ -1832,11 +1826,10 @@ class CorrectAnswersTest extends TestCase
 
         // Sanctum::actingAs($data['owner'],['*']);
 
-        for($i = 0;$i < 4;$i ++){
-
+        for ($i = 0;$i < 4;$i ++) {
             $response = $this->withHeaders([
                 'Accept' => 'application/json',
-            ])->post(route(self::SUBMIT_GRADE_ROUTE, [$data['questions'][$i], $participant]),[
+            ])->post(route(self::SUBMIT_GRADE_ROUTE, [$data['questions'][$i], $participant]), [
                 'grade' => 10,
             ]);
 
@@ -1845,12 +1838,11 @@ class CorrectAnswersTest extends TestCase
             $this->assertDatabaseHas('participants', [
                 'status' => 2,
             ]);
-
         }
 
         $response = $this->withHeaders([
             'Accept' => 'application/json',
-        ])->post(route(self::SUBMIT_GRADE_ROUTE, [$data['questions'][4], $participant]),[
+        ])->post(route(self::SUBMIT_GRADE_ROUTE, [$data['questions'][4], $participant]), [
             'grade' => 10,
         ]);
 
@@ -1909,13 +1901,12 @@ class CorrectAnswersTest extends TestCase
 
         $response->assertStatus(202);
 
-        Sanctum::actingAs($secondOwner,['*']);
+        Sanctum::actingAs($secondOwner, ['*']);
 
-        for($i = 0;$i < 4;$i ++){
-
+        for ($i = 0;$i < 4;$i ++) {
             $response = $this->withHeaders([
                 'Accept' => 'application/json',
-            ])->post(route(self::SUBMIT_GRADE_ROUTE, [$question, $participant]),[
+            ])->post(route(self::SUBMIT_GRADE_ROUTE, [$question, $participant]), [
                 'grade' => 10,
             ]);
 
@@ -1924,12 +1915,11 @@ class CorrectAnswersTest extends TestCase
             $this->assertDatabaseHas('participants', [
                 'status' => 2,
             ]);
-
         }
 
         $response = $this->withHeaders([
             'Accept' => 'application/json',
-        ])->post(route(self::SUBMIT_GRADE_ROUTE, [$data['questions'][4], $participant]),[
+        ])->post(route(self::SUBMIT_GRADE_ROUTE, [$data['questions'][4], $participant]), [
             'grade' => 10,
         ]);
 
@@ -1982,13 +1972,12 @@ class CorrectAnswersTest extends TestCase
 
         $response->assertStatus(202);
 
-        Sanctum::actingAs($data['owner'],['*']);
+        Sanctum::actingAs($data['owner'], ['*']);
 
-        for($i = 0;$i < 4;$i ++){
-
+        for ($i = 0;$i < 4;$i ++) {
             $response = $this->withHeaders([
                 'Accept' => 'application/json',
-            ])->post(route(self::SUBMIT_GRADE_ROUTE, [$data['questions'][$i], $participant]),[
+            ])->post(route(self::SUBMIT_GRADE_ROUTE, [$data['questions'][$i], $participant]), [
                 'grade' => 10,
             ]);
 
@@ -1997,12 +1986,11 @@ class CorrectAnswersTest extends TestCase
             $this->assertDatabaseHas('participants', [
                 'status' => 1,
             ]);
-
         }
 
         $response = $this->withHeaders([
             'Accept' => 'application/json',
-        ])->post(route(self::SUBMIT_GRADE_ROUTE, [$data['questions'][4], $participant]),[
+        ])->post(route(self::SUBMIT_GRADE_ROUTE, [$data['questions'][4], $participant]), [
             'grade' => 10,
         ]);
 
@@ -2032,7 +2020,7 @@ class CorrectAnswersTest extends TestCase
         $this->register_user($user, $data['exam']);
         $this->assertDatabaseCount('participants', 1);
 
-        for($i = 0;$i < 5;$i ++){
+        for ($i = 0;$i < 5;$i ++) {
             $question = $data['questions'][$i];
             $this->send_answer_for_user($user, $question, $i % 2);
         }
@@ -2089,7 +2077,7 @@ class CorrectAnswersTest extends TestCase
         $this->register_user($user, $data['exam']);
         $this->assertDatabaseCount('participants', 1);
 
-        for($i = 0;$i < 5;$i ++){
+        for ($i = 0;$i < 5;$i ++) {
             $question = $data['questions'][$i];
             $this->send_answer_for_user($user, $question, $i % 2);
         }
@@ -2166,7 +2154,7 @@ class CorrectAnswersTest extends TestCase
 
         $response->assertStatus(202);
 
-        Sanctum::actingAs($data['owner'],['*']);
+        Sanctum::actingAs($data['owner'], ['*']);
 
         // $response = $this->withHeaders([
         //     'Accept' => 'application/json',
@@ -2235,7 +2223,7 @@ class CorrectAnswersTest extends TestCase
 
         $response->assertStatus(202);
 
-        Sanctum::actingAs($data['owner'],['*']);
+        Sanctum::actingAs($data['owner'], ['*']);
 
         // $response = $this->withHeaders([
         //     'Accept' => 'application/json',
@@ -2284,7 +2272,7 @@ class CorrectAnswersTest extends TestCase
         $this->register_user($user, $data['exam']);
         $this->assertDatabaseCount('participants', 1);
 
-        for($i = 0;$i < 5;$i ++){
+        for ($i = 0;$i < 5;$i ++) {
             $question = $data['questions'][$i];
             $this->send_answer_for_user($user, $question, $i % 2);
         }
@@ -2340,7 +2328,7 @@ class CorrectAnswersTest extends TestCase
         $this->register_user($user, $data['exam']);
         $this->assertDatabaseCount('participants', 1);
 
-        for($i = 0;$i < 5;$i ++){
+        for ($i = 0;$i < 5;$i ++) {
             $question = $data['questions'][$i];
             $this->send_answer_for_user($user, $question, $i % 2);
         }
@@ -2395,7 +2383,6 @@ class CorrectAnswersTest extends TestCase
                 ]
             ]
         ]);
-
     }
 
     /**
@@ -2417,7 +2404,7 @@ class CorrectAnswersTest extends TestCase
         $this->register_user($user, $data['exam']);
         $this->assertDatabaseCount('participants', 1);
 
-        for($i = 0;$i < 5;$i ++){
+        for ($i = 0;$i < 5;$i ++) {
             $question = $data['questions'][$i];
             $this->send_answer_for_user($user, $question, $i % 2);
         }
@@ -2456,7 +2443,6 @@ class CorrectAnswersTest extends TestCase
         ])->get(route(self::GET_QUESTION_GRADE_ROUTE, [$participant, $data['questions'][1]]));
 
         $response->assertStatus(403);
-
     }
 
     /**
@@ -2483,7 +2469,7 @@ class CorrectAnswersTest extends TestCase
         $this->register_user($user, $data['exam']);
         $this->assertDatabaseCount('participants', 1);
 
-        for($i = 0;$i < 5;$i ++){
+        for ($i = 0;$i < 5;$i ++) {
             $question = $data['questions'][$i];
             $this->send_answer_for_user($user, $question, $i % 2);
         }
@@ -2521,7 +2507,6 @@ class CorrectAnswersTest extends TestCase
         ])->get(route(self::GET_QUESTION_GRADE_ROUTE, [$participant, $data['questions'][1]]));
 
         $response->assertStatus(200);
-
     }
 
     /**
@@ -2548,7 +2533,7 @@ class CorrectAnswersTest extends TestCase
         $this->register_user($user, $data['exam']);
         $this->assertDatabaseCount('participants', 1);
 
-        for($i = 0;$i < 5;$i ++){
+        for ($i = 0;$i < 5;$i ++) {
             $question = $data['questions'][$i];
             $this->send_answer_for_user($user, $question, $i % 2);
         }
@@ -2581,7 +2566,6 @@ class CorrectAnswersTest extends TestCase
         ])->get(route(self::GET_QUESTION_GRADE_ROUTE, [$participant, $data['questions'][1]]));
 
         $response->assertStatus(200);
-
     }
 
     /**
@@ -2609,7 +2593,7 @@ class CorrectAnswersTest extends TestCase
         $this->register_user($user, $data['exam']);
         $this->assertDatabaseCount('participants', 1);
 
-        for($i = 0;$i < 5;$i ++){
+        for ($i = 0;$i < 5;$i ++) {
             $question = $data['questions'][$i];
             $this->send_answer_for_user($user, $question, $i % 2);
         }
@@ -2642,7 +2626,6 @@ class CorrectAnswersTest extends TestCase
         ])->get(route(self::GET_QUESTION_GRADE_ROUTE, [$participant, $data['questions'][1]]));
 
         $response->assertStatus(403);
-
     }
 
     /**
@@ -2665,7 +2648,7 @@ class CorrectAnswersTest extends TestCase
         $this->register_user($user, $data['exam']);
         $this->assertDatabaseCount('participants', 1);
 
-        for($i = 0;$i < 5;$i ++){
+        for ($i = 0;$i < 5;$i ++) {
             $question = $data['questions'][$i];
             $this->send_answer_for_user($user, $question, $i % 2);
         }
@@ -2704,7 +2687,6 @@ class CorrectAnswersTest extends TestCase
         ])->get(route(self::GET_QUESTION_GRADE_ROUTE, [$participant, $data['questions'][1]]));
 
         $response->assertStatus(403);
-
     }
 
     /**
@@ -2748,11 +2730,11 @@ class CorrectAnswersTest extends TestCase
 
         $response->assertStatus(202);
 
-        Sanctum::actingAs($data['owner'],['*']);
+        Sanctum::actingAs($data['owner'], ['*']);
 
         $response = $this->withHeaders([
             'Accept' => 'application/json',
-        ])->post(route(self::SUBMIT_GRADE_ROUTE, [$data['questions'][5], $participant]),[
+        ])->post(route(self::SUBMIT_GRADE_ROUTE, [$data['questions'][5], $participant]), [
             'grade' => 20,
         ]);
 
@@ -2776,7 +2758,6 @@ class CorrectAnswersTest extends TestCase
                 ]
             ]
         ]);
-
     }
 
     /**
@@ -2826,11 +2807,11 @@ class CorrectAnswersTest extends TestCase
 
         $response->assertStatus(403);
 
-        Sanctum::actingAs($data['owner'],['*']);
+        Sanctum::actingAs($data['owner'], ['*']);
 
         $response = $this->withHeaders([
             'Accept' => 'application/json',
-        ])->post(route(self::SUBMIT_GRADE_ROUTE, [$data['questions'][5], $participant]),[
+        ])->post(route(self::SUBMIT_GRADE_ROUTE, [$data['questions'][5], $participant]), [
             'grade' => 20,
         ]);
 
@@ -2854,7 +2835,6 @@ class CorrectAnswersTest extends TestCase
                 ]
             ]
         ]);
-
     }
 
     /**
@@ -2898,11 +2878,11 @@ class CorrectAnswersTest extends TestCase
 
         $response->assertStatus(202);
 
-        Sanctum::actingAs($data['owner'],['*']);
+        Sanctum::actingAs($data['owner'], ['*']);
 
         $response = $this->withHeaders([
             'Accept' => 'application/json',
-        ])->post(route(self::SUBMIT_GRADE_ROUTE, [$data['questions'][5], $participant]),[
+        ])->post(route(self::SUBMIT_GRADE_ROUTE, [$data['questions'][5], $participant]), [
             'grade' => 20,
         ]);
 
@@ -2924,7 +2904,6 @@ class CorrectAnswersTest extends TestCase
                 ]
             ]
         ]);
-
     }
 
     /**
@@ -2968,11 +2947,11 @@ class CorrectAnswersTest extends TestCase
 
         $response->assertStatus(202);
 
-        Sanctum::actingAs($data['owner'],['*']);
+        Sanctum::actingAs($data['owner'], ['*']);
 
         $response = $this->withHeaders([
             'Accept' => 'application/json',
-        ])->post(route(self::SUBMIT_GRADE_ROUTE, [$data['questions'][5], $participant]),[
+        ])->post(route(self::SUBMIT_GRADE_ROUTE, [$data['questions'][5], $participant]), [
             'grade' => 20,
         ]);
 
@@ -2990,7 +2969,7 @@ class CorrectAnswersTest extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json',
-        ])->post(route(self::SUBMIT_GRADE_ROUTE, [$data['questions'][5], $participant]),[
+        ])->post(route(self::SUBMIT_GRADE_ROUTE, [$data['questions'][5], $participant]), [
             'grade' => 10,
         ]);
 

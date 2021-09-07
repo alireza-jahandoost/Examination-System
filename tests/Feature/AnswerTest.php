@@ -22,27 +22,22 @@ use App\Models\State;
 
 use Database\Seeders\QuestionTypeSeeder;
 
-
-
 class AnswerTest extends TestCase
 {
-
     use RefreshDatabase;
 
-    const ACCEPT_REGISTERED_USERS_ROUTE = 'exams.accept_user';
-    const PUBLISH_EXAM_ROUTE = 'exams.publish';
-    const LOGOUT_ROUTE = "authentication.logout";
-    const EXAM_REGISTER_ROUTE = 'exams.register';
-    const CREATE_ANSWER_ROUTE = 'answers.store';
-    const INDEX_ANSWER_ROUTE = 'answers.index';
-    const DELETE_ANSWER_ROUTE = 'answers.destroy';
+    public const ACCEPT_REGISTERED_USERS_ROUTE = 'exams.accept_user';
+    public const LOGOUT_ROUTE = "authentication.logout";
+    public const EXAM_REGISTER_ROUTE = 'exams.register';
+    public const CREATE_ANSWER_ROUTE = 'answers.store';
+    public const INDEX_ANSWER_ROUTE = 'answers.index';
+    public const DELETE_ANSWER_ROUTE = 'answers.destroy';
 
     protected $owner = null;
     protected function create_and_publish_an_exam($exam_inputs = [], $type_of_question = 1)
     {
-        if($this->owner === null){
+        if ($this->owner === null) {
             $this->owner = User::factory()->create();
-
         }
         Sanctum::actingAs(
             $this->owner,
@@ -53,7 +48,7 @@ class AnswerTest extends TestCase
         ], $exam_inputs));
         $exam->published = true;
         $exam->save();
-        if(isset($exam_inputs['password'])){
+        if (isset($exam_inputs['password'])) {
             $exam->password = $exam_inputs['password'];
             $exam->save();
         }
@@ -65,15 +60,16 @@ class AnswerTest extends TestCase
 
         switch ($type_of_question) {
             case 2:
-                foreach($questions as $question){
+                foreach ($questions as $question) {
                     $question->states()->create([
                         'text_answer' => 'test test',
                     ]);
                 }
+                // no break
             case 3:
             case 4:
-                foreach($questions as $question){
-                    for($i = 0;$i < 3; $i ++){
+                foreach ($questions as $question) {
+                    for ($i = 0;$i < 3; $i ++) {
                         $question->states()->create([
                             'text_answer' => 'test',
                             'integer_answer' => 0,
@@ -87,7 +83,7 @@ class AnswerTest extends TestCase
                 break;
 
             case 5:
-                foreach($questions as $question){
+                foreach ($questions as $question) {
                     $question->states()->create([
                         'integer_answer' => 1
                     ]);
@@ -95,8 +91,8 @@ class AnswerTest extends TestCase
                 break;
 
             case 6:
-                foreach($questions as $question){
-                    for($i = 1;$i < 5; $i ++){
+                foreach ($questions as $question) {
+                    for ($i = 1;$i < 5; $i ++) {
                         $question->states()->create([
                             'text_answer' => 'test',
                             'integer_answer' => $i,
@@ -118,7 +114,6 @@ class AnswerTest extends TestCase
             'exam' => $exam,
             'questions' => $questions
         ];
-
     }
 
     protected function register_user($user, $exam, $confirm_user = false)
@@ -133,7 +128,7 @@ class AnswerTest extends TestCase
             ])->post(route(self::EXAM_REGISTER_ROUTE, [$exam]));
         $response->assertStatus(201);
 
-        if($confirm_user){
+        if ($confirm_user) {
             Sanctum::actingAs($this->owner, ['*']);
             $response = $this->withHeaders([
                 'Accept' => 'application/json'
@@ -999,7 +994,6 @@ class AnswerTest extends TestCase
         ]);
         $response->assertStatus(401);
         $this->assertDatabaseCount('answers', 4);
-
     }
 
     /**
@@ -1143,7 +1137,6 @@ class AnswerTest extends TestCase
         ]);
         $response->assertStatus(401);
         $this->assertDatabaseCount('answers', 4);
-
     }
 
     /**
@@ -1345,7 +1338,6 @@ class AnswerTest extends TestCase
                 ]
             ]
         ]);
-
     }
 
     /**

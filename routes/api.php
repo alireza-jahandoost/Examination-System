@@ -23,7 +23,7 @@ use App\Http\Controllers\AnswerController;
 */
 
 // Authentication Routes
-Route::middleware('guest:sanctum')->prefix('authentication')->name('authentication.')->group(function(){
+Route::middleware('guest:sanctum')->prefix('authentication')->name('authentication.')->group(function () {
     Route::post('register', [AuthenticationController::class, 'register'])->name('register');
     Route::post('login', [AuthenticationController::class, 'login'])->name('login');
 
@@ -32,13 +32,13 @@ Route::middleware('guest:sanctum')->prefix('authentication')->name('authenticati
 });
 
 // Authentication Routes
-Route::middleware('auth:sanctum')->prefix('authentication')->name('authentication.')->group(function(){
+Route::middleware('auth:sanctum')->prefix('authentication')->name('authentication.')->group(function () {
     Route::put('change_password', [AuthenticationController::class, 'change_password'])->name('password.change');
     Route::post('logout', [AuthenticationController::class, 'logout'])->name('logout');
 });
 
 // Program routes that dont need authentication to see
-Route::middleware('api')->group(function(){
+Route::middleware('api')->group(function () {
     // Exams
     Route::get('exams', [ExamController::class, 'index'])->name('exams.index');
     Route::get('exams/{exam}', [ExamController::class, 'show'])->name('exams.show');
@@ -49,12 +49,12 @@ Route::middleware('api')->group(function(){
 });
 
 // Program routes that need authentication to see
-Route::middleware('auth:sanctum')->group(function(){
+Route::middleware('auth:sanctum')->group(function () {
     // Exam Routes
     Route::apiResource('exams', ExamController::class)->except(['index', 'show']);
     Route::get('own_exams', [ExamController::class, 'index_own'])->name('exams.own.index');
-    Route::post('publish_exams/{exam}', [ExamController::class, 'publish'])->name('exams.publish');
-    Route::post('unpublish_exams/{exam}', [ExamController::class, 'unpublish'])->name('exams.unpublish');
+    Route::put('publish_exams/{exam}', [ExamController::class, 'publish'])->name('exams.publish');
+    Route::put('unpublish_exams/{exam}', [ExamController::class, 'unpublish'])->name('exams.unpublish');
 
     // Question Routes
     Route::apiResource('exams/{exam}/questions', QuestionController::class);
