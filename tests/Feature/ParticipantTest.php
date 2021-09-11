@@ -99,6 +99,31 @@ class ParticipantTest extends TestCase
     /**
     * @test
     */
+    public function if_exam_did_not_published_user_can_not_register_in_exam()
+    {
+        $this->seed(QuestionTypeSeeder::class);
+
+        $data = $this->create_and_publish_an_exam([
+            'confirmation_required' => false,
+        ]);
+        $data['exam']->published = false;
+        $data['exam']->save();
+
+        Sanctum::actingAs(
+            $user = User::factory()->create(),
+            ['*']
+        );
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+            ])->post(route(self::EXAM_REGISTER_ROUTE, [$data['exam']]));
+        $response->assertStatus(403);
+        $this->assertDatabaseCount('participants', 0);
+    }
+
+    /**
+    * @test
+    */
     public function user_can_not_register_in_finished_exam()
     {
         $this->seed(QuestionTypeSeeder::class);

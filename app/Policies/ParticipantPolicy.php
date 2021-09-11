@@ -59,10 +59,12 @@ class ParticipantPolicy
         ])->exists();
 
         $end = Carbon::make($exam->end);
-        if ($end > Carbon::now()) {
-            if (! $participant_registered) {
-                if ($user->id !== $exam->user_id) {
-                    return true;
+        if ($exam->published) {
+            if ($end > Carbon::now()) {
+                if (! $participant_registered) {
+                    if ($user->id !== $exam->user_id) {
+                        return true;
+                    }
                 }
             }
         }
