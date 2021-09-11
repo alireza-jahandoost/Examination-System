@@ -43,6 +43,61 @@ class RouteServiceProvider extends ServiceProvider
                 ->namespace($this->namespace)
                 ->group(base_path('routes/api.php'));
 
+            // User Routes
+            Route::prefix('api')
+                ->middleware('api')
+                ->namespace($this->namespace)
+                ->group(base_path('routes/program_routes/user.php'));
+
+            // Answer Routes
+            Route::prefix('api')
+                ->middleware('api')
+                ->namespace($this->namespace)
+                ->group(base_path('routes/program_routes/answer.php'));
+
+            // Exam Routes
+            Route::prefix('api')
+                ->middleware('api')
+                ->namespace($this->namespace)
+                ->group(base_path('routes/program_routes/exam.php'));
+
+            // Participant Routes
+            Route::prefix('api')
+                ->middleware('api')
+                ->namespace($this->namespace)
+                ->group(base_path('routes/program_routes/participant.php'));
+
+            // Question Type Routes
+            Route::prefix('api')
+                ->middleware('api')
+                ->namespace($this->namespace)
+                ->group(base_path('routes/program_routes/question_type.php'));
+
+            // Question Routes
+            Route::prefix('api')
+                ->middleware('api')
+                ->namespace($this->namespace)
+                ->group(base_path('routes/program_routes/question.php'));
+
+            // State Routes
+            Route::prefix('api')
+                ->middleware('api')
+                ->namespace($this->namespace)
+                ->group(base_path('routes/program_routes/state.php'));
+
+            // User Routes
+            Route::prefix('api')
+                ->middleware('api')
+                ->namespace($this->namespace)
+                ->group(base_path('routes/program_routes/user.php'));
+
+            // Authentication Routes
+            Route::prefix('api/authentication')
+                ->middleware('api')
+                ->namespace($this->namespace)
+                ->name('authentication.')
+                ->group(base_path('routes/program_routes/authentication.php'));
+
             Route::middleware('web')
                 ->namespace($this->namespace)
                 ->group(base_path('routes/web.php'));
