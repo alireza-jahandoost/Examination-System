@@ -16,6 +16,18 @@ class Participant extends Model
         'status' => 'integer',
     ];
 
+    // Accessors
+    public function getTextStatusAttribute()
+    {
+        $change_status = [
+            0 => 'NOT_FINISHED',
+            1 => 'IN_PROCESSING',
+            2 => 'WAIT_FOR_MANUAL_CORRECTING',
+            3 => 'FINISHED',
+        ];
+        return $change_status[$this->attributes['status']];
+    }
+
     /**
      * calculate the grade of participant based on calculated answers
      */

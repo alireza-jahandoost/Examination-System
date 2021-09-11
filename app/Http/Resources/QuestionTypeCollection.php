@@ -15,7 +15,19 @@ class QuestionTypeCollection extends ResourceCollection
     public function toArray($request)
     {
         return [
-            'types' => parent::toArray($request)
+            'types' => $this->reduce(function ($carry, $type) {
+                return $carry->merge(collect([
+                     [
+                        'type_id' => $type->id,
+                        'type_name' => $type->name,
+                        'type_slug' => $type->slug,
+                        'number_of_states' => $type->number_of_states,
+                        'number_of_answers' => $type->number_of_answers,
+                        'type_of_answer' => $type->type_of_answer,
+                    ]
+                ]));
+            }, collect())
+
         ];
     }
 }

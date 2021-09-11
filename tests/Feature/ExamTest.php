@@ -20,13 +20,13 @@ class ExamTest extends TestCase
 {
     use RefreshDatabase;
 
-    const CREATE_EXAM_ROUTE = 'exams.store';
-    const UPDATE_EXAM_ROUTE = 'exams.update';
-    const INDEX_EXAM_ROUTE = 'exams.index';
-    const INDEX_OWN_EXAM_ROUTE = 'exams.own.index';
-    const SHOW_EXAM_ROUTE = 'exams.show';
-    const DELETE_EXAM_ROUTE = 'exams.destroy';
-    const LOGOUT_ROUTE = 'authentication.logout';
+    public const CREATE_EXAM_ROUTE = 'exams.store';
+    public const UPDATE_EXAM_ROUTE = 'exams.update';
+    public const INDEX_EXAM_ROUTE = 'exams.index';
+    public const INDEX_OWN_EXAM_ROUTE = 'exams.own.index';
+    public const SHOW_EXAM_ROUTE = 'exams.show';
+    public const DELETE_EXAM_ROUTE = 'exams.destroy';
+    public const LOGOUT_ROUTE = 'authentication.logout';
 
     /**
     * @test
@@ -140,7 +140,6 @@ class ExamTest extends TestCase
     */
     public function a_guest_user_can_not_make_an_exam()
     {
-
         $response = $this->withHeaders([
             'Accept' => 'application/json'
             ])->post(route(self::CREATE_EXAM_ROUTE), [
@@ -674,8 +673,8 @@ class ExamTest extends TestCase
 
         $response->assertJsonStructure([
             'data' => [
-                [
-                    'exam' => [
+                'exams' => [
+                    [
                         'exam_id',
                         'exam_name',
                         'needs_confirmation',
@@ -718,8 +717,8 @@ class ExamTest extends TestCase
 
         $response->assertJsonStructure([
             'data' => [
-                [
-                    'exam' => [
+                'exams' => [
+                    [
                         'exam_id',
                         'exam_name',
                         'needs_confirmation',
@@ -808,7 +807,6 @@ class ExamTest extends TestCase
     */
     public function guest_users_can_see_exams()
     {
-
         $user = User::factory()->create();
 
         $exam = Exam::factory()->state([
@@ -864,6 +862,33 @@ class ExamTest extends TestCase
                     'total_score',
                     'creation_time',
                     'last_update',
+                ]
+            ]
+        ]);
+    }
+
+    /**
+    * @test
+    */
+    public function user_can_see_the_owner_id_and_owner_link_of_exam_in_show_route()
+    {
+        Sanctum::actingAs(
+            $user = User::factory()->create(),
+            ['*'],
+        );
+
+        $exam = Exam::factory()->for($user)->create();
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json'
+            ])->get(route(self::SHOW_EXAM_ROUTE, $exam->id));
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'data' => [
+                'exam' => [
+                    'owner_id' => $exam->user_id,
+                    'owner_link' => route('users.show', $exam->user),
                 ]
             ]
         ]);
@@ -990,13 +1015,11 @@ class ExamTest extends TestCase
 
         $response->assertJson([
             'data' => [
-                [
-                    'exam' => [
+                'exams' => [
+                    [
                         'exam_id' => 1
                     ],
-                ],
-                [
-                    'exam' => [
+                    [
                         'exam_id' => 2
                     ]
                 ]
@@ -1029,8 +1052,8 @@ class ExamTest extends TestCase
 
         $response->assertJsonStructure([
             'data' => [
-                [
-                    'exam' => [
+                'exams' => [
+                    [
                         'exam_id',
                         'exam_name',
                         'needs_confirmation',
@@ -1079,7 +1102,7 @@ class ExamTest extends TestCase
 
         $response->assertStatus(200);
 
-        $this->assertTrue($response->json()['data'] === []);
+        $this->assertTrue($response->json()['data']['exams'] === []);
     }
 
     /**

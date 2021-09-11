@@ -14,6 +14,18 @@ class StateCollection extends ResourceCollection
      */
     public function toArray($request)
     {
-        return parent::toArray($request);
+        return [
+            'states' => $this->reduce(function ($carry, $state) {
+                return $carry->merge(collect([
+                     [
+                        'state_id' => $state->id,
+                        'text_part' => $state->text_answer,
+                        'integer_part' => $state->integer_answer,
+                        'question_id' => $state->question_id,
+                        'quesiton_link' => route('questions.show', [$state->question->exam, $state->question]),
+                    ]
+                ]));
+            }, collect())
+        ];
     }
 }

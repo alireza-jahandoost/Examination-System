@@ -19,7 +19,7 @@ class SaveScoreRequest extends FormRequest
      */
     public function authorize()
     {
-        $question = $this->route('question');
+        $question = $this->question;
         if ($question) {
             $this->max_score = $question->score;
             return true;

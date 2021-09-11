@@ -165,12 +165,8 @@ class ParticipantController extends Controller
     public function question_grade(Participant $participant, Question $question, CalculateQuestionGrade $action)
     {
         $this->authorize('questionGrade', [$participant, $question]);
-        $grade = $participant->grades()->where('question_id', $question->id)->first()->grade;
+        $grade = $participant->grades()->where('question_id', $question->id)->first();
 
-        return (new QuestionGradeResource([
-            'participant_id' => $participant->id,
-            'question_id' => $question->id,
-            'grade' => $grade,
-        ]))->response()->setStatusCode(200);
+        return (new QuestionGradeResource($grade))->response()->setStatusCode(200);
     }
 }

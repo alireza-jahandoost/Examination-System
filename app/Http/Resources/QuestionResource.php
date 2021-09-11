@@ -20,8 +20,7 @@ class QuestionResource extends JsonResource
                 'question_score' => $this->score,
                 'can_be_shuffled' => $this->can_be_shuffled,
                 'question_type' => [
-                     'question_type_id' => $this->questionType->id,
-                     'question_type_slug' => $this->questionType->slug,
+                    'question_type_link' => route('question_types.show', $this->questionType->slug),
                      'question_type_name' => $this->questionType->name
                 ]
             ]

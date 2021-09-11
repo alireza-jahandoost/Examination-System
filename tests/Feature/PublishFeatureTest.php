@@ -1110,7 +1110,7 @@ class PublishFeatureTest extends TestCase
 
         $response->assertStatus(200);
 
-        $this->assertTrue($response->json()['data'] === []);
+        $this->assertTrue($response->json()['data']['exams'] === []);
 
         Sanctum::actingAs(
             $anotherUser = User::factory()->create(),
@@ -1123,7 +1123,7 @@ class PublishFeatureTest extends TestCase
 
         $response->assertStatus(200);
 
-        $this->assertTrue($response->json()['data'] === []);
+        $this->assertTrue($response->json()['data']['exams'] === []);
     }
 
     /**
@@ -1162,8 +1162,8 @@ class PublishFeatureTest extends TestCase
 
         $response->assertJson([
             'data' => [
-                [
-                    'exam' => [
+                'exams' => [
+                    [
                         'exam_id' => $exam->id,
                     ]
                 ]
@@ -1181,7 +1181,7 @@ class PublishFeatureTest extends TestCase
 
         $response->assertStatus(200);
 
-        $this->assertTrue($response->json()['data'] === []);
+        $this->assertTrue($response->json()['data']['exams'] === []);
     }
 
     /**
@@ -1404,8 +1404,8 @@ class PublishFeatureTest extends TestCase
 
         $response->assertJson([
             'data' => [
-                [
-                    'exam' => [
+                'exams' => [
+                    [
                         'exam_id' => $exam->id,
                     ]
                 ]
@@ -1423,7 +1423,7 @@ class PublishFeatureTest extends TestCase
 
         $response->assertStatus(200);
 
-        $this->assertTrue($response->json()['data'] === []);
+        $this->assertTrue($response->json()['data']['exams'] === []);
     }
 
     /**

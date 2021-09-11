@@ -1095,10 +1095,8 @@ class CorrectAnswersTest extends TestCase
             'data' => [
                 'participants' => [
                     [
-                        'participant' => [
-                            'status',
-                            'grade',
-                        ]
+                        'status',
+                        'grade',
                     ]
                 ]
             ]
@@ -1153,9 +1151,7 @@ class CorrectAnswersTest extends TestCase
             'data' => [
                 'participants' => [
                     [
-                        'participant' => [
-                            'grade' => null,
-                        ]
+                        'grade' => null,
                     ]
                 ]
             ]
@@ -1210,9 +1206,7 @@ class CorrectAnswersTest extends TestCase
             'data' => [
                 'participants' => [
                     [
-                        'participant' => [
-                            'status' => 'NOT_FINISHED',
-                        ]
+                        'status' => 'NOT_FINISHED',
                     ]
                 ]
             ]
@@ -1268,9 +1262,7 @@ class CorrectAnswersTest extends TestCase
             'data' => [
                 'participants' => [
                     [
-                        'participant' => [
-                            'status' => 'IN_PROCESSING',
-                        ]
+                        'status' => 'IN_PROCESSING',
                     ]
                 ]
             ]
@@ -1324,9 +1316,7 @@ class CorrectAnswersTest extends TestCase
             'data' => [
                 'participants' => [
                     [
-                        'participant' => [
-                            'status' => 'WAIT_FOR_MANUAL_CORRECTING',
-                        ]
+                        'status' => 'WAIT_FOR_MANUAL_CORRECTING',
                     ]
                 ]
             ]
@@ -1380,9 +1370,7 @@ class CorrectAnswersTest extends TestCase
             'data' => [
                 'participants' => [
                     [
-                        'participant' => [
-                            'status' => 'FINISHED',
-                        ]
+                        'status' => 'FINISHED',
                     ]
                 ]
             ]
@@ -2364,6 +2352,8 @@ class CorrectAnswersTest extends TestCase
                     'participant_id' => $participant->id,
                     'question_id' => $data['questions'][0]->id,
                     'grade' => 0,
+                    'participant_link' => route('participants.show', [$data['exam'], $participant]),
+                    'question_link' => route('questions.show', [$data['exam'], $data['questions'][0]]),
                 ]
             ]
         ]);

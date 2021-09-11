@@ -39,6 +39,9 @@ Route::middleware('auth:sanctum')->prefix('authentication')->name('authenticatio
 
 // Program routes that dont need authentication to see
 Route::middleware('api')->group(function () {
+    //Users
+    Route::get('users/{user}', [UserController::class, 'show'])->name('users.show');
+
     // Exams
     Route::get('exams', [ExamController::class, 'index'])->name('exams.index');
     Route::get('exams/{exam}', [ExamController::class, 'show'])->name('exams.show');

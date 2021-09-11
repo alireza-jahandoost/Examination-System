@@ -15,7 +15,14 @@ class AnswerCollection extends ResourceCollection
     public function toArray($request)
     {
         return [
-            'answers' => parent::toArray($request) 
+            'answers' => $this->reduce(function ($carry, $answer) {
+                return $carry->merge(collect([
+                     [
+                        'integer_part' => $answer->integer_answer,
+                        'text_part' => $answer->text_answer,
+                    ]
+                ]));
+            }, collect())
         ];
     }
 }

@@ -19,7 +19,8 @@ class StateResource extends JsonResource
                 'state_id' => $this->id,
                 'text_part' => $this->text_answer,
                 'integer_part' => $this->integer_answer,
-                'question_id' => $this->question_id
+                'question_id' => $this->question_id,
+                'quesiton_link' => route('questions.show', [$this->question->exam, $this->question]),
             ]
         ];
     }

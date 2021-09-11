@@ -1258,11 +1258,56 @@ class AnswerTest extends TestCase
             'data' => [
                 'answers' => [
                     [
-                        'answer' => [
-                            'text_part',
-                            'integer_part',
-                            'grade',
-                        ]
+                        'text_part',
+                        'integer_part',
+                    ]
+                ]
+            ]
+        ]);
+    }
+
+    /**
+    * @test
+    */
+    public function answer_response_do_not_have_grade()
+    {
+        $this->seed(QuestionTypeSeeder::class);
+        $start = Carbon::now()->subMinute();
+        $end = Carbon::make($start)->addHours(2);
+        $data = $this->create_and_publish_an_exam([
+            'confirmation_required' => false,
+            // 'confirmation_required' => true,
+            'start' => $start->format('Y-m-d H:i:s'),
+            'end' => $end->format('Y-m-d H:i:s'),
+        ], 1);
+        $user = User::factory()->create();
+
+        // $this->register_user($user, $data['exam'], true);
+        $this->register_user($user, $data['exam'], false);
+        $this->assertDatabaseCount('participants', 1);
+
+        Sanctum::actingAs($user, ['*']);
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->post(route(self::CREATE_ANSWER_ROUTE, [$data['questions'][0]]), [
+            'text_part' => 'test',
+        ]);
+
+        $participant = Participant::where([
+            'user_id' => $user->id,
+            'exam_id' => $data['exam']->id,
+        ])->first();
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->get(route(self::INDEX_ANSWER_ROUTE, [$data['questions'][0], $participant]));
+        $response->assertStatus(200);
+        $response->assertJsonMissing([
+            'data' => [
+                'answers' => [
+                    [
+                        'grade' => null
                     ]
                 ]
             ]
@@ -1329,11 +1374,8 @@ class AnswerTest extends TestCase
             'data' => [
                 'answers' => [
                     [
-                        'answer' => [
-                            'text_part' => 'test',
-                            'integer_part' => null,
-                            'grade' => null
-                        ]
+                        'text_part' => 'test',
+                        'integer_part' => null,
                     ]
                 ]
             ]

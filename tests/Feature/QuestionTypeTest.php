@@ -14,11 +14,10 @@ use Database\Seeders\QuestionTypeSeeder;
 
 class QuestionTypeTest extends TestCase
 {
-
     use RefreshDatabase;
 
-    const QUESTION_TYPE_INDEX = 'question_types.index';
-    const QUESTION_TYPE_SHOW = 'question_types.show';
+    public const QUESTION_TYPE_INDEX = 'question_types.index';
+    public const QUESTION_TYPE_SHOW = 'question_types.show';
 
     /**
      * @test
@@ -41,14 +40,12 @@ class QuestionTypeTest extends TestCase
             'data' => [
                 'types' => [
                     [
-                        'type' => [
-                            'type_id',
-                            'type_name',
-                            'type_slug',
-                            'number_of_states',
-                            'number_of_answers',
-                            'type_of_answer'
-                        ]
+                        'type_id',
+                        'type_name',
+                        'type_slug',
+                        'number_of_states',
+                        'number_of_answers',
+                        'type_of_answer'
                     ]
                 ]
             ]
@@ -71,14 +68,12 @@ class QuestionTypeTest extends TestCase
             'data' => [
                 'types' => [
                     [
-                        'type' => [
-                            'type_id',
-                            'type_name',
-                            'type_slug',
-                            'number_of_states',
-                            'number_of_answers',
-                            'type_of_answer'
-                        ]
+                        'type_id',
+                        'type_name',
+                        'type_slug',
+                        'number_of_states',
+                        'number_of_answers',
+                        'type_of_answer'
                     ]
                 ]
             ]

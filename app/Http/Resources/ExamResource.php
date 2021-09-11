@@ -24,6 +24,8 @@ class ExamResource extends JsonResource
                 'total_score' => $this->total_score,
                 'creation_time' => $this->created_at,
                 'last_update' => $this->updated_at,
+                'owner_id' => $this->user_id,
+                'owner_link' => route('users.show', $this->user),
             ]
         ];
     }

@@ -15,7 +15,15 @@ class QuestionCollection extends ResourceCollection
     public function toArray($request)
     {
         return [
-            'questions' => parent::toArray($request)
+            'questions' => $this->reduce(function ($carry, $question) {
+                return $carry->merge(collect([
+                     [
+                        'question_id' => $question->id,
+                        'question_link' => route('questions.show', [$question->exam, $question]),
+                    ]
+                ]));
+            }, collect())
+
         ];
     }
 }

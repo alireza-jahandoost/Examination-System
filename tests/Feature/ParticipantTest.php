@@ -346,16 +346,8 @@ class ParticipantTest extends TestCase
              'data' => [
                  'questions' => [
                      [
-                         'question' => [
-                             'question_text',
-                             'question_score',
-                             'can_be_shuffled',
-                             'question_type' => [
-                                 'question_type_id',
-                                 'question_type_slug',
-                                 'question_type_name'
-                             ]
-                         ]
+                         'question_id',
+                         'question_link',
                      ]
                  ]
              ]
@@ -676,16 +668,8 @@ class ParticipantTest extends TestCase
              'data' => [
                  'questions' => [
                      [
-                         'question' => [
-                             'question_text',
-                             'question_score',
-                             'can_be_shuffled',
-                             'question_type' => [
-                                 'question_type_id',
-                                 'question_type_slug',
-                                 'question_type_name'
-                             ]
-                         ]
+                         'question_id',
+                         'question_link'
                      ]
                  ]
              ]
@@ -801,7 +785,7 @@ class ParticipantTest extends TestCase
 
         $iterator = 1;
         foreach ($response->json()['data']['participants'] as $current) {
-            if ($iterator === $current['participant']['participant_id']) {
+            if ($iterator === $current['participant_id']) {
                 $iterator ++;
             }
         }
@@ -869,7 +853,7 @@ class ParticipantTest extends TestCase
 
         $iterator = 1;
         foreach ($response->json()['data']['participants'] as $current) {
-            if ($iterator === $current['participant']['participant_id']) {
+            if ($iterator === $current['participant_id']) {
                 $iterator ++;
             }
         }
@@ -884,6 +868,94 @@ class ParticipantTest extends TestCase
                 'current_page',
                 'from',
             ]
+        ]);
+    }
+
+    /**
+    * @test
+    */
+    public function participants_information_must_be_wrapped_in_participants_array()
+    {
+        $this->seed(QuestionTypeSeeder::class);
+        $start = Carbon::now()->addMinute();
+        $end = Carbon::make($start)->addHours(2);
+        $data = $this->create_and_publish_an_exam([
+            'confirmation_required' => true,
+            'start' => $start->format('Y-m-d H:i:s'),
+            'end' => $end->format('Y-m-d H:i:s'),
+        ]);
+        for ($i = 0; $i<5; $i++) {
+            Sanctum::actingAs(
+                $user = User::factory()->create(),
+                ['*']
+            );
+
+            $response = $this->withHeaders([
+                'Accept' => 'application/json',
+                ])->post(route(self::EXAM_REGISTER_ROUTE, [
+                    $data['exam'],
+                ]), [
+                ]);
+
+            $response->assertStatus(201);
+
+            Sanctum::actingAs($data['owner'], ['*']);
+            $response = $this->withHeaders([
+                'Accept' => 'application/json'
+                ])->put(route(self::ACCEPT_REGISTERED_USERS_ROUTE, [$data['exam']]), [
+                'user_id' => $user->id
+            ]);
+            $response->assertStatus(202);
+        }
+        for ($i = 0; $i<5; $i++) {
+            Sanctum::actingAs(
+                $user = User::factory()->create(),
+                ['*']
+            );
+
+            $response = $this->withHeaders([
+                'Accept' => 'application/json',
+                ])->post(route(self::EXAM_REGISTER_ROUTE, [
+                    $data['exam'],
+                ]), [
+                ]);
+
+            $response->assertStatus(201);
+        }
+
+        Sanctum::actingAs($data['owner'], ['*']);
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+            ])->get(route(self::INDEX_PARTICIPANT_ROUTE, [$data['exam']]));
+        $response->assertStatus(200);
+
+        $iterator = 1;
+        foreach ($response->json()['data']['participants'] as $current) {
+            if ($iterator === $current['participant_id']) {
+                $iterator ++;
+            }
+        }
+        $this->assertTrue($iterator === 11);
+        $participant_id = Participant::where([
+            'user_id' => $user->id,
+            'exam_id' => $data['exam']->id,
+            ])->first()->id;
+
+        // dd($response->json());
+        $response->assertJsonStructure([
+            'data' => [
+                'participants' => [
+                    [
+                        'participant_id' ,
+                        'user_id',
+                        'exam_id',
+                        'user_link',
+                        'exam_link',
+                        'confirmed' ,
+                    ]
+                ]
+            ],
         ]);
     }
 
@@ -1046,6 +1118,8 @@ class ParticipantTest extends TestCase
                     'participant_id' => $first_participant->id,
                     'user_id' => $user->id,
                     'exam_id' => $data['exam']->id,
+                    'user_link' => route('users.show', [$user]),
+                    'exam_link' => route('exams.show', [$data['exam']]),
                     'confirmed' => false,
                 ]
             ]
@@ -1061,6 +1135,8 @@ class ParticipantTest extends TestCase
                     'participant_id' => $second_participant->id,
                     'user_id' => $user->id,
                     'exam_id' => $data['exam']->id,
+                    'user_link' => route('users.show', [$user]),
+                    'exam_link' => route('exams.show', [$data['exam']]),
                     'confirmed' => true,
                 ]
             ]

@@ -18,19 +18,17 @@ use App\Models\State;
 
 use Database\Seeders\QuestionTypeSeeder;
 
-
 class StateTest extends TestCase
 {
-
     use RefreshDatabase;
 
-    const STATE_CREATE_ROUTE = 'states.store';
-    const STATE_UPDATE_ROUTE = 'states.update';
-    const STATE_INDEX_ROUTE = 'states.index';
-    const STATE_SHOW_ROUTE = 'states.show';
-    const STATE_DELETE_ROUTE = 'states.destroy';
+    public const STATE_CREATE_ROUTE = 'states.store';
+    public const STATE_UPDATE_ROUTE = 'states.update';
+    public const STATE_INDEX_ROUTE = 'states.index';
+    public const STATE_SHOW_ROUTE = 'states.show';
+    public const STATE_DELETE_ROUTE = 'states.destroy';
 
-    const STATE_COUNT_LIMIT = 8;
+    public const STATE_COUNT_LIMIT = 8;
 
     /**
     * @test
@@ -56,7 +54,6 @@ class StateTest extends TestCase
 
         $response->assertStatus(201);
         $this->assertDatabaseCount('states', 1);
-
     }
 
     /**
@@ -75,7 +72,7 @@ class StateTest extends TestCase
         $question_type = QuestionType::find(2);
         $question = Question::factory()->for($exam)->for($question_type)->create();
 
-        for($i = 0; $i < self::STATE_COUNT_LIMIT; $i++){
+        for ($i = 0; $i < self::STATE_COUNT_LIMIT; $i++) {
             $response = $this->withHeaders([
                 'Accept' => 'application/json'
                 ])->post(route(self::STATE_CREATE_ROUTE, [$exam, $question]), [
@@ -84,7 +81,7 @@ class StateTest extends TestCase
 
             $response->assertStatus(201);
         }
-        for($i = 0; $i < 8; $i++){
+        for ($i = 0; $i < 8; $i++) {
             $response = $this->withHeaders([
                 'Accept' => 'application/json'
                 ])->post(route(self::STATE_CREATE_ROUTE, [$exam, $question]), [
@@ -94,7 +91,6 @@ class StateTest extends TestCase
             $response->assertStatus(401);
         }
         $this->assertDatabaseCount('states', 8);
-
     }
 
     /**
@@ -131,7 +127,6 @@ class StateTest extends TestCase
                 ]
             ]
         ]);
-
     }
 
     /**
@@ -158,7 +153,6 @@ class StateTest extends TestCase
 
         $response->assertStatus(422);
         $this->assertDatabaseCount('states', 0);
-
     }
 
     /**
@@ -185,7 +179,6 @@ class StateTest extends TestCase
 
         $response->assertStatus(422);
         $this->assertDatabaseCount('states', 0);
-
     }
 
     /**
@@ -238,7 +231,6 @@ class StateTest extends TestCase
 
         $response->assertStatus(403);
         $this->assertDatabaseCount('states', 0);
-
     }
 
     /**
@@ -1354,8 +1346,8 @@ class StateTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
-                [
-                    'state' => [
+                'states' => [
+                    [
                         'state_id',
                         'text_part',
                         'integer_part',
@@ -1487,6 +1479,45 @@ class StateTest extends TestCase
                     'text_part' => 'test',
                     'integer_part' => 1,
                     'question_id' => 1,
+                ]
+            ]
+        ]);
+    }
+
+    /**
+    * @test
+    */
+    public function user_can_see_question_link_when_showing_his_states()
+    {
+        $this->seed(QuestionTypeSeeder::class);
+
+        Sanctum::actingAs(
+            $user = User::factory()->create(),
+            ['*']
+        );
+
+        $exam = Exam::factory()->for($user)->create();
+
+        $question_type = QuestionType::find(3);
+        $question = Question::factory()->for($exam)->for($question_type)->create();
+
+        State::factory()->for($question)->count(5)->create([
+            'integer_answer' => 1,
+        ]);
+        $state = State::factory()->for($question)->create([
+            'integer_answer' => 1,
+            'text_answer' => 'test'
+        ]);
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json'
+            ])->get(route(self::STATE_SHOW_ROUTE, [$exam, $question, $state]));
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'data' => [
+                'state' => [
+                    'quesiton_link' => route('questions.show', [$exam, $question]),
                 ]
             ]
         ]);
@@ -1680,7 +1711,7 @@ class StateTest extends TestCase
             ])->delete(route(self::STATE_DELETE_ROUTE, [$exam, $question, $state]));
 
         $response->assertStatus(403);
-        $this->assertDatabaseHas('states',['id' => $state->id]);
+        $this->assertDatabaseHas('states', ['id' => $state->id]);
     }
 
     /**
@@ -1713,7 +1744,7 @@ class StateTest extends TestCase
             ])->delete(route(self::STATE_DELETE_ROUTE, [$exam, $question, $state]));
 
         $response->assertStatus(403);
-        $this->assertDatabaseHas('states',['id' => $state->id]);
+        $this->assertDatabaseHas('states', ['id' => $state->id]);
     }
 
     /**
@@ -1746,7 +1777,7 @@ class StateTest extends TestCase
             ])->delete(route(self::STATE_DELETE_ROUTE, [$exam, $question, $state]));
 
         $response->assertStatus(403);
-        $this->assertDatabaseHas('states',['id' => $state->id]);
+        $this->assertDatabaseHas('states', ['id' => $state->id]);
     }
 
     /**
@@ -1775,6 +1806,6 @@ class StateTest extends TestCase
             ])->delete(route(self::STATE_DELETE_ROUTE, [$exam, $question, $state]));
 
         $response->assertStatus(401);
-        $this->assertDatabaseHas('states',['id' => $state->id]);
+        $this->assertDatabaseHas('states', ['id' => $state->id]);
     }
 }
