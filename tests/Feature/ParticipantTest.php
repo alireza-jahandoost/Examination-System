@@ -99,6 +99,33 @@ class ParticipantTest extends TestCase
     /**
     * @test
     */
+    public function user_can_not_register_in_finished_exam()
+    {
+        $this->seed(QuestionTypeSeeder::class);
+
+        $start = Carbon::now()->subHours(3);
+        $end = Carbon::make($start)->addHours(2);
+        $data = $this->create_and_publish_an_exam([
+            'confirmation_required' => false,
+            'start' => $start->format('Y-m-d H:i:s'),
+            'end' => $end->format('Y-m-d H:i:s'),
+        ]);
+
+        Sanctum::actingAs(
+            $user = User::factory()->create(),
+            ['*']
+        );
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+            ])->post(route(self::EXAM_REGISTER_ROUTE, [$data['exam']]));
+        $response->assertStatus(403);
+        $this->assertDatabaseCount('participants', 0);
+    }
+
+    /**
+    * @test
+    */
     public function owner_of_exam_can_not_participate_in_the_exam()
     {
         $this->seed(QuestionTypeSeeder::class);
