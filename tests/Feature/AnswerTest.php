@@ -118,33 +118,12 @@ class AnswerTest extends TestCase
 
     protected function register_user($user, $exam, $confirm_user = false)
     {
-        Sanctum::actingAs(
-            $user,
-            ['*']
-        );
-
-        $response = $this->withHeaders([
-            'Accept' => 'application/json',
-            ])->post(route(self::EXAM_REGISTER_ROUTE, [$exam]));
-        $response->assertStatus(201);
+        $participant = Participant::factory()->for($user)->for($exam)->create();
 
         if ($confirm_user) {
-            Sanctum::actingAs($this->owner, ['*']);
-            $response = $this->withHeaders([
-                'Accept' => 'application/json'
-                ])->put(route(self::ACCEPT_REGISTERED_USERS_ROUTE, [$exam]), [
-                'user_id' => $user->id
-            ]);
-            $response->assertStatus(202);
-            $this->assertDatabaseHas('participants', [
-                'is_accepted' => true
-            ]);
+            $participant->is_accepted = true;
+            $participant->save();
         }
-
-        $this->withHeaders([
-            'Accept' => 'application/json',
-        ])->post(route(self::LOGOUT_ROUTE));
-        $this->app->get('auth')->forgetGuards();
     }
 
     /**
