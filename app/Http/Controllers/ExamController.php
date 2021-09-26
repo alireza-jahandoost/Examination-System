@@ -16,7 +16,6 @@ use App\Actions\Exams\CanExamBePublished;
 
 class ExamController extends Controller
 {
-
     public function __construct()
     {
         $this->authorizeResource(Exam::class, 'exam');
@@ -29,7 +28,7 @@ class ExamController extends Controller
      */
     public function index()
     {
-        $query = Exam::where('published', true)->paginate();
+        $query = Exam::where('published', true)->paginate(18);
         return (new ExamCollection($query))->response()->setStatusCode(200);
     }
 
@@ -55,11 +54,13 @@ class ExamController extends Controller
             'end' => $data['end_of_exam'],
             'total_score' => $data['total_score'],
         ]);
-        if(isset($data['needs_confirmation']))
+        if (isset($data['needs_confirmation'])) {
             $exam->confirmation_required = $data['needs_confirmation'];
+        }
 
-        if(isset($data['password']))
+        if (isset($data['password'])) {
             $exam->password = $data['password'];
+        }
 
         $exam->save();
 
@@ -94,7 +95,7 @@ class ExamController extends Controller
             'end' => $data['end_of_exam'] ?? $exam->end,
             'total_score' => $data['total_score'] ?? $exam->total_score,
         ]);
-        if(isset($data['password'])){
+        if (isset($data['password'])) {
             $exam->password = $data['password'];
             $exam->save();
         }
@@ -118,7 +119,7 @@ class ExamController extends Controller
     {
         $this->authorize('publish', [$exam]);
         $status = $action->check($exam);
-        if($status !== 'success'){
+        if ($status !== 'success') {
             return (new MessageResource([
                 'message' => $status
                 ]))->response()->setStatusCode(401);
