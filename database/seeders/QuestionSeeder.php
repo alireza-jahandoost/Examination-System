@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Exam;
 use App\Models\Question;
+use App\Models\QuestionType;
 
 class QuestionSeeder extends Seeder
 {
@@ -15,9 +16,10 @@ class QuestionSeeder extends Seeder
      */
     public function run()
     {
-        Exam::chunk(20, function($exams){
-            foreach($exams as $exam){
-                Question::factory()->for($exam)->count(5)->create();
+        Exam::chunk(20, function ($exams) {
+            $questionType = QuestionType::find(rand(1, 6));
+            foreach ($exams as $exam) {
+                Question::factory()->for($exam)->for($questionType)->count(5)->create();
             }
         });
     }
