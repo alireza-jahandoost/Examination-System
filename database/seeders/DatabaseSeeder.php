@@ -13,14 +13,20 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // \App\Models\User::factory(10)->create();
-        $this->call([
+        if (config('app.env' === 'production')) {
+            $this->call([
+                QuestionTypeSeeder::class,
+            ]);
+        } else {
+            $this->call([
             UserSeeder::class,
             ExamSeeder::class,
+            QuestionTypeSeeder::class,
             ParticipantSeeder::class,
             QuestionSeeder::class,
             AnswerSeeder::class,
             StateSeeder::class,
         ]);
+        }
     }
 }
