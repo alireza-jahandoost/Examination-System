@@ -25,7 +25,8 @@ class StateController extends Controller
     public function index(Exam $exam, Question $question)
     {
         $this->authorize('viewAny', [State::class, $exam, $question]);
-        return (new StateCollection($question->states))->response()->setStatusCode(200);
+        $states = $question->states()->with('question')->get();
+        return (new StateCollection($states))->response()->setStatusCode(200);
     }
 
     /**

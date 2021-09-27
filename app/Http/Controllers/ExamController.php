@@ -28,13 +28,13 @@ class ExamController extends Controller
      */
     public function index()
     {
-        $query = Exam::where('published', true)->paginate(18);
+        $query = Exam::where('published', true)->with('user')->paginate(18);
         return (new ExamCollection($query))->response()->setStatusCode(200);
     }
 
     public function index_own()
     {
-        $query = auth()->user()->ownedExams()->paginate();
+        $query = auth()->user()->ownedExams()->with('user')->paginate();
         return (new ExamCollection($query))->response()->setStatusCode(200);
     }
 
