@@ -31,7 +31,7 @@ class ExamFactory extends Factory
             'start' => $start->format('Y-m-d H:i:s'),
             'end' => $end->format('Y-m-d H:i:s'),
             'total_score' => 100,
-            'published' => true,
+            'published' => (config('app.env') === 'testing' ? false : true),
         ];
     }
 }
