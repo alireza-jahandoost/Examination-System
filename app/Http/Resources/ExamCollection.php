@@ -27,6 +27,7 @@ class ExamCollection extends ResourceCollection
                         'creation_time' => $exam->created_at,
                         'last_update' => $exam->updated_at,
                         'owner_id' => $exam->user_id,
+                        'owner_name' => $exam->user->name,
                         'owner_link' => route('users.show', $exam->user),
 
                     ]
