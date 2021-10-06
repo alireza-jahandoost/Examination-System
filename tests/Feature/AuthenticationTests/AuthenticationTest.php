@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\AuthenticationTests;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -24,9 +24,9 @@ class AuthenticationTest extends TestCase
 {
     use RefreshDatabase;
 
-    const LOGIN_ROUTE = "authentication.login";
-    const REGISTER_ROUTE = "authentication.register";
-    const LOGOUT_ROUTE = "authentication.logout";
+    public const LOGIN_ROUTE = "authentication.login";
+    public const REGISTER_ROUTE = "authentication.register";
+    public const LOGOUT_ROUTE = "authentication.logout";
 
     /**
     * @test
@@ -238,7 +238,7 @@ class AuthenticationTest extends TestCase
         $user = User::factory()->create([
             'password' => Hash::make('aAlJT32LIfsli')
         ]);
-        for($i = 0; $i < 10; $i ++){
+        for ($i = 0; $i < 10; $i ++) {
             $response = $this->withHeaders([
                     'Accept' => 'application/json',
                 ])->post(route(self::LOGIN_ROUTE), [
@@ -258,7 +258,7 @@ class AuthenticationTest extends TestCase
         $user = User::factory()->create([
             'password' => Hash::make('aAlJT32LIfsli')
         ]);
-        for($i = 0; $i < 7; $i ++){
+        for ($i = 0; $i < 7; $i ++) {
             $response = $this->withHeaders([
                     'Accept' => 'application/json',
                 ])->post(route(self::LOGIN_ROUTE), [
@@ -472,9 +472,8 @@ class AuthenticationTest extends TestCase
             'Accept' => 'application/json',
             'Authorization' => 'Bearer '.$token2
             ])->post(route(self::LOGOUT_ROUTE));
-            $logout_response->assertStatus(202);
+        $logout_response->assertStatus(202);
         $this->assertDatabaseCount('personal_access_tokens', 0);
-
     }
 
     /**

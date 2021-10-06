@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\AuthenticationTests;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -23,10 +23,10 @@ class PasswordTest extends TestCase
 {
     use RefreshDatabase;
 
-    const PASSWORD_RESET_LINK_ROUTE = "authentication.password.reset_link";
-    const PASSWORD_RESET_ROUTE = "authentication.password.reset";
-    const PASSWORD_CHANGE_ROUTE = "authentication.password.change";
-    const LOGIN_ROUTE = "authentication.login";
+    public const PASSWORD_RESET_LINK_ROUTE = "authentication.password.reset_link";
+    public const PASSWORD_RESET_ROUTE = "authentication.password.reset";
+    public const PASSWORD_CHANGE_ROUTE = "authentication.password.change";
+    public const LOGIN_ROUTE = "authentication.login";
 
     /**
     * @test
@@ -89,7 +89,8 @@ class PasswordTest extends TestCase
 
         $response->assertStatus(200);
         Notification::assertSentTo(
-            $user, ResetPassword::class
+            $user,
+            ResetPassword::class
         );
     }
 
