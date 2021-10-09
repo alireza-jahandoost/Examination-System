@@ -4,6 +4,8 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
+use App\Models\Participant;
+
 class ExamResource extends JsonResource
 {
     /**
@@ -14,6 +16,7 @@ class ExamResource extends JsonResource
      */
     public function toArray($request)
     {
+        $isUserRegistered = auth()->check() ? Participant::where(['user_id' => auth()->id(), 'exam_id' => $this->id])->exists() : false;
         return [
             'exam' => [
                 'exam_id' => $this->id,
@@ -28,6 +31,7 @@ class ExamResource extends JsonResource
                 'owner_id' => $this->user_id,
                 'owner_name' => $this->user->name,
                 'owner_link' => route('users.show', $this->user),
+                'is_registered' => $isUserRegistered
             ]
         ];
     }
