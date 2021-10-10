@@ -4,8 +4,15 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ExamController;
 
 // without middleware ; for guest and auth users
-Route::get('exams', [ExamController::class, 'index'])->name('exams.index');
-Route::get('exams/{exam}', [ExamController::class, 'show'])->name('exams.show');
+$middleware = 'api';
+if (\Request::header('Authorization')) {
+    $middleware = 'auth:sanctum';
+}
+
+Route::middleware($middleware)->group(function () {
+    Route::get('exams', [ExamController::class, 'index'])->name('exams.index');
+    Route::get('exams/{exam}', [ExamController::class, 'show'])->name('exams.show');
+});
 
 
 Route::middleware('auth:sanctum')->group(function () {
