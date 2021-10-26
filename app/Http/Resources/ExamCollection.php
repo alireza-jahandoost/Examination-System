@@ -16,8 +16,7 @@ class ExamCollection extends ResourceCollection
     {
         return [
             'exams' => $this->reduce(function ($carry, $exam) {
-                return $carry->merge(collect([
-                     [
+                $output =                      [
                         'exam_id' => $exam->id,
                         'exam_name' => $exam->name,
                         'needs_confirmation' => $exam->confirmation_required,
@@ -30,7 +29,12 @@ class ExamCollection extends ResourceCollection
                         'owner_name' => $exam->user->name,
                         'owner_link' => route('users.show', $exam->user),
 
-                    ]
+                    ];
+                if (auth()->check() && auth()->id() === $exam->user_id) {
+                    $output['published'] = $exam->published;
+                }
+                return $carry->merge(collect([
+                    $output
                 ]));
             }, collect())
 

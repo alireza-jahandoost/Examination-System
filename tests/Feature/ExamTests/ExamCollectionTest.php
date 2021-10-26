@@ -122,5 +122,151 @@ class ExamCollectionTest extends TestCase
 
         $response->assertStatus(401);
     }
-    // TODO: owner_name and something like that must exist in examcollection
+
+    /**
+    * @test
+    */
+    public function if_exam_belongs_to_user_and_its_published_user_must_see_published_key_equal_to_true_in_owned_exams()
+    {
+        Sanctum::actingAs(
+            $ownerOfExam = User::factory()->create(),
+        );
+
+        $exam = Exam::factory()->state([
+            'published' => true,
+            ])->for($ownerOfExam)->count(30)->create();
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json'
+            ])->get(route(self::INDEX_OWN_EXAM_ROUTE));
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'data' => [
+                'exams' => [
+                    [
+                        'published' => true,
+                    ]
+                ]
+            ]
+        ]);
+    }
+
+    /**
+    * @test
+    */
+    public function if_exam_belongs_to_user_and_it_is_not_published_user_must_see_published_key_equal_to_false_in_owned_exams()
+    {
+        Sanctum::actingAs(
+            $ownerOfExam = User::factory()->create(),
+        );
+
+        $exam = Exam::factory()->state([
+            'published' => false,
+            ])->for($ownerOfExam)->count(30)->create();
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json'
+            ])->get(route(self::INDEX_OWN_EXAM_ROUTE));
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'data' => [
+                'exams' => [
+                        [
+                            'published' => false,
+                        ]
+                ]
+            ]
+        ]);
+    }
+
+    /**
+    * @test
+    */
+    public function if_exam_belongs_to_user_and_its_published_user_must_see_published_key_equal_to_true_in_index_exams()
+    {
+        Sanctum::actingAs(
+            $ownerOfExam = User::factory()->create(),
+        );
+
+        $exam = Exam::factory()->state([
+            'published' => true,
+            ])->for($ownerOfExam)->count(30)->create();
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json'
+            ])->get(route(self::INDEX_EXAM_ROUTE));
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'data' => [
+                'exams' => [
+                    [
+                        'published' => true,
+                    ]
+                ]
+            ]
+        ]);
+    }
+
+    /**
+    * @test
+    */
+    public function if_exam_does_not_belong_to_user_and_its_published_user_must_not_see_published_key_equal_to_true_in_index_exams()
+    {
+        $ownerOfExam = User::factory()->create();
+        Sanctum::actingAs(
+            $currentUser = User::factory()->create(),
+        );
+
+        $exam = Exam::factory()->state([
+            'published' => true,
+            ])->for($ownerOfExam)->count(30)->create();
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json'
+            ])->get(route(self::INDEX_EXAM_ROUTE));
+
+        $response->assertStatus(200);
+        $response->assertJsonMissing([
+            'data' => [
+                'exams' => [
+                    [
+                        'published' => true,
+                    ]
+                ]
+            ]
+        ]);
+    }
+
+    /**
+    * @test
+    */
+    public function if_exam_does_not_belong_to_user_and_it_is_not_published_user_must_not_see_published_key_equal_to_false_in_index_exams()
+    {
+        $ownerOfExam = User::factory()->create();
+        Sanctum::actingAs(
+            $currentUser = User::factory()->create(),
+        );
+
+        $exam = Exam::factory()->state([
+            'published' => false,
+            ])->for($ownerOfExam)->count(30)->create();
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json'
+            ])->get(route(self::INDEX_EXAM_ROUTE));
+
+        $response->assertStatus(200);
+        $response->assertJsonMissing([
+            'data' => [
+                'exams' => [
+                        [
+                            'published' => false,
+                        ]
+                ]
+            ]
+        ]);
+    }
 }

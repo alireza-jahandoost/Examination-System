@@ -17,7 +17,8 @@ class ExamResource extends JsonResource
     public function toArray($request)
     {
         $isUserRegistered = auth()->check() ? Participant::where(['user_id' => auth()->id(), 'exam_id' => $this->id])->exists() : false;
-        return [
+
+        $output = [
             'exam' => [
                 'exam_id' => $this->id,
                 'exam_name' => $this->name,
@@ -34,5 +35,11 @@ class ExamResource extends JsonResource
                 'is_registered' => $isUserRegistered
             ]
         ];
+
+        if (auth()->check() && $this->user_id === auth()->id()) {
+            $output['exam']['published'] = $this->published;
+        }
+
+        return $output;
     }
 }
