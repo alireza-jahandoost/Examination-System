@@ -16,6 +16,7 @@ class QuestionResource extends JsonResource
     {
         return [
             'question' => [
+                'question_id' => $this->id,
                 'question_text' => $this->question_text,
                 'question_score' => $this->score,
                 'can_be_shuffled' => $this->can_be_shuffled,
