@@ -14,4 +14,9 @@ class UserController extends Controller
     {
         return (new UserResource($user))->response()->setStatusCode(200);
     }
+
+    public function current_user()
+    {
+        return (new UserResource(auth()->user()))->response()->setStatusCode(200);
+    }
 }

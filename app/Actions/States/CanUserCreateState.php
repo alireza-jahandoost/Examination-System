@@ -58,6 +58,9 @@ class CanUserCreateState
     protected function integer_part_is_valid(Question $question, array $inputs): bool
     {
         $value = $inputs['integer_part'] ?? null;
+        if ($value !== null) {
+            $value=(int)$value;
+        }
         $number_of_states = $question->states()->count();
         switch ($question->questionType->id) {
             case 3:
