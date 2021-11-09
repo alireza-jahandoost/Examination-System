@@ -6,7 +6,10 @@ use App\Models\State;
 use App\Models\User;
 use App\Models\Exam;
 use App\Models\Question;
+use App\Models\Participant;
 use Illuminate\Auth\Access\HandlesAuthorization;
+
+use Carbon\Carbon;
 
 class StatePolicy
 {
@@ -20,7 +23,30 @@ class StatePolicy
      */
     public function viewAny(User $user, Exam $exam, Question $question)
     {
-        return ($exam->user_id === $user->id && $exam->id === $question->exam_id);
+        if ($exam->id !== $question->exam_id) {
+            return false;
+        }
+        if ($exam->user_id === $user->id) {
+            return true;
+        }
+        $forbiddenQuestionTypes = [1,2,5];
+        if (in_array($question->question_type_id, $forbiddenQuestionTypes)) {
+            return false;
+        }
+        $participant = Participant::where(['exam_id' => $exam->id, 'user_id' => $user->id])->first();
+        $start = Carbon::make($exam->start);
+        if ($exam->published && $participant && $start <= Carbon::now()) {
+            if ($exam->confirmation_required) {
+                if ($participant->is_accepted) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -43,7 +69,7 @@ class StatePolicy
      */
     public function create(User $user, Exam $exam, Question $question)
     {
-        if($exam->published){
+        if ($exam->published) {
             return false;
         }
         return ($user->id === $exam->user_id && $exam->id === $question->exam_id);
@@ -58,7 +84,7 @@ class StatePolicy
      */
     public function update(User $user, State $state, Exam $exam, Question $question)
     {
-        if($exam->published){
+        if ($exam->published) {
             return false;
         }
         return ($user->id === $exam->user_id && $question->exam_id === $exam->id && $question->id === $state->question_id);
@@ -73,7 +99,7 @@ class StatePolicy
      */
     public function delete(User $user, State $state, Exam $exam, Question $question)
     {
-        if($exam->published){
+        if ($exam->published) {
             return false;
         }
         return ($user->id === $exam->user_id && $exam->id === $question->exam_id && $state->question_id === $question->id);
