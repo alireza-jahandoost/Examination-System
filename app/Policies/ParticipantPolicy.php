@@ -187,4 +187,9 @@ class ParticipantPolicy
         }
         return false;
     }
+
+    public function participatedExams(User $user)
+    {
+        return true;
+    }
 }

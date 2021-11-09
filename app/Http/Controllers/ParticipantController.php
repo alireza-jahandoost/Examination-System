@@ -20,6 +20,7 @@ use App\Http\Resources\MessageResource;
 use App\Http\Resources\ParticipantResource;
 use App\Http\Resources\QuestionGradeResource;
 use App\Http\Resources\ParticipantCollection;
+use App\Http\Resources\ParticipatedExamsCollection;
 
 use App\Jobs\CorrectExamJob;
 
@@ -168,5 +169,15 @@ class ParticipantController extends Controller
         $grade = $participant->grades()->where('question_id', $question->id)->first();
 
         return (new QuestionGradeResource($grade))->response()->setStatusCode(200);
+    }
+
+    /**
+     * get all the exams that user participated into
+     */
+    public function participated_exams()
+    {
+        $this->authorize('participatedExams', Participant::class);
+
+        return (new ParticipatedExamsCollection(auth()->user()->participatedExams()->with('exam.user')->paginate(20)))->response()->setStatusCode(200);
     }
 }
