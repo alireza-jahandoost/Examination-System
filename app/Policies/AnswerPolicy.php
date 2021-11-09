@@ -14,6 +14,11 @@ class AnswerPolicy
 {
     use HandlesAuthorization;
 
+    protected function isParticipantFinishedTheExam($participant)
+    {
+        return $participant->status !== 0;
+    }
+
     /**
      * Determine whether the user can view any models.
      *
@@ -22,30 +27,30 @@ class AnswerPolicy
      */
     public function viewAny(User $user, Question $question, Participant $participant)
     {
-        if($user->id === $question->exam->user_id){
-            if($participant->exam_id === $question->exam_id){
+        if ($user->id === $question->exam->user_id) {
+            if ($participant->exam_id === $question->exam_id) {
                 return true;
-            }else{
+            } else {
                 return false;
             }
         }
-        if($participant->user_id === auth()->id() && $question->exam_id === $participant->exam_id){
+        if ($participant->user_id === auth()->id() && $question->exam_id === $participant->exam_id) {
             $exam = $question->exam;
             $start = Carbon::make($exam->start);
-            if($start <= Carbon::now()){
-                if($exam->confirmation_required){
-                    if($participant->is_accepted){
+            if ($start <= Carbon::now()) {
+                if ($exam->confirmation_required) {
+                    if ($participant->is_accepted) {
                         return true;
-                    }else{
+                    } else {
                         return false;
                     }
-                }else{
+                } else {
                     return true;
                 }
-            }else{
+            } else {
                 return false;
             }
-        }else{
+        } else {
             return false;
         }
     }
@@ -76,23 +81,26 @@ class AnswerPolicy
             'user_id' => $user->id,
             'exam_id' => $question->exam_id,
         ])->first();
-        if($participant){
-            $start = Carbon::make($exam->start);
-            $end = Carbon::make($exam->end);
-            if($start <= Carbon::now() && $end >= Carbon::now()){
-                if($exam->confirmation_required){
-                    if($participant->is_accepted){
-                        return true;
-                    }else{
-                        return false;
-                    }
-                }else{
-                    return true;
-                }
-            }else{
+        if ($participant) {
+            if ($this->isParticipantFinishedTheExam($participant)) {
                 return false;
             }
-        }else{
+            $start = Carbon::make($exam->start);
+            $end = Carbon::make($exam->end);
+            if ($start <= Carbon::now() && $end >= Carbon::now()) {
+                if ($exam->confirmation_required) {
+                    if ($participant->is_accepted) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                } else {
+                    return true;
+                }
+            } else {
+                return false;
+            }
+        } else {
             return false;
         }
     }
@@ -123,26 +131,28 @@ class AnswerPolicy
             'user_id' => $user->id,
             'exam_id' => $question->exam_id,
         ])->first();
-        if($participant){
-            $start = Carbon::make($exam->start);
-            $end = Carbon::make($exam->end);
-            if($start <= Carbon::now() && $end >= Carbon::now()){
-                if($exam->confirmation_required){
-                    if($participant->is_accepted){
-                        return true;
-                    }else{
-                        return false;
-                    }
-                }else{
-                    return true;
-                }
-            }else{
+        if ($participant) {
+            if ($this->isParticipantFinishedTheExam($participant)) {
                 return false;
             }
-        }else{
+            $start = Carbon::make($exam->start);
+            $end = Carbon::make($exam->end);
+            if ($start <= Carbon::now() && $end >= Carbon::now()) {
+                if ($exam->confirmation_required) {
+                    if ($participant->is_accepted) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                } else {
+                    return true;
+                }
+            } else {
+                return false;
+            }
+        } else {
             return false;
         }
-
     }
 
     /**

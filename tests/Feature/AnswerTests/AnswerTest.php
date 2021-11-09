@@ -124,6 +124,7 @@ class AnswerTest extends TestCase
             $participant->is_accepted = true;
             $participant->save();
         }
+        return $participant;
     }
 
     /**
@@ -183,6 +184,69 @@ class AnswerTest extends TestCase
         ]);
         $response->assertStatus(403);
         $this->assertDatabaseCount('answers', 0);
+    }
+
+    /**
+    * @test
+    */
+    public function participant_can_create_answer_for_exam_if_the_status_of_participant_is_0()
+    {
+        $this->seed(QuestionTypeSeeder::class);
+        $start = Carbon::now()->subHour();
+        $end = Carbon::now()->addHours(2);
+        $data = $this->create_and_publish_an_exam([
+            'confirmation_required' => false,
+            'start' => $start->format('Y-m-d H:i:s'),
+            'end' => $end->format('Y-m-d H:i:s'),
+        ], 3);
+        $user = User::factory()->create();
+
+        $participant = Participant::factory()->for($user)->for($data['exam'])->create([
+            'is_accepted' => false,
+        ]);
+
+        Sanctum::actingAs($user, ['*']);
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->post(route(self::CREATE_ANSWER_ROUTE, [$data['questions'][0]]), [
+            'integer_part' => 1,
+        ]);
+        $response->assertStatus(201);
+        $this->assertDatabaseCount('answers', 1);
+
+        $participant->status = 1;
+        $participant->save();
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->post(route(self::CREATE_ANSWER_ROUTE, [$data['questions'][0]]), [
+            'integer_part' => 2,
+        ]);
+        $response->assertStatus(403);
+        $this->assertDatabaseCount('answers', 1);
+
+        $participant->status = 2;
+        $participant->save();
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->post(route(self::CREATE_ANSWER_ROUTE, [$data['questions'][0]]), [
+            'integer_part' => 3,
+        ]);
+        $response->assertStatus(403);
+        $this->assertDatabaseCount('answers', 1);
+
+        $participant->status = 3;
+        $participant->save();
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->post(route(self::CREATE_ANSWER_ROUTE, [$data['questions'][0]]), [
+            'integer_part' => 4,
+        ]);
+        $response->assertStatus(403);
+        $this->assertDatabaseCount('answers', 1);
     }
 
     /**
@@ -1623,6 +1687,64 @@ class AnswerTest extends TestCase
         ])->delete(route(self::DELETE_ANSWER_ROUTE, $data['questions'][0]));
         $response->assertStatus(202);
         $this->assertDatabaseCount('answers', 0);
+    }
+
+    /**
+    * @test
+    */
+    public function if_the_status_of_participant_is_not_0_participant_can_not_delete_his_answers()
+    {
+        $this->seed(QuestionTypeSeeder::class);
+        $start = Carbon::now()->subMinute();
+        $end = Carbon::make($start)->addHours(2);
+        $data = $this->create_and_publish_an_exam([
+            'confirmation_required' => false,
+            // 'confirmation_required' => true,
+            'start' => $start->format('Y-m-d H:i:s'),
+            'end' => $end->format('Y-m-d H:i:s'),
+        ], 1);
+        $user = User::factory()->create();
+
+        // $this->register_user($user, $data['exam'], true);
+        $participant = $this->register_user($user, $data['exam'], false);
+        $this->assertDatabaseCount('participants', 1);
+
+        Sanctum::actingAs($user, ['*']);
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->post(route(self::CREATE_ANSWER_ROUTE, [$data['questions'][0]]), [
+            'text_part' => 'test',
+        ]);
+
+        $this->assertDatabaseCount('answers', 1);
+
+        $participant->status = 1;
+        $participant->save();
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->delete(route(self::DELETE_ANSWER_ROUTE, $data['questions'][0]));
+        $response->assertStatus(403);
+        $this->assertDatabaseCount('answers', 1);
+
+        $participant->status = 2;
+        $participant->save();
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->delete(route(self::DELETE_ANSWER_ROUTE, $data['questions'][0]));
+        $response->assertStatus(403);
+        $this->assertDatabaseCount('answers', 1);
+
+        $participant->status = 3;
+        $participant->save();
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->delete(route(self::DELETE_ANSWER_ROUTE, $data['questions'][0]));
+        $response->assertStatus(403);
+        $this->assertDatabaseCount('answers', 1);
     }
 
     /**
