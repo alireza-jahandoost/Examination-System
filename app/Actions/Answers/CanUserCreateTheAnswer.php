@@ -96,7 +96,7 @@ class CanUserCreateTheAnswer
                     return 'true or false questions do not need text part';
                 }
 
-                if ($inputs['integer_part'] !== 0 && $inputs['integer_part'] !== 1) {
+                if ((int)$inputs['integer_part'] !== 0 && (int)$inputs['integer_part'] !== 1) {
                     return 'answer is not valid';
                 }
                 return 'success';
