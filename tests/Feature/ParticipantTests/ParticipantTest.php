@@ -33,6 +33,7 @@ class ParticipantTest extends TestCase
     public const QUESTION_INDEX_ROUTE = 'questions.index';
     public const QUESTION_SHOW_ROUTE = 'put.show';
     public const ACCEPT_REGISTERED_USERS_ROUTE = 'exams.accept_user';
+    public const CURRENT_PARTICIPANT_ROUTE = 'participants.current';
 
 
     protected $owner = null;
@@ -1340,5 +1341,67 @@ class ParticipantTest extends TestCase
             ])->post(route(self::EXAM_REGISTER_ROUTE, [$data['exam']]));
         $response->assertStatus(403);
         $this->assertDatabaseCount('participants', 1);
+    }
+
+    /**
+    * @test
+    */
+    public function if_user_is_not_authenticated_the_current_participant_route_must_return_401_error()
+    {
+        $this->seed(QuestionTypeSeeder::class);
+
+        $data = $this->create_and_publish_an_exam([
+            'confirmation_required' => false,
+        ]);
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+            ])->get(route(self::CURRENT_PARTICIPANT_ROUTE, [$data['exam']]));
+        $response->assertStatus(401);
+    }
+
+    /**
+    * @test
+    */
+    public function if_user_is_authenticated_but_is_not_registered_to_that_exam_the_current_participant_route_must_return_404()
+    {
+        $this->seed(QuestionTypeSeeder::class);
+
+        $data = $this->create_and_publish_an_exam([
+            'confirmation_required' => false,
+        ]);
+
+        Sanctum::actingAs($user = User::factory()->create());
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+            ])->get(route(self::CURRENT_PARTICIPANT_ROUTE, [$data['exam']]));
+        $response->assertStatus(404);
+    }
+
+    /**
+    * @test
+    */
+    public function if_user_is_authenticated_and_registered_to_the_exam_the_participant_information_must_be_returned()
+    {
+        $this->seed(QuestionTypeSeeder::class);
+
+        $data = $this->create_and_publish_an_exam([
+            'confirmation_required' => false,
+        ]);
+
+        Sanctum::actingAs($user = User::factory()->create());
+
+        Participant::factory()->for($data['exam'])->for($user)->create();
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+            ])->get(route(self::CURRENT_PARTICIPANT_ROUTE, [$data['exam']]));
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            'data' => [
+                'participant'
+            ]
+        ]);
     }
 }

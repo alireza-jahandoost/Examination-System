@@ -180,4 +180,16 @@ class ParticipantController extends Controller
 
         return (new ParticipatedExamsCollection(auth()->user()->participatedExams()->with('exam.user')->paginate(20)))->response()->setStatusCode(200);
     }
+
+    /**
+     * get current authenticated participant in this exam
+     */
+    public function current_participant(Exam $exam)
+    {
+        $participant = Participant::where(['exam_id' => $exam->id, 'user_id' => auth()->id()])->first();
+        if (!$participant) {
+            abort(404);
+        }
+        return (new ParticipantResource($participant))->response()->setStatusCode(200);
+    }
 }

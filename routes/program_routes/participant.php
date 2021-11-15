@@ -12,4 +12,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('exams/{exam}/finish_exam', [ParticipantController::class, 'finish_exam'])->name('participants.finish_exam');
     Route::post('/questions/{question}/participants/{participant}/save_score', [ParticipantController::class, 'save_score'])->name('participants.save_score');
     Route::get('participated_exams', [ParticipantController::class, 'participated_exams'])->name('participants.participated_exams');
+    Route::get('exams/{exam}/current_participant', [ParticipantController::class, 'current_participant'])->name('participants.current');
 });
