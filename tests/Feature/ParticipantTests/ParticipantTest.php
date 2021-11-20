@@ -31,7 +31,7 @@ class ParticipantTest extends TestCase
     public const SHOW_PARTICIPANT_ROUTE = 'participants.show';
     public const LOGOUT_ROUTE = "authentication.logout";
     public const QUESTION_INDEX_ROUTE = 'questions.index';
-    public const QUESTION_SHOW_ROUTE = 'put.show';
+    public const QUESTION_SHOW_ROUTE = 'questions.show';
     public const ACCEPT_REGISTERED_USERS_ROUTE = 'exams.accept_user';
     public const CURRENT_PARTICIPANT_ROUTE = 'participants.current';
 
@@ -467,6 +467,35 @@ class ParticipantTest extends TestCase
     /**
     * @test
     */
+    public function if_exam_started_but_didnt_published_user_must_not_index_the_questions()
+    {
+        $this->seed(QuestionTypeSeeder::class);
+        $start = Carbon::now()->subMinute();
+        $end = Carbon::make($start)->addHours(2);
+        $owner = User::factory()->create();
+        $exam = Exam::factory()->for($owner)->create([
+            'confirmation_required' => false,
+            'start' => $start->format('Y-m-d H:i:s'),
+            'end' => $end->format('Y-m-d H:i:s'),
+            'published' => false,
+        ]);
+
+        Sanctum::actingAs(
+            $user = User::factory()->create(),
+            ['*']
+        );
+
+        Participant::factory()->for($user)->for($exam)->create();
+
+        $questions_response = $this->withHeaders([
+            'Accept' => 'application/json'
+            ])->get(route(self::QUESTION_INDEX_ROUTE, [$exam]));
+        $questions_response->assertStatus(403);
+    }
+
+    /**
+    * @test
+    */
     public function if_exam_needs_confirmation_and_user_did_not_confirmed_user_can_not_see_questions_after_the_start_of_exam()
     {
         $this->seed(QuestionTypeSeeder::class);
@@ -495,6 +524,171 @@ class ParticipantTest extends TestCase
             'Accept' => 'application/json'
             ])->get(route(self::QUESTION_INDEX_ROUTE, [$data['exam']]));
         $questions_response->assertStatus(403);
+    }
+
+    /**
+    * @test
+    */
+    public function if_user_did_not_participate_in_exam_he_can_not_show_the_questions()
+    {
+        $this->seed(QuestionTypeSeeder::class);
+        $start = Carbon::now()->subMinute();
+        $end = Carbon::make($start)->addHours(2);
+        $owner = User::factory()->create();
+        $exam = Exam::factory()->for($owner)->create([
+            'confirmation_required' => false,
+            'start' => $start->format('Y-m-d H:i:s'),
+            'end' => $end->format('Y-m-d H:i:s'),
+            'published' => true,
+        ]);
+
+        Sanctum::actingAs(
+            $user = User::factory()->create(),
+            ['*']
+        );
+
+        $descriptive = QuestionType::find(1);
+
+        $questions = Question::factory()->for($descriptive)->for($exam)->count(3)->create();
+
+        $response = $this->withHeaders(['accept' => 'application/json'])->get(route(self::QUESTION_SHOW_ROUTE, [$exam, $questions[0]]));
+        $response->assertStatus(403);
+    }
+
+    /**
+    * @test
+    */
+    public function registred_user_in_exam_can_show_questions_when_exam_is_started()
+    {
+        $this->seed(QuestionTypeSeeder::class);
+        $start = Carbon::now()->subMinute();
+        $end = Carbon::make($start)->addHours(2);
+        $owner = User::factory()->create();
+        $exam = Exam::factory()->for($owner)->create([
+            'confirmation_required' => false,
+            'start' => $start->format('Y-m-d H:i:s'),
+            'end' => $end->format('Y-m-d H:i:s'),
+            'published' => true,
+        ]);
+
+        Sanctum::actingAs(
+            $user = User::factory()->create(),
+            ['*']
+        );
+
+        Participant::factory()->for($user)->for($exam)->create();
+
+        $descriptive = QuestionType::find(1);
+
+        $questions = Question::factory()->for($descriptive)->for($exam)->count(3)->create();
+
+        $response = $this->withHeaders(['accept' => 'application/json'])->get(route(self::QUESTION_SHOW_ROUTE, [$exam, $questions[0]]));
+        $response->assertStatus(200);
+    }
+
+    /**
+    * @test
+    */
+    public function if_exam_is_not_started_registred_user_can_not_show_the_questions()
+    {
+        $this->seed(QuestionTypeSeeder::class);
+        $start = Carbon::now()->addMinute();
+        $end = Carbon::make($start)->addHours(2);
+        $owner = User::factory()->create();
+        $exam = Exam::factory()->for($owner)->create([
+            'confirmation_required' => false,
+            'start' => $start->format('Y-m-d H:i:s'),
+            'end' => $end->format('Y-m-d H:i:s'),
+            'published' => true,
+        ]);
+
+        Sanctum::actingAs(
+            $user = User::factory()->create(),
+            ['*']
+        );
+
+        Participant::factory()->for($user)->for($exam)->create();
+
+        $descriptive = QuestionType::find(1);
+
+        $questions = Question::factory()->for($descriptive)->for($exam)->count(3)->create();
+
+        $response = $this->withHeaders(['accept' => 'application/json'])->get(route(self::QUESTION_SHOW_ROUTE, [$exam, $questions[0]]));
+        $response->assertStatus(403);
+    }
+
+    /**
+    * @test
+    */
+    public function if_exam_needs_confirmation_user_needs_to_be_confirmed_to_show_the_questions_when_exam_is_started()
+    {
+        $this->seed(QuestionTypeSeeder::class);
+        $start = Carbon::now()->subMinute();
+        $end = Carbon::make($start)->addHours(2);
+        $owner = User::factory()->create();
+        $exam = Exam::factory()->for($owner)->create([
+            'confirmation_required' => true,
+            'start' => $start->format('Y-m-d H:i:s'),
+            'end' => $end->format('Y-m-d H:i:s'),
+            'published' => true,
+        ]);
+
+        Sanctum::actingAs(
+            $user = User::factory()->create(),
+            ['*']
+        );
+
+        $participant = Participant::factory()->for($user)->for($exam)->create();
+
+        $descriptive = QuestionType::find(1);
+
+        $questions = Question::factory()->for($descriptive)->for($exam)->count(3)->create();
+
+        $response = $this->withHeaders(['accept' => 'application/json'])->get(route(self::QUESTION_SHOW_ROUTE, [$exam, $questions[0]]));
+        $response->assertStatus(403);
+
+        $participant->is_accepted = true;
+        $participant->save();
+
+        $response = $this->withHeaders(['accept' => 'application/json'])->get(route(self::QUESTION_SHOW_ROUTE, [$exam, $questions[0]]));
+        $response->assertStatus(200);
+    }
+
+    /**
+    * @test
+    */
+    public function registred_user_can_show_the_questions_when_exam_is_started_if_exam_is_published()
+    {
+        $this->seed(QuestionTypeSeeder::class);
+        $start = Carbon::now()->subMinute();
+        $end = Carbon::make($start)->addHours(2);
+        $owner = User::factory()->create();
+        $exam = Exam::factory()->for($owner)->create([
+            'confirmation_required' => false,
+            'start' => $start->format('Y-m-d H:i:s'),
+            'end' => $end->format('Y-m-d H:i:s'),
+            'published' => false,
+        ]);
+
+        Sanctum::actingAs(
+            $user = User::factory()->create(),
+            ['*']
+        );
+
+        $participant = Participant::factory()->for($user)->for($exam)->create();
+
+        $descriptive = QuestionType::find(1);
+
+        $questions = Question::factory()->for($descriptive)->for($exam)->count(3)->create();
+
+        $response = $this->withHeaders(['accept' => 'application/json'])->get(route(self::QUESTION_SHOW_ROUTE, [$exam, $questions[0]]));
+        $response->assertStatus(403);
+
+        $exam->published = true;
+        $exam->save();
+
+        $response = $this->withHeaders(['accept' => 'application/json'])->get(route(self::QUESTION_SHOW_ROUTE, [$exam, $questions[0]]));
+        $response->assertStatus(200);
     }
 
     /**

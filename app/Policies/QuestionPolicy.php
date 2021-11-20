@@ -22,26 +22,30 @@ class QuestionPolicy
      */
     public function viewAny(User $user, Exam $exam)
     {
-        if($user->id !== $exam->user_id){
+        if ($user->id !== $exam->user_id) {
+            if (!$exam->published) {
+                return false;
+            }
+
             $start = Carbon::make($exam->start);
             $user_participant = Participant::where([
                 'user_id' => $user->id,
                 'exam_id' => $exam->id
                 ])->first();
-            if(Carbon::now() >= $start && $user_participant){
-                if($exam->confirmation_required){
-                    if($user_participant->is_accepted){
+            if (Carbon::now() >= $start && $user_participant) {
+                if ($exam->confirmation_required) {
+                    if ($user_participant->is_accepted) {
                         return true;
-                    }else{
+                    } else {
                         return false;
                     }
-                }else{
+                } else {
                     return true;
                 }
-            }else{
+            } else {
                 return false;
             }
-        }else{
+        } else {
             return true;
         }
     }
@@ -55,7 +59,27 @@ class QuestionPolicy
      */
     public function view(User $user, Question $question, Exam $exam)
     {
-        return ($exam->user_id === $user->id && $question->exam_id === $exam->id);
+        if ($exam->user_id === $user->id) {
+            return $question->exam_id === $exam->id;
+        } else {
+            if (!$exam->published) {
+                return false;
+            }
+            $start = Carbon::make($exam->start);
+            $participant = Participant::where(['exam_id' => $exam->id, 'user_id' => $user->id])->first();
+            if (!$participant) {
+                return false;
+            }
+            if (Carbon::now()>=$start) {
+                if ($exam->confirmation_required) {
+                    return $participant->is_accepted;
+                } else {
+                    return true;
+                }
+            } else {
+                return false;
+            }
+        }
     }
 
     /**
@@ -66,7 +90,7 @@ class QuestionPolicy
      */
     public function create(User $user, Exam $exam)
     {
-        if($exam->published){
+        if ($exam->published) {
             return false;
         }
         return $exam->user_id === $user->id;
@@ -81,7 +105,7 @@ class QuestionPolicy
      */
     public function update(User $user, Question $question, Exam $exam)
     {
-        if($exam->published){
+        if ($exam->published) {
             return false;
         }
         return ($exam->user_id === $user->id && $question->exam_id === $exam->id);
@@ -96,7 +120,7 @@ class QuestionPolicy
      */
     public function delete(User $user, Question $question, Exam $exam)
     {
-        if($exam->published){
+        if ($exam->published) {
             return false;
         }
         return ($exam->user_id === $user->id && $question->exam_id === $exam->id);
