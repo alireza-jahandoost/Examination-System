@@ -328,9 +328,7 @@ class ParticipantTest extends TestCase
             ]);
         $response->assertStatus(401);
         $response->assertJsonStructure([
-            'data' => [
-                'message'
-            ]
+            'message'
         ]);
     }
 
@@ -359,9 +357,7 @@ class ParticipantTest extends TestCase
             ]);
         $response->assertStatus(401);
         $response->assertJsonStructure([
-            'data' => [
-                'message'
-            ]
+            'message'
         ]);
     }
 

@@ -16,7 +16,6 @@ use App\Http\Requests\SaveScoreRequest;
 use App\Actions\Participants\CanUserRegisterInExam;
 use App\Actions\Correcting\AreManualQuestionsScored;
 
-use App\Http\Resources\MessageResource;
 use App\Http\Resources\ParticipantResource;
 use App\Http\Resources\QuestionGradeResource;
 use App\Http\Resources\ParticipantCollection;
@@ -49,9 +48,9 @@ class ParticipantController extends Controller
         $this->authorize('create', [Participant::class, $exam]);
         $status = $action->check($exam, $request->validated());
         if ($status !== 'success') {
-            return (new MessageResource([
+            return response()->json([
                 'message' => $status
-                ]))->response()->setStatusCode(401);
+            ], 401);
         }
         $participant = new Participant();
         $participant->user_id = auth()->id();

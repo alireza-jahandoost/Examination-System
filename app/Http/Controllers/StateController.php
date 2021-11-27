@@ -10,7 +10,6 @@ use Illuminate\Http\Request;
 use App\Http\Requests\CreateStateRequest;
 use App\Http\Requests\UpdateStateRequest;
 
-use App\Http\Resources\MessageResource;
 use App\Http\Resources\StateResource;
 use App\Http\Resources\StateCollection;
 
@@ -43,9 +42,9 @@ class StateController extends Controller
 
         $status = $action->check($question, $data);
         if ($status !== 'success') {
-            return (new MessageResource([
+            return response()->json([
                 'message' => $status
-            ]))->response()->setStatusCode(401);
+            ], 401);
         }
 
         $state = $question->states()->create([
@@ -81,9 +80,9 @@ class StateController extends Controller
         $data = $request->validated();
         $status = $action->check($question, $data);
         if ($status !== 'success') {
-            return (new MessageResource([
+            return response()->json([
                 'message' => $status
-                ]))->response()->setStatusCode(401);
+            ], 401);
         }
 
         if (isset($data['text_part'])) {

@@ -383,8 +383,9 @@ class AuthenticationTest extends TestCase
 
         $response->assertStatus(401);
         $response->assertJsonStructure([
-            'data' => [
-                'message'
+            'message',
+            'errors' => [
+                'email'
             ]
         ]);
     }

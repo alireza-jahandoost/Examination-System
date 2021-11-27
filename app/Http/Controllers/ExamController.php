@@ -10,7 +10,6 @@ use App\Http\Requests\UpdateExamRequest;
 
 use App\Http\Resources\ExamResource;
 use App\Http\Resources\ExamCollection;
-use App\Http\Resources\MessageResource;
 
 use App\Actions\Exams\CanExamBePublished;
 
@@ -120,9 +119,9 @@ class ExamController extends Controller
         $this->authorize('publish', [$exam]);
         $status = $action->check($exam);
         if ($status !== 'success') {
-            return (new MessageResource([
+            return response()->json([
                 'message' => $status
-                ]))->response()->setStatusCode(401);
+            ], 401);
         }
 
         $exam->published = true;

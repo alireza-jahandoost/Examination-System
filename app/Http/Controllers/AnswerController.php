@@ -8,7 +8,6 @@ use App\Models\Participant;
 
 use App\Http\Requests\CreateAnswerRequest;
 
-use App\Http\Resources\MessageResource;
 use App\Http\Resources\AnswerResource;
 use App\Http\Resources\AnswerCollection;
 
@@ -43,9 +42,9 @@ class AnswerController extends Controller
         $data = $request->validated();
         $check = $action->check($question, $data);
         if ($check['message'] !== 'success') {
-            return (new MessageResource([
-                'message' => $check['message'],
-            ]))->response()->setStatusCode($check['status']);
+            return response()->json([
+                'message' => $check['message']
+            ], $check['status']);
         }
 
         $answer = new Answer();

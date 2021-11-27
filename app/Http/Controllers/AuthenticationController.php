@@ -64,9 +64,12 @@ class AuthenticationController extends Controller
         $user = User::where('email', $data['email'])->first();
 
         if (!$user || !Hash::check($data['password'], $user->password)) {
-            return (new MessageResource([
-                'message' => 'Invalid email or password',
-                ]))->response()->setStatusCode(401);
+            return response()->json([
+                'message' => "the given data was invalid.",
+                'errors' => [
+                    'email' => 'Invalid email or password'
+                ]
+            ], 401);
         }
 
         if ($user->tokens()->count() >= self::TOKEN_COUNT_LIMIT) {

@@ -311,9 +311,7 @@ class StateTest extends TestCase
         $response->assertStatus(401);
         $this->assertDatabaseCount('states', 0);
         $response->assertJsonStructure([
-            'data' => [
-                'message'
-            ]
+            'message'
         ]);
     }
 
@@ -377,9 +375,7 @@ class StateTest extends TestCase
         $response->assertStatus(401);
         $this->assertDatabaseCount('states', 0);
         $response->assertJsonStructure([
-            'data' => [
-                'message'
-            ]
+            'message'
         ]);
     }
 
@@ -1095,9 +1091,7 @@ class StateTest extends TestCase
 
         $response->assertStatus(401);
         $response->assertJsonStructure([
-            'data' => [
-                'message'
-            ]
+            'message'
         ]);
         $state->refresh();
         $this->assertTrue($state->text_answer === 'test');
