@@ -67,7 +67,7 @@ class AuthenticationController extends Controller
             return response()->json([
                 'message' => "the given data was invalid.",
                 'errors' => [
-                    'email' => 'Invalid email or password'
+                    'email' => ['Invalid email or password']
                 ]
             ], 401);
         }
