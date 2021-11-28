@@ -21,7 +21,7 @@ class CanUserCreateTheAnswer
         if ($state !== 'success') {
             return [
             'message' => $state,
-            'status' => 401,
+            'status' => 422,
         ];
         }
         $state = $this->check_validation_of_answers($question, $inputs);

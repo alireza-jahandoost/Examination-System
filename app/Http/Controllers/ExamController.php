@@ -121,7 +121,7 @@ class ExamController extends Controller
         if ($status !== 'success') {
             return response()->json([
                 'message' => $status
-            ], 401);
+            ], 422);
         }
 
         $exam->published = true;

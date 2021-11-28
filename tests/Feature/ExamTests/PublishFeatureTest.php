@@ -147,7 +147,7 @@ class PublishFeatureTest extends TestCase
             'Accept' => 'application/json'
             ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
-        $response->assertStatus(401);
+        $response->assertStatus(422);
         $this->assertDatabaseMissing('exams', [
             'published' => true
         ]);
@@ -181,7 +181,7 @@ class PublishFeatureTest extends TestCase
             'Accept' => 'application/json'
             ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
-        $response->assertStatus(401);
+        $response->assertStatus(422);
         $this->assertDatabaseMissing('exams', [
             'published' => true
         ]);
@@ -245,7 +245,7 @@ class PublishFeatureTest extends TestCase
             'Accept' => 'application/json'
             ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
-        $response->assertStatus(401);
+        $response->assertStatus(422);
         $this->assertDatabaseMissing('exams', [
             'published' => true
         ]);
@@ -309,7 +309,7 @@ class PublishFeatureTest extends TestCase
             'Accept' => 'application/json'
             ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
-        $response->assertStatus(401);
+        $response->assertStatus(422);
         $this->assertDatabaseMissing('exams', [
             'published' => true
         ]);
@@ -369,7 +369,7 @@ class PublishFeatureTest extends TestCase
             'Accept' => 'application/json'
             ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
-        $response->assertStatus(401);
+        $response->assertStatus(422);
         $this->assertDatabaseMissing('exams', [
             'published' => true
         ]);
@@ -384,7 +384,7 @@ class PublishFeatureTest extends TestCase
             'Accept' => 'application/json'
             ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
-        $second_response->assertStatus(401);
+        $second_response->assertStatus(422);
         $this->assertDatabaseMissing('exams', [
             'published' => true
         ]);
@@ -432,7 +432,7 @@ class PublishFeatureTest extends TestCase
             'Accept' => 'application/json'
             ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
-        $response->assertStatus(401);
+        $response->assertStatus(422);
         $this->assertDatabaseMissing('exams', [
             'published' => true
         ]);
@@ -500,7 +500,7 @@ class PublishFeatureTest extends TestCase
             'Accept' => 'application/json'
             ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
-        $response->assertStatus(401);
+        $response->assertStatus(422);
         $this->assertDatabaseMissing('exams', [
             'published' => true
         ]);
@@ -555,7 +555,7 @@ class PublishFeatureTest extends TestCase
             'Accept' => 'application/json'
             ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
-        $response->assertStatus(401);
+        $response->assertStatus(422);
         $this->assertDatabaseMissing('exams', [
             'published' => true
         ]);
@@ -610,7 +610,7 @@ class PublishFeatureTest extends TestCase
             'Accept' => 'application/json'
             ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
-        $response->assertStatus(401);
+        $response->assertStatus(422);
         $this->assertDatabaseMissing('exams', [
             'published' => true
         ]);
@@ -628,7 +628,7 @@ class PublishFeatureTest extends TestCase
             'Accept' => 'application/json'
             ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
-        $response->assertStatus(401);
+        $response->assertStatus(422);
         $this->assertDatabaseMissing('exams', [
             'published' => true
         ]);
@@ -681,7 +681,7 @@ class PublishFeatureTest extends TestCase
             'Accept' => 'application/json'
             ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
-        $response->assertStatus(401);
+        $response->assertStatus(422);
         $this->assertDatabaseMissing('exams', [
             'published' => true
         ]);
@@ -736,7 +736,7 @@ class PublishFeatureTest extends TestCase
             'Accept' => 'application/json'
             ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
-        $response->assertStatus(401);
+        $response->assertStatus(422);
         $this->assertDatabaseMissing('exams', [
             'published' => true
         ]);
@@ -1833,7 +1833,7 @@ class PublishFeatureTest extends TestCase
             'Accept' => 'application/json'
             ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
-        $response->assertStatus(401);
+        $response->assertStatus(422);
         $this->assertDatabaseHas('exams', [
             'published' => false
         ]);
@@ -1867,7 +1867,7 @@ class PublishFeatureTest extends TestCase
             'Accept' => 'application/json'
             ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
 
-        $response->assertStatus(401);
+        $response->assertStatus(422);
         $this->assertDatabaseHas('exams', [
             'published' => false
         ]);

@@ -250,7 +250,7 @@ class ParticipantTest extends TestCase
     /**
     * @test
     */
-    public function if_exam_has_password_and_user_didnt_set_that_it_will_be_401()
+    public function if_exam_has_password_and_user_didnt_set_that_it_will_be_422()
     {
         $this->seed(QuestionTypeSeeder::class);
 
@@ -270,14 +270,14 @@ class ParticipantTest extends TestCase
                 $data['exam'],
             ]), [
             ]);
-        $response->assertStatus(401);
+        $response->assertStatus(422);
         $this->assertDatabaseCount('participants', 0);
     }
 
     /**
     * @test
     */
-    public function if_exam_has_password_and_user_uses_wrong_password_it_will_be_401()
+    public function if_exam_has_password_and_user_uses_wrong_password_it_will_be_422()
     {
         $this->seed(QuestionTypeSeeder::class);
 
@@ -298,7 +298,7 @@ class ParticipantTest extends TestCase
             ]), [
                 'password' => '1234'
             ]);
-        $response->assertStatus(401);
+        $response->assertStatus(422);
         $this->assertDatabaseCount('participants', 0);
     }
 
@@ -326,7 +326,7 @@ class ParticipantTest extends TestCase
             ]), [
                 'password' => '1234'
             ]);
-        $response->assertStatus(401);
+        $response->assertStatus(422);
         $response->assertJsonStructure([
             'message'
         ]);
@@ -355,7 +355,7 @@ class ParticipantTest extends TestCase
                 $data['exam'],
             ]), [
             ]);
-        $response->assertStatus(401);
+        $response->assertStatus(422);
         $response->assertJsonStructure([
             'message'
         ]);

@@ -88,7 +88,7 @@ class StateTest extends TestCase
                     'text_part' => 'test',
                 ]);
 
-            $response->assertStatus(401);
+            $response->assertStatus(422);
         }
         $this->assertDatabaseCount('states', 8);
     }
@@ -308,7 +308,7 @@ class StateTest extends TestCase
                 'text_part' => 'test',
             ]);
 
-        $response->assertStatus(401);
+        $response->assertStatus(422);
         $this->assertDatabaseCount('states', 0);
         $response->assertJsonStructure([
             'message'
@@ -372,7 +372,7 @@ class StateTest extends TestCase
                 'integer_part' => 123,
             ]);
 
-        $response->assertStatus(401);
+        $response->assertStatus(422);
         $this->assertDatabaseCount('states', 0);
         $response->assertJsonStructure([
             'message'
@@ -455,7 +455,7 @@ class StateTest extends TestCase
                 'text_part' => 'test',
             ]);
 
-        $third_response->assertStatus(401);
+        $third_response->assertStatus(422);
         $this->assertDatabaseCount('states', 2);
     }
 
@@ -482,14 +482,14 @@ class StateTest extends TestCase
                 'text_part' => 'test'
             ]);
 
-        $response->assertStatus(401);
+        $response->assertStatus(422);
         $second_response = $this->withHeaders([
             'Accept' => 'application/json'
             ])->post(route(self::STATE_CREATE_ROUTE, [$exam, $question]), [
                 'integer_part' => 1,
             ]);
 
-        $second_response->assertStatus(401);
+        $second_response->assertStatus(422);
         $this->assertDatabaseCount('states', 0);
     }
 
@@ -569,7 +569,7 @@ class StateTest extends TestCase
                 'text_part' => 'test',
             ]);
 
-        $third_response->assertStatus(401);
+        $third_response->assertStatus(422);
         $this->assertDatabaseCount('states', 2);
     }
 
@@ -596,14 +596,14 @@ class StateTest extends TestCase
                 'text_part' => 'test'
             ]);
 
-        $response->assertStatus(401);
+        $response->assertStatus(422);
         $second_response = $this->withHeaders([
             'Accept' => 'application/json'
             ])->post(route(self::STATE_CREATE_ROUTE, [$exam, $question]), [
                 'integer_part' => 1,
             ]);
 
-        $second_response->assertStatus(401);
+        $second_response->assertStatus(422);
         $this->assertDatabaseCount('states', 0);
     }
 
@@ -675,7 +675,7 @@ class StateTest extends TestCase
                 'text_part' => 'test',
             ]);
 
-        $second_response->assertStatus(401);
+        $second_response->assertStatus(422);
         $third_response = $this->withHeaders([
             'Accept' => 'application/json'
             ])->post(route(self::STATE_CREATE_ROUTE, [$exam, $question]), [
@@ -691,7 +691,7 @@ class StateTest extends TestCase
                 'text_part' => 'test',
             ]);
 
-        $third_response->assertStatus(401);
+        $third_response->assertStatus(422);
         $this->assertDatabaseCount('states', 2);
     }
 
@@ -718,14 +718,14 @@ class StateTest extends TestCase
                 'text_part' => 'test'
             ]);
 
-        $response->assertStatus(401);
+        $response->assertStatus(422);
         $second_response = $this->withHeaders([
             'Accept' => 'application/json'
             ])->post(route(self::STATE_CREATE_ROUTE, [$exam, $question]), [
                 'integer_part' => 1,
             ]);
 
-        $second_response->assertStatus(401);
+        $second_response->assertStatus(422);
         $this->assertDatabaseCount('states', 0);
     }
 
@@ -759,7 +759,7 @@ class StateTest extends TestCase
                 'integer_part' => 1,
             ]);
 
-        $second_response->assertStatus(401);
+        $second_response->assertStatus(422);
         $this->assertDatabaseCount('states', 1);
     }
 
@@ -786,7 +786,7 @@ class StateTest extends TestCase
                 'text_part' => 'test'
             ]);
 
-        $response->assertStatus(401);
+        $response->assertStatus(422);
         $second_response = $this->withHeaders([
             'Accept' => 'application/json'
             ])->post(route(self::STATE_CREATE_ROUTE, [$exam, $question]), [
@@ -835,7 +835,7 @@ class StateTest extends TestCase
                 'integer_part' => 2,
             ]);
 
-        $third_response->assertStatus(401);
+        $third_response->assertStatus(422);
         $this->assertDatabaseCount('states', 2);
     }
 
@@ -1089,7 +1089,7 @@ class StateTest extends TestCase
                 'integer_part' => 1
             ]);
 
-        $response->assertStatus(401);
+        $response->assertStatus(422);
         $response->assertJsonStructure([
             'message'
         ]);
@@ -1127,14 +1127,14 @@ class StateTest extends TestCase
                 'integer_part' => 1
             ]);
 
-        $response->assertStatus(401);
+        $response->assertStatus(422);
         $second_response = $this->withHeaders([
             'Accept' => 'application/json'
             ])->put(route(self::STATE_UPDATE_ROUTE, [$exam, $question, $state]), [
                 'text_part' => '',
             ]);
 
-        $second_response->assertStatus(401);
+        $second_response->assertStatus(422);
         $state->refresh();
         $this->assertTrue($state->text_answer === 'test');
         $this->assertTrue($state->integer_answer === null);
@@ -1169,7 +1169,7 @@ class StateTest extends TestCase
                 'integer_part' => 2
             ]);
 
-        $response->assertStatus(401);
+        $response->assertStatus(422);
         $second_response = $this->withHeaders([
             'Accept' => 'application/json'
             ])->put(route(self::STATE_UPDATE_ROUTE, [$exam, $question, $state]), [
@@ -1177,7 +1177,7 @@ class StateTest extends TestCase
                 'integer_part' => 1
             ]);
 
-        $second_response->assertStatus(401);
+        $second_response->assertStatus(422);
         $state->refresh();
         $this->assertTrue($state->text_answer === 'test');
         $this->assertTrue($state->integer_answer === 1);
@@ -1212,7 +1212,7 @@ class StateTest extends TestCase
                 'integer_part' => 2
             ]);
 
-        $response->assertStatus(401);
+        $response->assertStatus(422);
         $second_response = $this->withHeaders([
             'Accept' => 'application/json'
             ])->put(route(self::STATE_UPDATE_ROUTE, [$exam, $question, $state]), [
@@ -1220,7 +1220,7 @@ class StateTest extends TestCase
                 'integer_part' => 1
             ]);
 
-        $second_response->assertStatus(401);
+        $second_response->assertStatus(422);
         $state->refresh();
         $this->assertTrue($state->text_answer === 'test');
         $this->assertTrue($state->integer_answer === 1);
@@ -1254,14 +1254,14 @@ class StateTest extends TestCase
                 'integer_part' => 1
             ]);
 
-        $response->assertStatus(401);
+        $response->assertStatus(422);
         $second_response = $this->withHeaders([
             'Accept' => 'application/json'
             ])->put(route(self::STATE_UPDATE_ROUTE, [$exam, $question, $state]), [
                 'integer_part' => 2
             ]);
 
-        $second_response->assertStatus(401);
+        $second_response->assertStatus(422);
         $third_response = $this->withHeaders([
             'Accept' => 'application/json'
             ])->put(route(self::STATE_UPDATE_ROUTE, [$exam, $question, $state]), [
@@ -1300,14 +1300,14 @@ class StateTest extends TestCase
                 'integer_part' => 2
             ]);
 
-        $response->assertStatus(401);
+        $response->assertStatus(422);
         $second_response = $this->withHeaders([
             'Accept' => 'application/json'
             ])->put(route(self::STATE_UPDATE_ROUTE, [$exam, $question, $state]), [
                 'integer_part' => 0
             ]);
 
-        $second_response->assertStatus(401);
+        $second_response->assertStatus(422);
         $state->refresh();
         $this->assertTrue($state->integer_answer === 1);
     }

@@ -932,7 +932,7 @@ class AnswerTest extends TestCase
             'text_part' => 'test test',
         ]);
 
-        $response->assertStatus(401);
+        $response->assertStatus(422);
         $this->assertDatabaseCount('answers', 1);
     }
 
@@ -972,7 +972,7 @@ class AnswerTest extends TestCase
             'text_part' => 'test test',
         ]);
 
-        $response->assertStatus(401);
+        $response->assertStatus(422);
         $this->assertDatabaseCount('answers', 1);
     }
 
@@ -1035,7 +1035,7 @@ class AnswerTest extends TestCase
         ])->post(route(self::CREATE_ANSWER_ROUTE, [$data['questions'][0]]), [
             'integer_part' => 1,
         ]);
-        $response->assertStatus(401);
+        $response->assertStatus(422);
         $this->assertDatabaseCount('answers', 4);
     }
 
@@ -1075,7 +1075,7 @@ class AnswerTest extends TestCase
             'integer_part' => 2,
         ]);
 
-        $response->assertStatus(401);
+        $response->assertStatus(422);
         $this->assertDatabaseCount('answers', 1);
     }
 
@@ -1115,7 +1115,7 @@ class AnswerTest extends TestCase
             'integer_part' => 0,
         ]);
 
-        $response->assertStatus(401);
+        $response->assertStatus(422);
         $this->assertDatabaseCount('answers', 1);
     }
 
@@ -1178,7 +1178,7 @@ class AnswerTest extends TestCase
         ])->post(route(self::CREATE_ANSWER_ROUTE, [$data['questions'][0]]), [
             'integer_part' => 1,
         ]);
-        $response->assertStatus(401);
+        $response->assertStatus(422);
         $this->assertDatabaseCount('answers', 4);
     }
 

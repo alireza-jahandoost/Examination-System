@@ -50,7 +50,7 @@ class ParticipantController extends Controller
         if ($status !== 'success') {
             return response()->json([
                 'message' => $status
-            ], 401);
+            ], 422);
         }
         $participant = new Participant();
         $participant->user_id = auth()->id();

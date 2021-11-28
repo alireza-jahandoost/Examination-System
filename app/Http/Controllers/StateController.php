@@ -44,7 +44,7 @@ class StateController extends Controller
         if ($status !== 'success') {
             return response()->json([
                 'message' => $status
-            ], 401);
+            ], 422);
         }
 
         $state = $question->states()->create([
@@ -82,7 +82,7 @@ class StateController extends Controller
         if ($status !== 'success') {
             return response()->json([
                 'message' => $status
-            ], 401);
+            ], 422);
         }
 
         if (isset($data['text_part'])) {
