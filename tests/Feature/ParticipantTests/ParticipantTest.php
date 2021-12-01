@@ -305,7 +305,7 @@ class ParticipantTest extends TestCase
     /**
     * @test
     */
-    public function if_password_of_exam_was_wrong_user_will_receive_a_message()
+    public function if_password_of_exam_was_wrong_user_will_receive_a_message_and_password_field_error()
     {
         $this->seed(QuestionTypeSeeder::class);
 
@@ -328,14 +328,17 @@ class ParticipantTest extends TestCase
             ]);
         $response->assertStatus(422);
         $response->assertJsonStructure([
-            'message'
+            'message',
+            'errors' => [
+                'password'
+            ]
         ]);
     }
 
     /**
     * @test
     */
-    public function if_exam_has_password_and_user_didnt_set_any_user_will_receive_a_message()
+    public function if_exam_has_password_and_user_didnt_set_any_user_will_receive_a_message_and_password_field_error()
     {
         $this->seed(QuestionTypeSeeder::class);
 
@@ -357,7 +360,10 @@ class ParticipantTest extends TestCase
             ]);
         $response->assertStatus(422);
         $response->assertJsonStructure([
-            'message'
+            'message',
+            'errors' => [
+                'password'
+            ]
         ]);
     }
 

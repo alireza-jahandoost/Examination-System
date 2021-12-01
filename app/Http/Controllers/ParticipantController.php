@@ -49,7 +49,10 @@ class ParticipantController extends Controller
         $status = $action->check($exam, $request->validated());
         if ($status !== 'success') {
             return response()->json([
-                'message' => $status
+                'message' => "The given data was invalid.",
+                'errors' => [
+                    'password' => $status
+                ]
             ], 422);
         }
         $participant = new Participant();
