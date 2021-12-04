@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests\CreateExamRequest;
 use App\Http\Requests\UpdateExamRequest;
+use App\Http\Requests\IndexExamsRequest;
 
 use App\Http\Resources\ExamResource;
 use App\Http\Resources\ExamCollection;
@@ -25,9 +26,14 @@ class ExamController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(IndexExamsRequest $request)
     {
-        $query = Exam::where('published', true)->with('user')->paginate(18);
+        $inputs = $request->validated();
+        if (isset($inputs['search']) && $inputs['search']) {
+            $query = Exam::search($inputs['search'])->paginate(18);
+        } else {
+            $query = Exam::where('published', true)->with('user')->paginate(18);
+        }
         return (new ExamCollection($query))->response()->setStatusCode(200);
     }
 

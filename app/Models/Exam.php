@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Scout\Searchable;
 
 class Exam extends Model
 {
     use HasFactory;
+    use Searchable;
 
     protected $guarded = [
         'id',
@@ -24,6 +26,11 @@ class Exam extends Model
         'confirmation_required' => 'boolean',
         'published' => 'boolean',
     ];
+
+    public function shouldBeSearchable()
+    {
+        return $this->published;
+    }
 
     //mutators
     public function setPasswordAttribute($value)
