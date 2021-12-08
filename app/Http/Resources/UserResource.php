@@ -14,6 +14,7 @@ class UserResource extends JsonResource
      */
     public function toArray($request)
     {
+        // it must be like the format used in AuthenticationResource
         return [
             'user' => [
                 'user_id' => $this->id,

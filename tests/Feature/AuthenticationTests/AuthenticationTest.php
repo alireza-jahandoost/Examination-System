@@ -178,14 +178,17 @@ class AuthenticationTest extends TestCase
             'data' => [
                 'user' => [
                     'user_id' => 1,
-                    'name' => 'test',
-                    'email' => 'test@test.com'
+                    'user_name' => 'test',
+                    'user_email' => 'test@test.com'
                 ]
             ]
         ]);
         $response->assertJsonStructure([
             'data' => [
                 'token',
+                'user' => [
+                    'user_register_time'
+                ]
             ]
         ]);
     }
@@ -316,14 +319,17 @@ class AuthenticationTest extends TestCase
             'data' => [
                 'user' => [
                     'user_id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
+                    'user_name' => $user->name,
+                    'user_email' => $user->email,
                 ]
             ]
         ]);
         $response->assertJsonStructure([
             'data' => [
                 'token',
+                'user' => [
+                    'user_register_time'
+                ]
             ]
         ]);
     }

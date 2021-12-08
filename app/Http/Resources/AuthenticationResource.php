@@ -14,11 +14,13 @@ class AuthenticationResource extends JsonResource
      */
     public function toArray($request)
     {
+        // it must be like the format used in UserResource
         return [
             'user' => [
                 'user_id' => $this['user']->id,
-                'name' => $this['user']->name,
-                'email' => $this['user']->email,
+                'user_name' => $this['user']->name,
+                'user_email' => $this['user']->email,
+                'user_register_time' => $this['user']->created_at,
             ],
             'token' => $this['token'],
         ];
