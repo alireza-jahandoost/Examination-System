@@ -216,6 +216,101 @@ class PublishFeatureTest extends TestCase
     /**
     * @test
     */
+    public function fill_the_blank_questions_must_have_3_open_braces_and_3_close_braces_as_input_place_in_their_text()
+    {
+        $this->seed(QuestionTypeSeeder::class);
+
+        Sanctum::actingAs(
+            $user = User::factory()->create(),
+            ['*']
+        );
+        $exam = Exam::factory()->for($user)->create([
+            'total_score' => 100
+        ]);
+        $descriptive = QuestionType::find(1);
+        $fill_be_blank = QuestionType::find(2);
+
+        $questions = Question::factory()->count(4)->for($exam)->for($descriptive)->create([
+            'score' => 20
+        ]);
+        $question = Question::factory()->for($exam)->for($fill_be_blank)->create([
+            'score' => 20,
+            'question_text' => 'test test test',
+        ]);
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json'
+            ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
+
+        $response->assertStatus(422);
+        $this->assertDatabaseMissing('exams', [
+            'published' => true
+        ]);
+        $question->states()->create([
+            'integer_answer' => null,
+            'text_answer' => 'test'
+        ]);
+        $question->states()->create([
+            'integer_answer' => null,
+            'text_answer' => 'test'
+        ]);
+
+        $failed_response = $this->withHeaders([
+            'Accept' => 'application/json'
+            ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
+
+        $failed_response->assertStatus(422);
+        $failed_response->assertJsonStructure([
+            'message'
+        ]);
+        $this->assertDatabaseHas('exams', [
+            'published' => false
+        ]);
+
+        $question->question_text = 'test {{{}}} test test {{{}}} test test test';
+        $question->save();
+
+        $failed_response = $this->withHeaders([
+            'Accept' => 'application/json'
+            ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
+
+        $failed_response->assertStatus(422);
+        $failed_response->assertJsonStructure([
+            'message'
+        ]);
+        $this->assertDatabaseHas('exams', [
+            'published' => false
+        ]);
+
+        $question->question_text = 'test test test {{{}}} test test test';
+        $question->save();
+
+        $second_response = $this->withHeaders([
+            'Accept' => 'application/json'
+            ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
+
+        $second_response->assertStatus(202);
+        $this->assertDatabaseHas('exams', [
+            'published' => true
+        ]);
+        $question->states()->create([
+            'integer_answer' => null,
+            'text_answer' => 'test'
+        ]);
+
+        $third_response = $this->withHeaders([
+            'Accept' => 'application/json'
+            ])->put(route(PublishFeatureTest::PUBLISH_EXAM_ROUTE, [$exam]));
+
+        $third_response->assertStatus(202);
+        $this->assertDatabaseHas('exams', [
+            'published' => true
+        ]);
+    }
+
+    /**
+    * @test
+    */
     public function multiple_questions_must_have_more_than_one_state_to_publish()
     {
         $this->seed(QuestionTypeSeeder::class);

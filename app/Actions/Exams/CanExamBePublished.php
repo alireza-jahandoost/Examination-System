@@ -67,10 +67,15 @@ class CanExamBePublished
 
             case 2:
                 if ($question->states()->count() >= 1) {
-                    return 'success';
+                    if (substr_count($question->question_text, '{{{}}}') === 1) {
+                        return 'success';
+                    }
+                    return 'the place of blank input must be specified by "{{{}}} in question text - just one place is allowed';
+                } else {
+                    return 'fill the blank questions must have 1 state';
                 }
-                return 'fill the blank questions must have 1 state';
 
+                // no break
             case 3:
                 if ($question->states()->count() >= 2) {
                     return 'success';

@@ -22,9 +22,9 @@ class QuestionFactory extends Factory
     public function definition()
     {
         return [
-            'question_text' => $this->faker->sentence(),
-            'score' => rand(1,100),
-            'can_be_shuffled' => (bool)rand(0,1)
+            'question_text' => $this->faker->sentence().'{{{}}}',
+            'score' => rand(1, 100),
+            'can_be_shuffled' => (bool)rand(0, 1)
         ];
     }
 }
