@@ -180,7 +180,7 @@ class ParticipantController extends Controller
     {
         $this->authorize('participatedExams', Participant::class);
 
-        return (new ParticipatedExamsCollection(auth()->user()->participatedExams()->with('exam.user')->paginate(20)))->response()->setStatusCode(200);
+        return (new ParticipatedExamsCollection(auth()->user()->participatedExams()->with('exam.user')->orderBy('created_at', 'desc')->paginate(20)))->response()->setStatusCode(200);
     }
 
     /**

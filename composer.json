@@ -8,13 +8,10 @@
         "php": "^7.3|^8.0",
         "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.0.1",
-        "http-interop/http-factory-guzzle": "^1.2",
         "laravel/fortify": "^1.8",
         "laravel/framework": "^8.54",
         "laravel/sanctum": "^2.11",
-        "laravel/scout": "^9.3",
         "laravel/tinker": "^2.5",
-        "meilisearch/meilisearch-php": "^0.20.0",
         "spatie/laravel-permission": "^4.3"
     },
     "require-dev": {

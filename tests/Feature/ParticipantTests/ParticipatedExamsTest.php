@@ -12,6 +12,8 @@ use App\Models\User;
 use App\Models\Exam;
 use App\Models\Participant;
 
+use Carbon\Carbon;
+
 class ParticipatedExamsTest extends TestCase
 {
     use RefreshDatabase;
@@ -47,6 +49,41 @@ class ParticipatedExamsTest extends TestCase
 
         $response->assertStatus(200);
         $this->assertEquals(count($response->json()['data']['exams']), 2);
+    }
+
+    /**
+     * @test
+     */
+    public function participated_exams_must_be_sorted_by_created_at_of_participant_model_desc()
+    {
+        Sanctum::actingAs(
+            $user = User::factory()->create(),
+        );
+
+        $owner = User::factory()->create();
+
+        $exams = Exam::factory()->count(10)->for($owner)->state([
+            'published' => true
+        ])->create();
+        $exams->each(function ($exam, $idx) use ($user) {
+            $participant = Participant::factory()->for($exam)->for($user)->create();
+            $participant->created_at = Carbon::now()->subDays(rand(1, 25))->subHours(rand(1, 24))->format('Y-m-d H:i:s');
+            $participant->save();
+        });
+
+        $response = $this->withHeaders([
+            'accept' => 'application/json',
+        ])->get(route(self::PARTICIPATED_EXAMS_ROUTE));
+
+        $response->assertStatus(200);
+
+        $exams = $response->json()['data']['exams'];
+
+        for ($i = 1;$i < count($exams);$i ++) {
+            $currentParticipant = Participant::where('exam_id', $exams[$i]['exam_id'])->first();
+            $prevParticipant = Participant::where('exam_id', $exams[$i-1]['exam_id'])->first();
+            $this->assertTrue($currentParticipant->created_at->lessThanOrEqualTo($prevParticipant->created_at));
+        }
     }
 
     /**

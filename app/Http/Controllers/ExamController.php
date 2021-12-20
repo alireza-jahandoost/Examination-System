@@ -30,16 +30,16 @@ class ExamController extends Controller
     {
         $inputs = $request->validated();
         if (isset($inputs['search']) && $inputs['search']) {
-            $query = Exam::search($inputs['search'])->paginate(18);
+            $query = Exam::where('name', 'like', "%{$inputs['search']}%")->orderBy('start', 'desc')->paginate(18);
         } else {
-            $query = Exam::where('published', true)->with('user')->paginate(18);
+            $query = Exam::where('published', true)->orderBy('start', 'desc')->with('user')->paginate(18);
         }
         return (new ExamCollection($query))->response()->setStatusCode(200);
     }
 
     public function index_own()
     {
-        $query = auth()->user()->ownedExams()->with('user')->paginate();
+        $query = auth()->user()->ownedExams()->orderBy('created_at', 'desc')->with('user')->paginate();
         return (new ExamCollection($query))->response()->setStatusCode(200);
     }
 

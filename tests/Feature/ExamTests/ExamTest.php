@@ -701,6 +701,56 @@ class ExamTest extends TestCase
     /**
     * @test
     */
+    public function exams_must_be_sorted_by_start_time_desc()
+    {
+        Sanctum::actingAs(
+            $user = User::factory()->create(),
+            ['*']
+        );
+
+        Exam::factory()->state([
+            'published' => true
+            ])->count(30)->for($user)->create();
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json'
+            ])->get(route(self::INDEX_EXAM_ROUTE));
+
+        $exams = array_map(fn ($current) => Carbon::createFromFormat('Y-m-d H:i:s', $current['start_of_exam']), $response->json()['data']['exams']);
+
+        for ($i = 1;$i < count($exams);$i ++) {
+            $this->assertTrue($exams[$i]->lessThanOrEqualTo($exams[$i-1]));
+        }
+    }
+
+    /**
+    * @test
+    */
+    public function exams_must_be_sorted_by_start_time_desc_in_searching()
+    {
+        Sanctum::actingAs(
+            $user = User::factory()->create(),
+            ['*']
+        );
+
+        Exam::factory()->state([
+            'published' => true
+            ])->count(30)->for($user)->create();
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json'
+            ])->get(route(self::INDEX_EXAM_ROUTE, ['search' => 'a']));
+
+        $exams = array_map(fn ($current) => Carbon::createFromFormat('Y-m-d H:i:s', $current['start_of_exam']), $response->json()['data']['exams']);
+
+        for ($i = 1;$i < count($exams);$i ++) {
+            $this->assertTrue($exams[$i]->lessThanOrEqualTo($exams[$i-1]));
+        }
+    }
+
+    /**
+    * @test
+    */
     public function user_dont_need_to_be_authenticated_to_see_exams()
     {
         $user = User::factory()->create();
@@ -1025,6 +1075,46 @@ class ExamTest extends TestCase
                 ]
             ]
         ]);
+    }
+
+    /**
+    * @test
+    */
+    public function owned_exams_must_be_ordered_by_creation_time_desc()
+    {
+        Sanctum::actingAs(
+            $user = User::factory()->create(),
+            ['*']
+        );
+
+        $exams = Exam::factory(10)->state([
+            'published' => true,
+        ])->for($user)->create();
+        $exams->each(function ($exam, $key) {
+            $exam->created_at = Carbon::now()->subDays(rand(1, 25))->subHours(rand(1, 24))->format('Y-m-d H:i:s');
+            $exam->save();
+        });
+
+        $exams = Exam::factory(10)->state([
+            'published' => false,
+        ])->for($user)->create();
+
+        $exams->each(function ($exam, $key) {
+            $exam->created_at = Carbon::now()->subDays(rand(1, 25))->subHours(rand(1, 24))->format('Y-m-d H:i:s');
+            $exam->save();
+        });
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json'
+        ])->get(route(self::INDEX_OWN_EXAM_ROUTE));
+
+        $response->assertStatus(200);
+
+        $exams = array_map(fn ($current) => Carbon::create($current['creation_time']), $response->json()['data']['exams']);
+
+        for ($i = 1;$i < count($exams);$i ++) {
+            $this->assertTrue($exams[$i]->lessThanOrEqualTo($exams[$i-1]));
+        }
     }
 
     /**
