@@ -25,6 +25,17 @@ class StateController extends Controller
     {
         $this->authorize('viewAny', [State::class, $exam, $question]);
         $states = $question->states()->with('question')->get();
+        if (count($states)>1 && $question->questionType->name === 'ordering' && $exam->user_id !== auth()->id()) {
+            $newStates = $states->shuffle();
+            $check = true;
+            for ($i = 0;$i < count($newStates);$i++) {
+                if ($newStates[$i]->id !== $states[$i]->id) {
+                    $check = false;
+                    break;
+                }
+            }
+            $states = $check === true ? $newStates->reverse() : $newStates;
+        }
         return (new StateCollection($states))->response()->setStatusCode(200);
     }
 

@@ -24,7 +24,6 @@ class StateTest extends TestCase
 
     public const STATE_CREATE_ROUTE = 'states.store';
     public const STATE_UPDATE_ROUTE = 'states.update';
-    public const STATE_INDEX_ROUTE = 'states.index';
     public const STATE_SHOW_ROUTE = 'states.show';
     public const STATE_DELETE_ROUTE = 'states.destroy';
 
