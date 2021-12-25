@@ -106,6 +106,14 @@ class StateController extends Controller
     public function destroy(Exam $exam, Question $question, State $state)
     {
         $this->authorize('delete', [$state, $exam, $question]);
+        if ($question->questionType->name === 'ordering') {
+            $question->states->each(function ($currentState) use ($state) {
+                if ($currentState->integer_answer > $state->integer_answer) {
+                    $currentState->integer_answer --;
+                    $currentState->save();
+                }
+            });
+        }
         $state->delete();
         return response(null, 202);
     }

@@ -1347,6 +1347,41 @@ class StateTest extends TestCase
     /**
     * @test
     */
+    public function after_deleting_an_ordering_question_states_with_bigger_integer_answer_must_decrease()
+    {
+        $this->seed(QuestionTypeSeeder::class);
+
+        Sanctum::actingAs(
+            $user = User::factory()->create(),
+            ['*']
+        );
+
+        $exam = Exam::factory()->for($user)->create();
+
+        $question_type = QuestionType::find(6);
+        $question = Question::factory()->for($exam)->for($question_type)->create();
+
+        for ($i=1;$i<=5;$i++) {
+            State::factory()->for($question)->create([
+                'integer_answer' => $i,
+            ]);
+        }
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json'
+            ])->delete(route(self::STATE_DELETE_ROUTE, [$exam, $question, State::where('integer_answer', 3)->first()]));
+
+        $response->assertStatus(202);
+        $this->assertDatabaseCount('states', 4);
+
+        for ($i=1;$i<=4;$i++) {
+            $this->assertTrue(State::where('integer_answer', $i)->exists());
+        }
+    }
+
+    /**
+    * @test
+    */
     public function user_must_own_the_exam_to_delete_its_state()
     {
         $this->seed(QuestionTypeSeeder::class);
