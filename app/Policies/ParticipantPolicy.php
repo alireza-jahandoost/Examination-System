@@ -172,7 +172,7 @@ class ParticipantPolicy
 
     public function questionGrade(User $user, Participant $participant, Question $question)
     {
-        if ($participant->status !== 3) {
+        if ($participant->status !== 2 && $participant->status !== 3) {
             return false;
         }
         if ($user->id === $participant->user_id) {

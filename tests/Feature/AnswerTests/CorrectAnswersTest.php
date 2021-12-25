@@ -892,7 +892,7 @@ class CorrectAnswersTest extends TestCase
     /**
     * @test
     */
-    public function for_owner_grade_must_be_null_if_status_of_that_participant_was_not_equal_to_3()
+    public function for_owner_grade_must_be_null_if_status_of_that_participant_was_not_3()
     {
         Queue::fake();
         $this->seed(QuestionTypeSeeder::class);
@@ -916,14 +916,7 @@ class CorrectAnswersTest extends TestCase
         $this->assertDatabaseMissing('participants', [
             'status' => 1,
         ]);
-
-        Sanctum::actingAs($user, ['*']);
-
-        $response = $this->withHeaders([
-            'Accept' => 'application/json',
-        ])->put(route(self::FINISH_EXAM_ROUTE, [$data['exam']]));
-
-        $response->assertStatus(202);
+        // status == 0
 
         Sanctum::actingAs($data['owner'], ['*']);
 
@@ -938,6 +931,77 @@ class CorrectAnswersTest extends TestCase
                 'participants' => [
                     [
                         'grade' => null,
+                    ]
+                ]
+            ]
+        ]);
+
+        Sanctum::actingAs($user, ['*']);
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->put(route(self::FINISH_EXAM_ROUTE, [$data['exam']]));
+
+        $response->assertStatus(202);
+
+        // status == 1
+
+        Sanctum::actingAs($data['owner'], ['*']);
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->get(route(self::PARTICIPANT_INDEX_ROUTE, $data['exam']));
+
+        $response->assertStatus(200);
+
+        $response->assertJson([
+            'data' => [
+                'participants' => [
+                    [
+                        'grade' => null,
+                    ]
+                ]
+            ]
+        ]);
+
+        // status == 2
+        $participant = Participant::first();
+        $participant->status = 2;
+        $participant->save();
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->get(route(self::PARTICIPANT_INDEX_ROUTE, $data['exam']));
+
+        $response->assertStatus(200);
+
+        $response->assertJson([
+            'data' => [
+                'participants' => [
+                    [
+                        'grade' => null,
+                    ]
+                ]
+            ]
+        ]);
+
+        // status == 3
+        $participant = Participant::first();
+        $participant->status = 3;
+        $participant->grade = 3;
+        $participant->save();
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->get(route(self::PARTICIPANT_INDEX_ROUTE, $data['exam']));
+
+        $response->assertStatus(200);
+
+        $response->assertJson([
+            'data' => [
+                'participants' => [
+                    [
+                        'grade' => $participant->grade,
                     ]
                 ]
             ]
@@ -1269,7 +1333,7 @@ class CorrectAnswersTest extends TestCase
     /**
     * @test
     */
-    public function exams_owner_can_score_the_manual_questions_for_participants()
+    public function exams_owner_can_score_the_descriptive_questions_for_participants()
     {
         $this->seed(QuestionTypeSeeder::class);
         $start = Carbon::now()->subHour();
@@ -1312,6 +1376,286 @@ class CorrectAnswersTest extends TestCase
         $response = $this->withHeaders([
             'Accept' => 'application/json',
         ])->post(route(self::SUBMIT_GRADE_ROUTE, [$data['questions'][5], $participant]), [
+            'grade' => 20,
+        ]);
+
+        $response->assertStatus(202);
+
+        $this->assertDatabaseHas('participants', [
+            'grade' => 60,
+        ]);
+    }
+
+    /**
+    * @test
+    */
+    public function exams_owner_can_score_the_fill_the_blank_questions_for_participants()
+    {
+        $this->seed(QuestionTypeSeeder::class);
+        $start = Carbon::now()->subHour();
+        $end = Carbon::make($start)->addHours(2);
+        $data = $this->create_and_publish_an_exam([
+            'confirmation_required' => false,
+            'start' => $start->format('Y-m-d H:i:s'),
+            'end' => $end->format('Y-m-d H:i:s'),
+        ], 2, true);
+
+        $user = User::factory()->create();
+
+        $this->register_user($user, $data['exam']);
+        $this->assertDatabaseCount('participants', 1);
+
+        $participant = Participant::where([
+            'user_id' => $user->id,
+            'exam_id' => $data['exam']->id,
+        ])->first();
+
+        $this->send_answer_for_user($user, $data['questions'][0], false);
+        $this->send_answer_for_user($user, $data['questions'][1], true);
+        $this->send_answer_for_user($user, $data['questions'][3], true);
+        $this->send_answer_for_user($user, $data['questions'][5], true);
+
+        $this->assertDatabaseMissing('participants', [
+            'status' => 1,
+        ]);
+
+        Sanctum::actingAs($user, ['*']);
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->put(route(self::FINISH_EXAM_ROUTE, [$data['exam']]));
+
+        $response->assertStatus(202);
+
+        Sanctum::actingAs($data['owner'], ['*']);
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->post(route(self::SUBMIT_GRADE_ROUTE, [$data['questions'][0], $participant]), [
+            'grade' => 20,
+        ]);
+
+        $response->assertStatus(202);
+
+        $this->assertDatabaseHas('participants', [
+            'grade' => 60,
+        ]);
+    }
+
+    /**
+    * @test
+    */
+    public function exams_owner_can_score_the_multiple_answer_questions_for_participants()
+    {
+        $this->seed(QuestionTypeSeeder::class);
+        $start = Carbon::now()->subHour();
+        $end = Carbon::make($start)->addHours(2);
+        $data = $this->create_and_publish_an_exam([
+            'confirmation_required' => false,
+            'start' => $start->format('Y-m-d H:i:s'),
+            'end' => $end->format('Y-m-d H:i:s'),
+        ], 3, true);
+
+        $user = User::factory()->create();
+
+        $this->register_user($user, $data['exam']);
+        $this->assertDatabaseCount('participants', 1);
+
+        $participant = Participant::where([
+            'user_id' => $user->id,
+            'exam_id' => $data['exam']->id,
+        ])->first();
+
+        $this->send_answer_for_user($user, $data['questions'][0], false);
+        $this->send_answer_for_user($user, $data['questions'][1], true);
+        $this->send_answer_for_user($user, $data['questions'][3], true);
+        $this->send_answer_for_user($user, $data['questions'][5], true);
+
+        $this->assertDatabaseMissing('participants', [
+            'status' => 1,
+        ]);
+
+        Sanctum::actingAs($user, ['*']);
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->put(route(self::FINISH_EXAM_ROUTE, [$data['exam']]));
+
+        $response->assertStatus(202);
+
+        Sanctum::actingAs($data['owner'], ['*']);
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->post(route(self::SUBMIT_GRADE_ROUTE, [$data['questions'][0], $participant]), [
+            'grade' => 20,
+        ]);
+
+        $response->assertStatus(202);
+
+        $this->assertDatabaseHas('participants', [
+            'grade' => 60,
+        ]);
+    }
+
+    /**
+    * @test
+    */
+    public function exams_owner_can_score_the_select_the_answer_questions_for_participants()
+    {
+        $this->seed(QuestionTypeSeeder::class);
+        $start = Carbon::now()->subHour();
+        $end = Carbon::make($start)->addHours(2);
+        $data = $this->create_and_publish_an_exam([
+            'confirmation_required' => false,
+            'start' => $start->format('Y-m-d H:i:s'),
+            'end' => $end->format('Y-m-d H:i:s'),
+        ], 4, true);
+
+        $user = User::factory()->create();
+
+        $this->register_user($user, $data['exam']);
+        $this->assertDatabaseCount('participants', 1);
+
+        $participant = Participant::where([
+            'user_id' => $user->id,
+            'exam_id' => $data['exam']->id,
+        ])->first();
+
+        $this->send_answer_for_user($user, $data['questions'][0], false);
+        $this->send_answer_for_user($user, $data['questions'][1], true);
+        $this->send_answer_for_user($user, $data['questions'][3], true);
+        $this->send_answer_for_user($user, $data['questions'][5], true);
+
+        $this->assertDatabaseMissing('participants', [
+            'status' => 1,
+        ]);
+
+        Sanctum::actingAs($user, ['*']);
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->put(route(self::FINISH_EXAM_ROUTE, [$data['exam']]));
+
+        $response->assertStatus(202);
+
+        Sanctum::actingAs($data['owner'], ['*']);
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->post(route(self::SUBMIT_GRADE_ROUTE, [$data['questions'][0], $participant]), [
+            'grade' => 20,
+        ]);
+
+        $response->assertStatus(202);
+
+        $this->assertDatabaseHas('participants', [
+            'grade' => 60,
+        ]);
+    }
+
+    /**
+    * @test
+    */
+    public function exams_owner_can_score_the_true_or_false_questions_for_participants()
+    {
+        $this->seed(QuestionTypeSeeder::class);
+        $start = Carbon::now()->subHour();
+        $end = Carbon::make($start)->addHours(2);
+        $data = $this->create_and_publish_an_exam([
+            'confirmation_required' => false,
+            'start' => $start->format('Y-m-d H:i:s'),
+            'end' => $end->format('Y-m-d H:i:s'),
+        ], 5, true);
+
+        $user = User::factory()->create();
+
+        $this->register_user($user, $data['exam']);
+        $this->assertDatabaseCount('participants', 1);
+
+        $participant = Participant::where([
+            'user_id' => $user->id,
+            'exam_id' => $data['exam']->id,
+        ])->first();
+
+        $this->send_answer_for_user($user, $data['questions'][0], false);
+        $this->send_answer_for_user($user, $data['questions'][1], true);
+        $this->send_answer_for_user($user, $data['questions'][3], true);
+        $this->send_answer_for_user($user, $data['questions'][5], true);
+
+        $this->assertDatabaseMissing('participants', [
+            'status' => 1,
+        ]);
+
+        Sanctum::actingAs($user, ['*']);
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->put(route(self::FINISH_EXAM_ROUTE, [$data['exam']]));
+
+        $response->assertStatus(202);
+
+        Sanctum::actingAs($data['owner'], ['*']);
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->post(route(self::SUBMIT_GRADE_ROUTE, [$data['questions'][0], $participant]), [
+            'grade' => 20,
+        ]);
+
+        $response->assertStatus(202);
+
+        $this->assertDatabaseHas('participants', [
+            'grade' => 60,
+        ]);
+    }
+
+    /**
+    * @test
+    */
+    public function exams_owner_can_score_the_ordering_questions_for_participants()
+    {
+        $this->seed(QuestionTypeSeeder::class);
+        $start = Carbon::now()->subHour();
+        $end = Carbon::make($start)->addHours(2);
+        $data = $this->create_and_publish_an_exam([
+            'confirmation_required' => false,
+            'start' => $start->format('Y-m-d H:i:s'),
+            'end' => $end->format('Y-m-d H:i:s'),
+        ], 6, true);
+
+        $user = User::factory()->create();
+
+        $this->register_user($user, $data['exam']);
+        $this->assertDatabaseCount('participants', 1);
+
+        $participant = Participant::where([
+            'user_id' => $user->id,
+            'exam_id' => $data['exam']->id,
+        ])->first();
+
+        $this->send_answer_for_user($user, $data['questions'][0], false);
+        $this->send_answer_for_user($user, $data['questions'][1], true);
+        $this->send_answer_for_user($user, $data['questions'][3], true);
+        $this->send_answer_for_user($user, $data['questions'][5], true);
+
+        $this->assertDatabaseMissing('participants', [
+            'status' => 1,
+        ]);
+
+        Sanctum::actingAs($user, ['*']);
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->put(route(self::FINISH_EXAM_ROUTE, [$data['exam']]));
+
+        $response->assertStatus(202);
+
+        Sanctum::actingAs($data['owner'], ['*']);
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->post(route(self::SUBMIT_GRADE_ROUTE, [$data['questions'][0], $participant]), [
             'grade' => 20,
         ]);
 
@@ -2086,7 +2430,7 @@ class CorrectAnswersTest extends TestCase
     /**
     * @test
     */
-    public function owner_can_get_the_grade_of_participant_of_an_especific_question()
+    public function owner_can_get_the_grade_of_participant_of_an_specific_question()
     {
         $this->seed(QuestionTypeSeeder::class);
         $start = Carbon::now()->subHour();
@@ -2347,7 +2691,7 @@ class CorrectAnswersTest extends TestCase
     /**
     * @test
     */
-    public function user_can_not_see_his_grade_of_a_question_if_status_was_not_3()
+    public function user_can_not_see_his_grade_of_a_question_if_status_was_not_2_or_3()
     {
         Queue::fake();
         $this->seed(QuestionTypeSeeder::class);
@@ -2373,23 +2717,18 @@ class CorrectAnswersTest extends TestCase
             $question = $data['questions'][$i];
             $this->send_answer_for_user($user, $question, $i % 2);
         }
-
-        $this->assertDatabaseMissing('participants', [
-            'status' => 1,
-        ]);
+        // status == 0
 
         Sanctum::actingAs($user, ['*']);
-
-        $response = $this->withHeaders([
-            'Accept' => 'application/json',
-        ])->put(route(self::FINISH_EXAM_ROUTE, [$data['exam']]));
-
-        $response->assertStatus(202);
 
         $participant = Participant::where([
             'user_id' => $user->id,
             'exam_id' => $data['exam']->id,
         ])->first();
+
+        $this->assertDatabaseMissing('participants', [
+            'status' => 1,
+        ]);
 
         $response = $this->withHeaders([
             'Accept' => 'application/json',
@@ -2402,12 +2741,101 @@ class CorrectAnswersTest extends TestCase
         ])->get(route(self::GET_QUESTION_GRADE_ROUTE, [$participant, $data['questions'][1]]));
 
         $response->assertStatus(403);
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->put(route(self::FINISH_EXAM_ROUTE, [$data['exam']]));
+
+        $response->assertStatus(202);
+
+        // status == 1
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->get(route(self::GET_QUESTION_GRADE_ROUTE, [$participant, $data2['questions'][0]]));
+
+        $response->assertStatus(403);
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->get(route(self::GET_QUESTION_GRADE_ROUTE, [$participant, $data['questions'][1]]));
+
+        $response->assertStatus(403);
+
+        // status == 2
+        $participant->status = 2;
+        $participant->save();
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->get(route(self::GET_QUESTION_GRADE_ROUTE, [$participant, $data['questions'][0]]));
+
+        $response->assertStatus(200);
+
+        $response->assertJson([
+            'data' => [
+                'grade' => [
+                    'grade' => null,
+                ]
+            ]
+        ]);
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->get(route(self::GET_QUESTION_GRADE_ROUTE, [$participant, $data['questions'][1]]));
+
+        $response->assertStatus(200);
+
+        $response->assertJson([
+            'data' => [
+                'grade' => [
+                    'grade' => null,
+                ]
+            ]
+        ]);
+
+        // status == 3
+        foreach (Question::all() as $question) {
+            QuestionGrade::factory()->for($question)->for($participant)->create([
+                'grade' => 10,
+            ]);
+        }
+        $participant->status = 3;
+        $participant->save();
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->get(route(self::GET_QUESTION_GRADE_ROUTE, [$participant, $data['questions'][0]]));
+
+        $response->assertStatus(200);
+
+        $response->assertJson([
+            'data' => [
+                'grade' => [
+                    'grade' => 10,
+                ]
+            ]
+        ]);
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->get(route(self::GET_QUESTION_GRADE_ROUTE, [$participant, $data['questions'][1]]));
+
+        $response->assertStatus(200);
+
+        $response->assertJson([
+            'data' => [
+                'grade' => [
+                    'grade' => 10,
+                ]
+            ]
+        ]);
     }
 
     /**
     * @test
     */
-    public function owner_of_exam_cannot_see_the_participants_grade_of_a_question_if_the_status_was_not_3()
+    public function owner_of_exam_cannot_see_the_participants_grade_of_a_question_if_the_status_was_not_2_or_3()
     {
         Queue::fake();
         $this->seed(QuestionTypeSeeder::class);
@@ -2417,7 +2845,7 @@ class CorrectAnswersTest extends TestCase
             'confirmation_required' => false,
             'start' => $start->format('Y-m-d H:i:s'),
             'end' => $end->format('Y-m-d H:i:s'),
-        ], 4);
+        ], 1);
 
         $user = User::factory()->create();
 
@@ -2432,14 +2860,7 @@ class CorrectAnswersTest extends TestCase
         $this->assertDatabaseMissing('participants', [
             'status' => 1,
         ]);
-
-        Sanctum::actingAs($user, ['*']);
-
-        $response = $this->withHeaders([
-            'Accept' => 'application/json',
-        ])->put(route(self::FINISH_EXAM_ROUTE, [$data['exam']]));
-
-        $response->assertStatus(202);
+        // status == 0
 
         $participant = Participant::where([
             'user_id' => $user->id,
@@ -2450,6 +2871,14 @@ class CorrectAnswersTest extends TestCase
             $data['owner'],
             ['*']
         );
+
+        Sanctum::actingAs($user, ['*']);
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->put(route(self::FINISH_EXAM_ROUTE, [$data['exam']]));
+
+        $response->assertStatus(202);
 
         $response = $this->withHeaders([
             'Accept' => 'application/json',
@@ -2463,6 +2892,90 @@ class CorrectAnswersTest extends TestCase
         ])->get(route(self::GET_QUESTION_GRADE_ROUTE, [$participant, $data['questions'][1]]));
 
         $response->assertStatus(403);
+
+        // status == 1
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->get(route(self::GET_QUESTION_GRADE_ROUTE, [$participant, $data['questions'][0]]));
+
+        $response->assertStatus(403);
+
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->get(route(self::GET_QUESTION_GRADE_ROUTE, [$participant, $data['questions'][1]]));
+
+        $response->assertStatus(403);
+
+        // status == 2
+        $participant->status = 2;
+        $participant->save();
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->get(route(self::GET_QUESTION_GRADE_ROUTE, [$participant, $data['questions'][0]]));
+
+        $response->assertStatus(200);
+
+        $response->assertJson([
+            'data' => [
+                'grade' => [
+                    'grade' => null,
+                ]
+            ]
+        ]);
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->get(route(self::GET_QUESTION_GRADE_ROUTE, [$participant, $data['questions'][1]]));
+
+        $response->assertStatus(200);
+
+        $response->assertJson([
+            'data' => [
+                'grade' => [
+                    'grade' => null,
+                ]
+            ]
+        ]);
+
+        // status == 3
+        foreach (Question::all() as $question) {
+            QuestionGrade::factory()->for($question)->for($participant)->create([
+                'grade' => 10,
+            ]);
+        }
+        $participant->status = 3;
+        $participant->save();
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->get(route(self::GET_QUESTION_GRADE_ROUTE, [$participant, $data['questions'][0]]));
+
+        $response->assertStatus(200);
+
+        $response->assertJson([
+            'data' => [
+                'grade' => [
+                    'grade' => 10,
+                ]
+            ]
+        ]);
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->get(route(self::GET_QUESTION_GRADE_ROUTE, [$participant, $data['questions'][1]]));
+
+        $response->assertStatus(200);
+
+        $response->assertJson([
+            'data' => [
+                'grade' => [
+                    'grade' => 10,
+                ]
+            ]
+        ]);
     }
 
     /**
@@ -2539,7 +3052,7 @@ class CorrectAnswersTest extends TestCase
     /**
     * @test
     */
-    public function user_can_not_get_the_manual_correcting_questions_values_before_correcting()
+    public function user_can_get_the_manual_correcting_questions_values_before_correcting_but_it_will_be_null()
     {
         $this->seed(QuestionTypeSeeder::class);
         $start = Carbon::now()->subHour();
@@ -2581,7 +3094,14 @@ class CorrectAnswersTest extends TestCase
             'Accept' => 'application/json',
         ])->get(route(self::GET_QUESTION_GRADE_ROUTE, [$participant, $data['questions'][5]]));
 
-        $response->assertStatus(403);
+        $response->assertStatus(200);
+        $response->assertJson([
+            'data' => [
+                'grade' => [
+                    'grade' => null,
+                ]
+            ]
+        ]);
 
         Sanctum::actingAs($data['owner'], ['*']);
 

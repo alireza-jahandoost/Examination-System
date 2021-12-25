@@ -127,36 +127,29 @@ class ParticipantController extends Controller
         $this->authorize('saveScore', [$participant, $question]);
         $data = $request->validated();
 
-        switch ($question->questionType->id) {
-            case 1:
-                $questionGrade = QuestionGrade::where([
+        $questionGrade = QuestionGrade::where([
                     'participant_id' => $participant->id,
                     'question_id' => $question->id,
                 ])->first();
 
-                if (!$questionGrade) {
-                    $questionGrade = new QuestionGrade();
-                    $questionGrade->participant_id = $participant->id;
-                    $questionGrade->question_id = $question->id;
-                }
-
-                $questionGrade->grade = $data['grade'];
-                $questionGrade->save();
-
-                $participant->recalculateGrade();
-
-                if ($action->check($question->exam, $participant)) {
-                    $participant->status = 3;
-                }
-
-                $participant->save();
-
-                return response(null, 202);
-
-            default:
-                dd('unknown type of question(ParticipantController)');
-                break;
+        if (!$questionGrade) {
+            $questionGrade = new QuestionGrade();
+            $questionGrade->participant_id = $participant->id;
+            $questionGrade->question_id = $question->id;
         }
+
+        $questionGrade->grade = $data['grade'];
+        $questionGrade->save();
+
+        $participant->recalculateGrade();
+
+        if ($action->check($question->exam, $participant)) {
+            $participant->status = 3;
+        }
+
+        $participant->save();
+
+        return response(null, 202);
     }
 
     /**
@@ -169,6 +162,12 @@ class ParticipantController extends Controller
     {
         $this->authorize('questionGrade', [$participant, $question]);
         $grade = $participant->grades()->where('question_id', $question->id)->first();
+        if (!$grade) {
+            $grade = new QuestionGrade();
+            $grade->grade = null;
+            $grade->participant_id = $participant->id;
+            $grade->question_id = $question->id;
+        }
 
         return (new QuestionGradeResource($grade))->response()->setStatusCode(200);
     }
