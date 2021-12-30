@@ -48,6 +48,7 @@ class CalculateQuestionGrade
                     $answer = Answer::where([
                         'question_id' => $question->id,
                         'integer_answer' => $state->id,
+                        'participant_id' => $participant->id,
                     ])->exists();
 
                     if ($answer) {

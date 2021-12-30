@@ -423,6 +423,66 @@ class CorrectAnswersTest extends TestCase
     /**
     * @test
     */
+    public function after_finishing_the_exam_CorrectExam_job_can_correct_the_answers_of_the_user_with_type_of_select_when_there_is_more_than_one_participant()
+    {
+        $this->seed(QuestionTypeSeeder::class);
+        $start = Carbon::now()->subHour();
+        $end = Carbon::make($start)->addHours(2);
+        $data = $this->create_and_publish_an_exam([
+            'confirmation_required' => false,
+            'start' => $start->format('Y-m-d H:i:s'),
+            'end' => $end->format('Y-m-d H:i:s'),
+        ], 4);
+
+        $user1 = User::factory()->create();
+        $user2 = User::factory()->create();
+
+        $this->register_user($user1, $data['exam']);
+        $this->register_user($user2, $data['exam']);
+        $this->assertDatabaseCount('participants', 2);
+
+        for ($i = 0;$i < 5;$i ++) {
+            $question = $data['questions'][$i];
+            $this->send_answer_for_user($user1, $question, $i % 2);
+            $this->send_answer_for_user($user2, $question, 0);
+        }
+
+        $this->assertDatabaseMissing('participants', [
+            'status' => 1,
+        ]);
+
+        Sanctum::actingAs($user1, ['*']);
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->put(route(self::FINISH_EXAM_ROUTE, [$data['exam']]));
+
+        $response->assertStatus(202);
+
+        $this->assertDatabaseHas('participants', [
+            'grade' => 40,
+            'status' => 3,
+            'user_id' => $user1->id,
+        ]);
+
+        Sanctum::actingAs($user2, ['*']);
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->put(route(self::FINISH_EXAM_ROUTE, [$data['exam']]));
+
+        $response->assertStatus(202);
+
+        $this->assertDatabaseHas('participants', [
+            'grade' => 0,
+            'status' => 3,
+            'user_id' => $user2->id,
+        ]);
+    }
+
+    /**
+    * @test
+    */
     public function participant_dont_have_to_answer_all_the_selecting_questions()
     {
         $this->seed(QuestionTypeSeeder::class);
@@ -500,6 +560,66 @@ class CorrectAnswersTest extends TestCase
         $this->assertDatabaseHas('participants', [
             'grade' => 40,
             'status' => 3,
+        ]);
+    }
+
+    /**
+    * @test
+    */
+    public function after_finishing_the_exam_CorrectExam_job_can_correct_the_answers_of_the_user_with_type_of_fill_the_blank_when_there_is_more_than_one_participant()
+    {
+        $this->seed(QuestionTypeSeeder::class);
+        $start = Carbon::now()->subHour();
+        $end = Carbon::make($start)->addHours(2);
+        $data = $this->create_and_publish_an_exam([
+            'confirmation_required' => false,
+            'start' => $start->format('Y-m-d H:i:s'),
+            'end' => $end->format('Y-m-d H:i:s'),
+        ], 2);
+
+        $user1 = User::factory()->create();
+        $user2 = User::factory()->create();
+
+        $this->register_user($user1, $data['exam']);
+        $this->register_user($user2, $data['exam']);
+        $this->assertDatabaseCount('participants', 2);
+
+        for ($i = 0;$i < 5;$i ++) {
+            $question = $data['questions'][$i];
+            $this->send_answer_for_user($user1, $question, $i % 2);
+            $this->send_answer_for_user($user2, $question, 0);
+        }
+
+        $this->assertDatabaseMissing('participants', [
+            'status' => 1,
+        ]);
+
+        Sanctum::actingAs($user1, ['*']);
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->put(route(self::FINISH_EXAM_ROUTE, [$data['exam']]));
+
+        $response->assertStatus(202);
+
+        $this->assertDatabaseHas('participants', [
+            'grade' => 40,
+            'status' => 3,
+            'user_id' => $user1->id,
+        ]);
+
+        Sanctum::actingAs($user2, ['*']);
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->put(route(self::FINISH_EXAM_ROUTE, [$data['exam']]));
+
+        $response->assertStatus(202);
+
+        $this->assertDatabaseHas('participants', [
+            'grade' => 0,
+            'status' => 3,
+            'user_id' => $user2->id,
         ]);
     }
 
@@ -589,6 +709,66 @@ class CorrectAnswersTest extends TestCase
     /**
     * @test
     */
+    public function after_finishing_the_exam_CorrectExam_job_can_correct_the_answers_of_the_user_with_type_of_multiple_answer_when_there_is_more_than_one_participant()
+    {
+        $this->seed(QuestionTypeSeeder::class);
+        $start = Carbon::now()->subHour();
+        $end = Carbon::make($start)->addHours(2);
+        $data = $this->create_and_publish_an_exam([
+            'confirmation_required' => false,
+            'start' => $start->format('Y-m-d H:i:s'),
+            'end' => $end->format('Y-m-d H:i:s'),
+        ], 3);
+
+        $user1 = User::factory()->create();
+        $user2 = User::factory()->create();
+
+        $this->register_user($user1, $data['exam']);
+        $this->register_user($user2, $data['exam']);
+        $this->assertDatabaseCount('participants', 2);
+
+        for ($i = 0;$i < 5;$i ++) {
+            $question = $data['questions'][$i];
+            $this->send_answer_for_user($user1, $question, $i % 2);
+            $this->send_answer_for_user($user2, $question, 0);
+        }
+
+        $this->assertDatabaseMissing('participants', [
+            'status' => 1,
+        ]);
+
+        Sanctum::actingAs($user1, ['*']);
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->put(route(self::FINISH_EXAM_ROUTE, [$data['exam']]));
+
+        $response->assertStatus(202);
+
+        $this->assertDatabaseHas('participants', [
+            'grade' => 40,
+            'status' => 3,
+            'user_id' => $user1->id,
+        ]);
+
+        Sanctum::actingAs($user2, ['*']);
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->put(route(self::FINISH_EXAM_ROUTE, [$data['exam']]));
+
+        $response->assertStatus(202);
+
+        $this->assertDatabaseHas('participants', [
+            'grade' => 0,
+            'status' => 3,
+            'user_id' => $user2->id,
+        ]);
+    }
+
+    /**
+    * @test
+    */
     public function participant_dont_have_to_answer_all_the_multiple_answer_questions()
     {
         $this->seed(QuestionTypeSeeder::class);
@@ -672,6 +852,66 @@ class CorrectAnswersTest extends TestCase
     /**
     * @test
     */
+    public function after_finishing_the_exam_CorrectExam_job_can_correct_the_answers_of_the_user_with_type_of_true_or_false_when_there_is_more_than_one_participant()
+    {
+        $this->seed(QuestionTypeSeeder::class);
+        $start = Carbon::now()->subHour();
+        $end = Carbon::make($start)->addHours(2);
+        $data = $this->create_and_publish_an_exam([
+            'confirmation_required' => false,
+            'start' => $start->format('Y-m-d H:i:s'),
+            'end' => $end->format('Y-m-d H:i:s'),
+        ], 5);
+
+        $user1 = User::factory()->create();
+        $user2 = User::factory()->create();
+
+        $this->register_user($user1, $data['exam']);
+        $this->register_user($user2, $data['exam']);
+        $this->assertDatabaseCount('participants', 2);
+
+        for ($i = 0;$i < 5;$i ++) {
+            $question = $data['questions'][$i];
+            $this->send_answer_for_user($user1, $question, $i % 2);
+            $this->send_answer_for_user($user2, $question, 0);
+        }
+
+        $this->assertDatabaseMissing('participants', [
+            'status' => 1,
+        ]);
+
+        Sanctum::actingAs($user1, ['*']);
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->put(route(self::FINISH_EXAM_ROUTE, [$data['exam']]));
+
+        $response->assertStatus(202);
+
+        $this->assertDatabaseHas('participants', [
+            'grade' => 40,
+            'status' => 3,
+            'user_id' => $user1->id,
+        ]);
+
+        Sanctum::actingAs($user2, ['*']);
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->put(route(self::FINISH_EXAM_ROUTE, [$data['exam']]));
+
+        $response->assertStatus(202);
+
+        $this->assertDatabaseHas('participants', [
+            'grade' => 0,
+            'status' => 3,
+            'user_id' => $user2->id,
+        ]);
+    }
+
+    /**
+    * @test
+    */
     public function participant_dont_have_to_answer_all_the_true_or_false_questions()
     {
         $this->seed(QuestionTypeSeeder::class);
@@ -749,6 +989,66 @@ class CorrectAnswersTest extends TestCase
         $this->assertDatabaseHas('participants', [
             'grade' => 40,
             'status' => 3,
+        ]);
+    }
+
+    /**
+    * @test
+    */
+    public function after_finishing_the_exam_CorrectExam_job_can_correct_the_answers_of_the_user_with_type_of_ordering_when_there_is_more_than_one_participant()
+    {
+        $this->seed(QuestionTypeSeeder::class);
+        $start = Carbon::now()->subHour();
+        $end = Carbon::make($start)->addHours(2);
+        $data = $this->create_and_publish_an_exam([
+            'confirmation_required' => false,
+            'start' => $start->format('Y-m-d H:i:s'),
+            'end' => $end->format('Y-m-d H:i:s'),
+        ], 6);
+
+        $user1 = User::factory()->create();
+        $user2 = User::factory()->create();
+
+        $this->register_user($user1, $data['exam']);
+        $this->register_user($user2, $data['exam']);
+        $this->assertDatabaseCount('participants', 2);
+
+        for ($i = 0;$i < 5;$i ++) {
+            $question = $data['questions'][$i];
+            $this->send_answer_for_user($user1, $question, $i % 2);
+            $this->send_answer_for_user($user2, $question, 0);
+        }
+
+        $this->assertDatabaseMissing('participants', [
+            'status' => 1,
+        ]);
+
+        Sanctum::actingAs($user1, ['*']);
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->put(route(self::FINISH_EXAM_ROUTE, [$data['exam']]));
+
+        $response->assertStatus(202);
+
+        $this->assertDatabaseHas('participants', [
+            'grade' => 40,
+            'status' => 3,
+            'user_id' => $user1->id,
+        ]);
+
+        Sanctum::actingAs($user2, ['*']);
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->put(route(self::FINISH_EXAM_ROUTE, [$data['exam']]));
+
+        $response->assertStatus(202);
+
+        $this->assertDatabaseHas('participants', [
+            'grade' => 0,
+            'status' => 3,
+            'user_id' => $user2->id,
         ]);
     }
 
