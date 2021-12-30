@@ -49,6 +49,27 @@ class AuthenticationTest extends TestCase
     /**
     * @test
     */
+    public function in_registration_email_must_be_saved_lower_case()
+    {
+        $response = $this->withHeaders([
+                'Accept' => 'application/json',
+            ])->post(route(self::REGISTER_ROUTE), [
+            'name' => 'test',
+            'email' => 'tEsT@tEst.coM',
+            'password' => 'xs$sl5T^23da',
+            'password_confirmation' => 'xs$sl5T^23da',
+        ]);
+
+        $response->assertStatus(201);
+        $this->assertDatabaseCount('users', 1);
+        $this->assertDatabaseHas('users', [
+            'email' => 'test@test.com'
+        ]);
+    }
+
+    /**
+    * @test
+    */
     public function authenticated_user_can_not_reigster()
     {
         Sanctum::actingAs(
@@ -227,6 +248,25 @@ class AuthenticationTest extends TestCase
                 'Accept' => 'application/json',
             ])->post(route(self::LOGIN_ROUTE), [
             'email' => $user->email,
+            'password' => 'aAlJT32LIfsli',
+        ]);
+
+        $response->assertStatus(200);
+    }
+
+    /**
+    * @test
+    */
+    public function in_login_email_must_not_be_case_sensitive()
+    {
+        $user = User::factory()->create([
+            'password' => Hash::make('aAlJT32LIfsli'),
+            'email' => 'test@test.com',
+        ]);
+        $response = $this->withHeaders([
+                'Accept' => 'application/json',
+            ])->post(route(self::LOGIN_ROUTE), [
+            'email' => 'TeSt@tEst.cOm',
             'password' => 'aAlJT32LIfsli',
         ]);
 
