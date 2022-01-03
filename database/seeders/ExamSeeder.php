@@ -16,7 +16,7 @@ class ExamSeeder extends Seeder
     public function run()
     {
         $cnt = User::count();
-        for($i = 0;$i < 50;$i ++){
+        for ($i = 0;$i < 300;$i ++) {
             $user = User::find(rand(1, $cnt));
             Exam::factory()->for($user)->create();
         }

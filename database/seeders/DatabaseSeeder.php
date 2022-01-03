@@ -24,8 +24,8 @@ class DatabaseSeeder extends Seeder
             QuestionTypeSeeder::class,
             ParticipantSeeder::class,
             QuestionSeeder::class,
-            AnswerSeeder::class,
             StateSeeder::class,
+            AnswerSeeder::class,
         ]);
         }
     }
