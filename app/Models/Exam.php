@@ -16,6 +16,7 @@ class Exam extends Model
         'created_at',
         'updated_at',
         'published',
+        'all_participants_auto_corrected',
     ];
 
     protected $casts = [

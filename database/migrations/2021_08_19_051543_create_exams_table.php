@@ -23,6 +23,7 @@ class CreateExamsTable extends Migration
             $table->dateTime('start');
             $table->dateTime('end');
             $table->integer('total_score');
+            $table->boolean('all_participants_auto_corrected')->default(0);
             $table->timestamps();
         });
     }
