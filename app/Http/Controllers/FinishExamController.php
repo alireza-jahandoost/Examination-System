@@ -18,24 +18,24 @@ class FinishExamController extends Controller
      */
     public function __invoke(Request $request)
     {
-        dump('in');
         $exams = Exam::where(function ($query) {
             return $query->where('all_participants_auto_corrected', 0)->whereDate('end', '<', Carbon::now()->toDateString());
         })->orWhere(function ($query) {
             return $query->where('all_participants_auto_corrected', 0)->whereDate('end', '=', Carbon::now()->toDateString())->whereTime('end', '<', Carbon::now()->toTimeString());
         })->get();
-        dump($exams);
         foreach ($exams as $exam) {
-            dump('in there');
             $empty = true;
-            Participant::where('exam_id', $exam->id)->where('status', 0)->chunk(100, function ($participants) use (&$empty) {
+            Participant::where('exam_id', $exam->id)->where('status', 0)->chunk(100, function ($participants) use (&$empty, $exam) {
                 foreach ($participants as $participant) {
-                    dump('participant: ', $participant);
+                    if ($exam->confirmation_required && !$participant->is_accepted) {
+                        continue;
+                    }
                     $empty = false;
+                    $participant->status = 1;
+                    $participant->save();
                     CorrectExamJob::dispatch($participant);
                 }
             });
-            dump('empty', $empty);
 
             if ($empty) {
                 $exam->all_participants_auto_corrected = true;

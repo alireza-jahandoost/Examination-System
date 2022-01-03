@@ -8,6 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 
 use App\Models\Participant;
 use App\Models\QuestionGrade;
@@ -61,5 +62,14 @@ class CorrectExamJob implements ShouldQueue
         }
 
         $this->participant->save();
+    }
+    /**
+     * Get the middleware the job should pass through.
+     *
+     * @return array
+     */
+    public function middleware()
+    {
+        return [(new WithoutOverlapping($this->participant->id))->dontRelease()];
     }
 }
