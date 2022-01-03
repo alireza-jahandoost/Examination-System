@@ -124,7 +124,10 @@ class ParticipantPolicy
     {
         if ($exam->confirmation_required) {
             if ($user->id === $exam->user_id) {
-                return true;
+                $end = Carbon::make($exam->end);
+                if ($end >= Carbon::now()) {
+                    return true;
+                }
             }
         }
         return false;

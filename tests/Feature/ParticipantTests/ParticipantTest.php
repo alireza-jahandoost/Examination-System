@@ -696,7 +696,43 @@ class ParticipantTest extends TestCase
     /**
     * @test
     */
-    public function owner_of_exam_can_confirm_users_to_participate_in_exams()
+    public function owner_of_exam_can_confirm_users_to_participate_in_exams_before_start_of_exam()
+    {
+        $this->seed(QuestionTypeSeeder::class);
+        $start = Carbon::now()->addMinute();
+        $end = Carbon::make($start)->addHours(2);
+        $data = $this->create_and_publish_an_exam([
+            'confirmation_required' => true,
+            'start' => $start->format('Y-m-d H:i:s'),
+            'end' => $end->format('Y-m-d H:i:s'),
+        ]);
+
+        Sanctum::actingAs(
+            $user = User::factory()->create(),
+            ['*']
+        );
+
+        Participant::factory()->for($data['exam'])->for($user)->create();
+        $this->assertDatabaseHas('participants', [
+            'is_accepted' => false
+        ]);
+
+        Sanctum::actingAs($data['owner'], ['*']);
+        $response = $this->withHeaders([
+            'Accept' => 'application/json'
+            ])->put(route(self::ACCEPT_REGISTERED_USERS_ROUTE, [$data['exam']]), [
+            'user_id' => $user->id
+        ]);
+        $response->assertStatus(202);
+        $this->assertDatabaseHas('participants', [
+            'is_accepted' => true
+        ]);
+    }
+
+    /**
+    * @test
+    */
+    public function owner_of_exam_can_confirm_users_to_participate_in_exams_when_exam_is_running()
     {
         $this->seed(QuestionTypeSeeder::class);
         $start = Carbon::now()->subMinute();
@@ -712,13 +748,7 @@ class ParticipantTest extends TestCase
             ['*']
         );
 
-        $response = $this->withHeaders([
-            'Accept' => 'application/json',
-            ])->post(route(self::EXAM_REGISTER_ROUTE, [
-                $data['exam'],
-            ]), [
-            ]);
-        $response->assertStatus(201);
+        Participant::factory()->for($data['exam'])->for($user)->create();
         $this->assertDatabaseHas('participants', [
             'is_accepted' => false
         ]);
@@ -732,6 +762,42 @@ class ParticipantTest extends TestCase
         $response->assertStatus(202);
         $this->assertDatabaseHas('participants', [
             'is_accepted' => true
+        ]);
+    }
+
+    /**
+    * @test
+    */
+    public function owner_of_exam_can_not_confirm_users_to_participate_in_exams_when_exam_is_finished()
+    {
+        $this->seed(QuestionTypeSeeder::class);
+        $start = Carbon::now()->subHours(3);
+        $end = Carbon::make($start)->addHours(2);
+        $data = $this->create_and_publish_an_exam([
+            'confirmation_required' => true,
+            'start' => $start->format('Y-m-d H:i:s'),
+            'end' => $end->format('Y-m-d H:i:s'),
+        ]);
+
+        Sanctum::actingAs(
+            $user = User::factory()->create(),
+            ['*']
+        );
+
+        Participant::factory()->for($data['exam'])->for($user)->create();
+        $this->assertDatabaseHas('participants', [
+            'is_accepted' => false
+        ]);
+
+        Sanctum::actingAs($data['owner'], ['*']);
+        $response = $this->withHeaders([
+            'Accept' => 'application/json'
+            ])->put(route(self::ACCEPT_REGISTERED_USERS_ROUTE, [$data['exam']]), [
+            'user_id' => $user->id
+        ]);
+        $response->assertStatus(403);
+        $this->assertDatabaseHas('participants', [
+            'is_accepted' => false
         ]);
     }
 
