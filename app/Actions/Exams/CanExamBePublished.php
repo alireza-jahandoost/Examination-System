@@ -25,7 +25,7 @@ class CanExamBePublished
         if ($start_of_exam <= Carbon::now()) {
             return 'start time has passed';
         } elseif ($start_of_exam >= $end_of_exam) {
-            return 'ending time of exam must be before the start';
+            return 'ending time of exam must be after the start';
         }
 
 
@@ -70,7 +70,7 @@ class CanExamBePublished
                     if (substr_count($question->question_text, '{{{}}}') === 1) {
                         return 'success';
                     }
-                    return 'the place of blank input must be specified by "{{{}}} in question text - just one place is allowed';
+                    return 'the place of blank input must be specified by "{{{}}}" in question text - just one place is allowed';
                 } else {
                     return 'fill the blank questions must have 1 state';
                 }
@@ -118,9 +118,9 @@ class CanExamBePublished
             case 5:
                 return 'success';
             case 3:
-                return $question->states()->where('integer_answer', 1)->exists() ? 'success' : 'multiple questions must have atleast one answer';
+                return $question->states()->where('integer_answer', 1)->exists() ? 'success' : 'multiple questions must have at least one answer';
             case 4:
-                return $question->states()->where('integer_answer', 1)->count() === 1 ? 'success' : 'select questions must have atleast one answer';
+                return $question->states()->where('integer_answer', 1)->count() === 1 ? 'success' : 'select questions must have at least one answer';
             case 6:
                 $answers = $question->states()->orderBy('integer_answer')->pluck('integer_answer');
                 $iterator = 1;
