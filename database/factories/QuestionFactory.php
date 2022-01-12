@@ -23,7 +23,7 @@ class QuestionFactory extends Factory
     {
         return [
             'question_text' => $this->faker->sentence().'{{{}}}',
-            'score' => rand(1, 100),
+            'score' => 20,
             'can_be_shuffled' => (bool)rand(0, 1)
         ];
     }

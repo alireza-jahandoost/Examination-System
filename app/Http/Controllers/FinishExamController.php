@@ -19,9 +19,9 @@ class FinishExamController extends Controller
     public function __invoke(Request $request)
     {
         $exams = Exam::where(function ($query) {
-            return $query->where('all_participants_auto_corrected', 0)->whereDate('end', '<', Carbon::now()->toDateString());
+            return $query->where('all_participants_auto_corrected', 0)->where('published', 1)->whereDate('end', '<', Carbon::now()->toDateString());
         })->orWhere(function ($query) {
-            return $query->where('all_participants_auto_corrected', 0)->whereDate('end', '=', Carbon::now()->toDateString())->whereTime('end', '<', Carbon::now()->toTimeString());
+            return $query->where('all_participants_auto_corrected', 0)->where('published', 1)->whereDate('end', '=', Carbon::now()->toDateString())->whereTime('end', '<', Carbon::now()->toTimeString());
         })->get();
         foreach ($exams as $exam) {
             $empty = true;
@@ -37,8 +37,8 @@ class FinishExamController extends Controller
                 }
             });
 
-            if ($empty) {
-                $exam->all_participants_auto_corrected = true;
+            if (Participant::where('exam_id', $exam->id)->where('status', '<=', 1)->doesntExist()) {
+                $exam->all_participants_auto_corrected = 1;
                 $exam->save();
             }
         }

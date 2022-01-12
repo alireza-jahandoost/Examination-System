@@ -23,7 +23,7 @@ class ExamFactory extends Factory
     public function definition()
     {
         $confirmation_required = (bool)rand(0, 1);
-        $start = Carbon::now()->subDays(rand(1, 25))->subHours(rand(1, 24));
+        $start = Carbon::now()->addDays(rand(1, 25))->addHours(rand(1, 24));
         $end = Carbon::make($start)->addHours(2);
         return [
             'name' => $this->faker->sentence(),

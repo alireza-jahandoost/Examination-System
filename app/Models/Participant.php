@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+use Carbon\Carbon;
+
 class Participant extends Model
 {
     use HasFactory;
@@ -26,6 +28,12 @@ class Participant extends Model
             3 => 'FINISHED',
         ];
         return $change_status[$this->attributes['status']];
+    }
+
+    public function setStatusAttribute($value)
+    {
+        $this->attributes['status'] = $value;
+        $this->attributes['status_changed_at'] = Carbon::now()->toDateTimeString();
     }
 
     /**

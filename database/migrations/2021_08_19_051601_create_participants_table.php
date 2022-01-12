@@ -19,6 +19,7 @@ class CreateParticipantsTable extends Migration
             $table->foreignId('user_id')->contrained()->onDelete('cascade');
             $table->boolean('is_accepted')->default(0);
             $table->integer('status')->default(0);
+            $table->datetime('status_changed_at')->nullable();
             $table->integer('grade')->default(0);
             $table->timestamps();
         });

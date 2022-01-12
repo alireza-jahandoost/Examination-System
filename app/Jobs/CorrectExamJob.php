@@ -41,6 +41,10 @@ class CorrectExamJob implements ShouldQueue
      */
     public function handle(CalculateQuestionGrade $action1, CanAllTheExamCorrectBySystem $action2)
     {
+        if ($this->participant->status > 1) {
+            return;
+        }
+
         $this->participant->grade = 0;
 
         foreach ($this->participant->exam->questions as $question) {
