@@ -30,7 +30,7 @@ class CanUserCreateState
             ));
 
         $user_can_create_more_states = (
-            $question->questionType->number_of_states === 'multiple' ||
+            $question->questionType->number_of_states === -1 ||
             $count_of_states + 1 <= $question->questionType->number_of_states
         );
 

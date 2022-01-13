@@ -9,10 +9,13 @@ class QuestionType extends Model
 {
     use HasFactory;
 
+    protected $casts = [
+        'number_of_states' => 'integer',
+    ];
+
     // RelationShips
     public function questions()
     {
         return $this->hasMany(Question::class);
     }
-
 }

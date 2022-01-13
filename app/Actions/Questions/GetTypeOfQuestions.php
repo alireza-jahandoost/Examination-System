@@ -13,6 +13,7 @@ class GetTypeOfQuestions
      */
     public function get(int $type): array
     {
+        // in this cases, -1 means infinite
         switch ($type) {
             case 1:
                 $name = 'descriptive';
@@ -32,7 +33,7 @@ class GetTypeOfQuestions
                     'id' => 2,
                     'name' => $name,
                     'slug' => Str::slug($name),
-                    'number_of_states' => 'multiple',
+                    'number_of_states' => -1,
                     'number_of_answers' => 1,
                     'type_of_answer' => 'text',
                     'can_correct_by_system' => true,
@@ -44,8 +45,8 @@ class GetTypeOfQuestions
                     'id' => 3,
                     'name' => $name,
                     'slug' => Str::slug($name),
-                    'number_of_states' => 'multiple',
-                    'number_of_answers' => 'multiple',
+                    'number_of_states' => -1,
+                    'number_of_answers' => -1,
                     'type_of_answer' => 'text and integer',
                     'can_correct_by_system' => true,
                 ];
@@ -56,7 +57,7 @@ class GetTypeOfQuestions
                     'id' => 4,
                     'name' => $name,
                     'slug' => Str::slug($name),
-                    'number_of_states' => 'multiple',
+                    'number_of_states' => -1,
                     'number_of_answers' => 1,
                     'type_of_answer' => 'text and integer',
                     'can_correct_by_system' => true,
@@ -80,8 +81,8 @@ class GetTypeOfQuestions
                     'id' => 6,
                     'name' => $name,
                     'slug' => Str::slug($name),
-                    'number_of_states' => 'multiple',
-                    'number_of_answers' => 'multiple',
+                    'number_of_states' => -1,
+                    'number_of_answers' => -1,
                     'type_of_answer' => 'text and integer',
                     'can_correct_by_system' => true,
                 ];
