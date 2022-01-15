@@ -53,31 +53,6 @@ class ExamResourceTest extends TestCase
     /**
     * @test
     */
-    public function if_user_is_not_authenticated_user_must_see_owner_name_in_show_method_of_exams()
-    {
-        $ownerOfExam = User::factory()->create();
-
-        $exam = Exam::factory()->state([
-            'published' => true,
-            ])->for($ownerOfExam)->create();
-
-        $response = $this->withHeaders([
-            'Accept' => 'application/json'
-            ])->get(route(self::SHOW_EXAM_ROUTE, $exam->id));
-
-        $response->assertStatus(200);
-        $response->assertJson([
-            'data' => [
-                'exam' => [
-                    'owner_name' => $ownerOfExam->name,
-                ]
-            ]
-        ]);
-    }
-
-    /**
-    * @test
-    */
     public function if_user_is_authenticated_user_must_see_has_password_and_has_password_must_be_true_if_exam_has_password_in_show_method_of_exams()
     {
         Sanctum::actingAs(
@@ -116,57 +91,6 @@ class ExamResourceTest extends TestCase
             ['*']
         );
 
-        $ownerOfExam = User::factory()->create();
-
-        $exam = Exam::factory()->state([
-            'published' => true,
-            ])->for($ownerOfExam)->create();
-
-        $response = $this->withHeaders([
-            'Accept' => 'application/json'
-            ])->get(route(self::SHOW_EXAM_ROUTE, $exam->id));
-
-        $response->assertStatus(200);
-        $response->assertJson([
-            'data' => [
-                'exam' => [
-                    'has_password' => false,
-                ]
-            ]
-        ]);
-    }
-
-    /**
-    * @test
-    */
-    public function if_user_is_not_authenticated_user_must_see_has_password_and_has_password_must_be_true_if_exam_has_password_in_show_method_of_exams()
-    {
-        $ownerOfExam = User::factory()->create();
-
-        $exam = Exam::factory()->state([
-            'published' => true,
-            'password' => bcrypt('password'),
-            ])->for($ownerOfExam)->create();
-
-        $response = $this->withHeaders([
-            'Accept' => 'application/json'
-            ])->get(route(self::SHOW_EXAM_ROUTE, $exam->id));
-
-        $response->assertStatus(200);
-        $response->assertJson([
-            'data' => [
-                'exam' => [
-                    'has_password' => true,
-                ]
-            ]
-        ]);
-    }
-
-    /**
-    * @test
-    */
-    public function if_user_is_not_authenticated_user_must_see_has_password_and_has_password_must_be_false_if_exam_doesnt_have_password_in_show_method_of_exams()
-    {
         $ownerOfExam = User::factory()->create();
 
         $exam = Exam::factory()->state([
@@ -250,31 +174,6 @@ class ExamResourceTest extends TestCase
     /**
     * @test
     */
-    public function if_user_is_not_authenticated_user_must_see_is_registered_field_equal_to_false()
-    {
-        $ownerOfExam = User::factory()->create();
-
-        $exam = Exam::factory()->state([
-            'published' => true,
-            ])->for($ownerOfExam)->create();
-
-        $response = $this->withHeaders([
-            'Accept' => 'application/json'
-            ])->get(route(self::SHOW_EXAM_ROUTE, $exam->id));
-
-        $response->assertStatus(200);
-        $response->assertJson([
-            'data' => [
-                'exam' => [
-                    'is_registered' => false,
-                ]
-            ]
-        ]);
-    }
-
-    /**
-    * @test
-    */
     public function if_exam_belongs_to_user_and_its_published_user_must_see_published_key_equal_to_true()
     {
         Sanctum::actingAs(
@@ -321,31 +220,6 @@ class ExamResourceTest extends TestCase
             'data' => [
                 'exam' => [
                     'published' => false,
-                ]
-            ]
-        ]);
-    }
-
-    /**
-    * @test
-    */
-    public function unauthenticated_user_must_not_see_published_key()
-    {
-        $ownerOfExam = User::factory()->create();
-
-        $exam = Exam::factory()->state([
-            'published' => true,
-            ])->for($ownerOfExam)->create();
-
-        $response = $this->withHeaders([
-            'Accept' => 'application/json'
-            ])->get(route(self::SHOW_EXAM_ROUTE, $exam->id));
-
-        $response->assertStatus(200);
-        $response->assertJsonMissing([
-            'data' => [
-                'exam' => [
-                    'published' => true,
                 ]
             ]
         ]);

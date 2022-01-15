@@ -820,7 +820,7 @@ class ExamTest extends TestCase
     /**
     * @test
     */
-    public function user_can_receive_an_exam_information()
+    public function user_can_receive_an_exam_information_if_authenticated()
     {
         Sanctum::actingAs(
             $user = User::factory()->create(),
@@ -855,7 +855,7 @@ class ExamTest extends TestCase
     /**
     * @test
     */
-    public function guest_users_can_see_exams()
+    public function guest_users_can_not_see_exams()
     {
         $user = User::factory()->create();
 
@@ -867,21 +867,7 @@ class ExamTest extends TestCase
             'Accept' => 'application/json'
             ])->get(route(self::SHOW_EXAM_ROUTE, $exam->id));
 
-        $response->assertStatus(200);
-        $response->assertJsonStructure([
-            'data' => [
-                'exam' => [
-                    'exam_id',
-                    'exam_name',
-                    'needs_confirmation',
-                    'start_of_exam',
-                    'end_of_exam',
-                    'total_score',
-                    'creation_time',
-                    'last_update',
-                ]
-            ]
-        ]);
+        $response->assertStatus(401);
     }
 
     /**
@@ -978,7 +964,7 @@ class ExamTest extends TestCase
             'Accept' => 'application/json'
             ])->get(route(self::SHOW_EXAM_ROUTE, $exam->id));
 
-        $response->assertStatus(403);
+        $response->assertStatus(401);
     }
 
     /**
