@@ -101,7 +101,7 @@ class CalculateQuestionGrade
                 $answers = Answer::where([
                     'participant_id' => $participant->id,
                     'question_id' => $question->id,
-                ])->get();
+                ])->orderBy('id')->get();
 
                 $correct_answers = $question->states()->orderBy('integer_answer')->get();
 

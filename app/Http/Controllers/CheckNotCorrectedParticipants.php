@@ -17,8 +17,10 @@ class CheckNotCorrectedParticipants extends Controller
     public function __invoke(Request $request)
     {
         Participant::where('status', 1)->where('status_changed_at', '<=', Carbon::now()->subMinutes(10)->toDateTimeString())->chunk(100, function ($participants) {
-            $participant->status = 0;
-            $participant->save();
+            foreach ($participants as $participant) {
+                $participant->status = 0;
+                $participant->save();
+            }
         });
     }
 }
