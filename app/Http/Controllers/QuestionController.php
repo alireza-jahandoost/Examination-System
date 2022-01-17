@@ -23,7 +23,7 @@ class QuestionController extends Controller
     public function index(Exam $exam)
     {
         $this->authorize('viewAny', [Question::class, $exam]);
-        return (new QuestionCollection($exam->questions))->response()->setStatusCode(200);
+        return (new QuestionCollection($exam->questions()->orderBy('id')->get()))->response()->setStatusCode(200);
     }
 
     /**

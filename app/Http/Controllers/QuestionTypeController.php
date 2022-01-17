@@ -15,7 +15,7 @@ class QuestionTypeController extends Controller
      */
     public function index()
     {
-        return (new QuestionTypeCollection(QuestionType::all()))->response()->setStatusCode(200);
+        return (new QuestionTypeCollection(QuestionType::orderBy('id')->get()))->response()->setStatusCode(200);
     }
 
     /**

@@ -34,7 +34,7 @@ class ParticipantController extends Controller
     public function index(Exam $exam)
     {
         $this->authorize('viewAny', [Participant::class, $exam]);
-        return (new ParticipantCollection($exam->participants()->paginate()))->response()->setStatusCode(200);
+        return (new ParticipantCollection($exam->participants()->orderBy('id')->paginate()))->response()->setStatusCode(200);
     }
 
     /**

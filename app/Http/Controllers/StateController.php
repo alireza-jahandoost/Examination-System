@@ -24,7 +24,7 @@ class StateController extends Controller
     public function index(Exam $exam, Question $question)
     {
         $this->authorize('viewAny', [State::class, $exam, $question]);
-        $states = $question->states()->with('question')->get();
+        $states = $question->states()->with('question')->orderBy('id')->get();
         if (count($states)>1 && $question->questionType->name === 'ordering' && $exam->user_id !== auth()->id()) {
             $newStates = $states->shuffle();
             $check = true;

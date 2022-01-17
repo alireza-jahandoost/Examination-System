@@ -26,7 +26,7 @@ class AnswerController extends Controller
         $answers = Answer::where([
             'question_id' => $question->id,
             'participant_id' => $participant->id,
-            ])->get();
+            ])->orderBy('id')->get();
         return (new AnswerCollection($answers))->response()->setStatusCode(200);
     }
 
