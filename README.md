@@ -28,7 +28,7 @@
 
   <p align="center">
       The back end part of <a href="https://examsgalaxy.com">Exams Galaxy</a> website
-    br />
+    <br />
     <a href="https://github.com/alireza-jahandoost/Examination-System"><strong>Explore the docs »</strong></a>
     <br />
     <br />
@@ -109,7 +109,6 @@ To run this project in your pc, you need:
 * php
 * a database server such as mysql
 * a web server such as apache
-* nodejs and npm, if you want to edit admin panel
 
 ### Installation
 
